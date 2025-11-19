@@ -9,54 +9,96 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- 2. ATTRACTIVE UI Styling ---
+# --- 2. WEBSITE-MATCHED UI Styling ---
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-    .stApp { background: linear-gradient(135deg, #F5F7FA 0%, #C3CFE2 100%); }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
     
-    /* Header */
-    h1 { color: #004aad; font-weight: 800; text-align: center; }
-    
-    /* Form & Chat Input */
-    [data-testid="stForm"], [data-testid="stChatInput"] {
-        background: rgba(255, 255, 255, 0.95);
-        border-radius: 20px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+        background-color: #FFFFFF; /* Clean White Background */
+        color: #1F2937; /* Dark Grey Text */
     }
     
-    /* Chat Bubbles */
+    /* Main App Background */
+    .stApp {
+        background-color: #F9FAFB; /* Very light grey like the assessment page */
+    }
+    
+    /* Headers (Matching your "Discover Your Genius Profile" text) */
+    h1, h2, h3 {
+        color: #111827; /* Almost Black */
+        font-weight: 700;
+        text-align: center;
+    }
+    
+    /* --- BUTTONS (Matching "Start Assessment" style) --- */
+    .stButton button {
+        background-color: #0099FF; /* Vibrant Site Blue */
+        color: white !important;
+        border: none;
+        padding: 12px 28px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 6px; /* Slightly squared corners like your site */
+        transition: background-color 0.3s;
+        box-shadow: none;
+    }
+    .stButton button:hover {
+        background-color: #007ACC; /* Darker blue on hover */
+        transform: translateY(-1px);
+    }
+    
+    /* --- FORM & CARDS (Matching "Genius Profile" cards) --- */
+    [data-testid="stForm"], [data-testid="stChatInput"] {
+        background-color: #FFFFFF;
+        border: 1px solid #E5E7EB; /* Light border */
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    }
+
+    /* --- CHAT BUBBLES --- */
+    
+    /* Eduveer (AI) - Clean White Card */
     div[data-testid="stChatMessage"] {
         background-color: #FFFFFF;
-        border-radius: 0px 20px 20px 20px;
-        padding: 15px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        border-left: 5px solid #004aad;
-        margin-bottom: 15px;
-    }
-    div[data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: #E3F2FD;
-        border-left: none;
-        border-right: 5px solid #0078ff;
-        border-radius: 20px 0px 20px 20px;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        margin-bottom: 16px;
     }
     
-    /* CTA Button in Chat */
-    .cta-button {
-        display: block;
+    /* User (Student) - Light Blue Accent */
+    div[data-testid="stChatMessage"]:nth-child(odd) {
+        background-color: #F0F9FF; /* Very light blue background */
+        border: 1px solid #BAE6FD;
+    }
+    
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: #FFFFFF;
+        border-right: 1px solid #E5E7EB;
+    }
+    
+    /* Sidebar Booking Button (Orange/Red accent) */
+    a[href*="forms"] {
+        display: inline-block;
         width: 100%;
-        background: linear-gradient(45deg, #FF512F, #DD2476);
+        background-color: #EF4444; /* Red/Orange for CTA */
         color: white !important;
         text-align: center;
-        padding: 15px;
-        border-radius: 10px;
+        padding: 12px;
+        border-radius: 6px;
         text-decoration: none;
         font-weight: bold;
-        margin: 10px 0;
-        box-shadow: 0 5px 15px rgba(221, 36, 118, 0.3);
+        margin-top: 10px;
     }
-    .cta-button:hover { opacity: 0.9; transform: scale(1.02); }
+    
+    /* Hide Streamlit branding for cleaner look */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
@@ -76,18 +118,19 @@ if "msg_count" not in st.session_state:
 
 # --- 5. Sidebar (Data & Tools) ---
 with st.sidebar:
+    # Logo
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=90)
-    st.title("Distoversity") 
-    st.markdown("### **Empowering India** 🇮🇳")
     
-    st.info("📊 **For Data Analysis:**\nCurrently, data is NOT saved automatically. Please use the Booking Form to capture leads.")
+    st.markdown("### **Distoversity**") 
+    st.caption("Empowering India 🇮🇳")
+    
+    st.info("📊 **Analytics:**\nData is captured via the Booking Form below.")
 
     # --- DATA CAPTURE LINK ---
-    # Yahan apna Google Form Link dalein
     google_form_link = "https://forms.gle/YourFormLinkHere" 
     
     st.markdown(f"""
-        <a href="{google_form_link}" target="_blank" class="cta-button">
+        <a href="{google_form_link}" target="_blank">
         📝 Fill Admission Form
         </a>
         """, unsafe_allow_html=True)
@@ -108,22 +151,28 @@ with st.sidebar:
     st.caption("© 2025 Distoversity Pvt Ltd") 
 
 # --- 6. Main Interface ---
-st.title("🎓 Eduveer AI") 
+st.title("Eduveer AI") 
+st.markdown("<p style='text-align: center; color: #6B7280;'>Your Personal Career Guide by Distoversity</p>", unsafe_allow_html=True)
 
 # --- SCENARIO A: PROFILE FORM ---
 if st.session_state.user_profile is None:
-    st.markdown("<h3 style='text-align: center; color: #555;'>Let's build your future together.</h3>", unsafe_allow_html=True)
     st.write("")
+    st.markdown("<h3 style='font-size: 1.2rem;'>Let's get to know you</h3>", unsafe_allow_html=True)
     
     with st.form("profile_form"):
-        st.subheader("👤 Quick Profile Check")
         col1, col2 = st.columns(2)
         with col1:
-            status = st.radio("Current Status:", ["Student (12th/Grad)", "Working Professional"])
+            st.markdown("**Current Status**")
+            status = st.radio("Status", ["Student (12th/Grad)", "Working Professional"], label_visibility="collapsed")
         with col2:
-            goal = st.radio("Your Goal:", ["Regular College Degree", "Online/Distance Degree", "Upskilling/Certificate"])
+            st.markdown("**Your Goal**")
+            goal = st.radio("Goal", ["Regular College Degree", "Online/Distance Degree", "Upskilling/Certificate"], label_visibility="collapsed")
         
-        submitted = st.form_submit_button("Start Counseling 🚀")
+        st.write("")
+        # Center the button using columns
+        b_col1, b_col2, b_col3 = st.columns([1, 2, 1])
+        with b_col2:
+            submitted = st.form_submit_button("Start Assessment 🚀")
         
         if submitted:
             st.session_state.user_profile = {"status": status, "goal": goal}
@@ -140,7 +189,7 @@ else:
     PHILOSOPHY: "Degree is a path, Skill is the destination."
     
     RULES:
-    - Professional & Supportive Tone.
+    - Tone: Professional, encouraging, and polite.
     - Ask ONE question at a time.
     - If user is Working -> Pitch Online Degree.
     - If Student -> Pitch Regular or Affordable Online.
@@ -148,7 +197,7 @@ else:
     """
 
     if "messages" not in st.session_state or not st.session_state.messages:
-        welcome_msg = f"Hello! 👋 Thanks for sharing details.\n\nSince you are interested in **{user_data['goal']}**, I can guide you perfectly.\n\nTo start, tell me: **What subjects or activities do you enjoy the most?**"
+        welcome_msg = f"Hello! 👋 Thanks for your details.\n\nSince you are interested in **{user_data['goal']}**, I can help you find the perfect match.\n\nFirst, tell me: **What subjects or real-world activities do you enjoy the most?**"
         st.session_state.messages = [
             {"role": "system", "content": system_instruction},
             {"role": "assistant", "content": welcome_msg}
@@ -157,27 +206,27 @@ else:
     # Display Chat
     for message in st.session_state.messages:
         if message["role"] != "system":
-            avatar_icon = "🧑‍🎓" if message["role"] == "user" else "🤖"
+            # Using simpler avatars to match the clean UI
+            avatar_icon = "🧑‍🎓" if message["role"] == "user" else "🎓"
             with st.chat_message(message["role"], avatar=avatar_icon):
                 st.markdown(message["content"])
 
-    # --- CONVERSION HOOK (After 4 messages) ---
-    # Ye logic check karega ki chat lambi ho gayi hai, to "Book Session" ka button dikhayega
+    # --- CONVERSION HOOK ---
     if st.session_state.msg_count > 3 and st.session_state.msg_count < 5:
-        st.info("💡 **Finding this helpful?** Get a personalized University Shortlist from our Experts.")
-        st.markdown(f'<a href="{google_form_link}" target="_blank" class="cta-button">📅 Book Free 1:1 Session</a>', unsafe_allow_html=True)
+        st.info("💡 **Want a personalized University Shortlist?**")
+        st.markdown(f'<a href="{google_form_link}" target="_blank" style="text-decoration:none; color: #0099FF; font-weight:bold;">Click here to Book a Free Session &rarr;</a>', unsafe_allow_html=True)
 
     def generate_chat_responses(chat_completion):
         for chunk in chat_completion:
             if chunk.choices[0].delta.content:
                 yield chunk.choices[0].delta.content
 
-    if prompt := st.chat_input("Type here..."):
+    if prompt := st.chat_input("Type your answer here..."):
         st.chat_message("user", avatar="🧑‍🎓").markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
-        st.session_state.msg_count += 1 # Count badhao
+        st.session_state.msg_count += 1
 
-        with st.chat_message("assistant", avatar="🤖"):
+        with st.chat_message("assistant", avatar="🎓"):
             try:
                 stream = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
