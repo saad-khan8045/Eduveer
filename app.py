@@ -5,7 +5,7 @@ import random
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Distoversity | Premium Career Architect",
+    page_title="Distoversity | Empowering India",
     page_icon="🎓",
     layout="wide",
     initial_sidebar_state="collapsed"
@@ -18,6 +18,7 @@ BRAND_LIGHT = "#F8FAFC"     # Slate 50 (Clean Background)
 ACCENT_ORANGE = "#F97316"   # Call to Action
 SUCCESS_GREEN = "#10B981"   # Verification/Success
 WHITE = "#FFFFFF"
+ALISON_GREEN = "#83C341"    # Alison Brand Color match
 
 # --- ADVANCED CSS SYSTEM ---
 st.markdown(f"""
@@ -63,30 +64,38 @@ st.markdown(f"""
         color: {BRAND_PRIMARY};
         padding: 6px 12px;
         border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
+        font-size: 0.75rem;
+        font-weight: 700;
         border: 1px solid #BAE6FD;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }}
     .nav-spacer {{ height: 90px; }}
 
     /* --- COMPONENT: HERO --- */
     .hero-container {{
         text-align: center;
-        padding: 40px 20px;
+        padding: 50px 20px;
         margin-bottom: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }}
     .hero-title {{
         font-family: 'Poppins', sans-serif;
-        font-size: 2.8rem;
-        font-weight: 700;
+        font-size: 3rem;
+        font-weight: 800;
         color: {BRAND_DARK};
-        margin-bottom: 10px;
+        margin-bottom: 15px;
+        line-height: 1.2;
     }}
     .hero-sub {{
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         color: #64748B;
-        max-width: 600px;
-        margin: 0 auto;
+        max-width: 650px;
+        margin: 0 auto 30px auto;
+        line-height: 1.6;
     }}
 
     /* --- COMPONENT: PREMIUM CARDS --- */
@@ -201,6 +210,59 @@ st.markdown(f"""
         color: white;
     }}
 
+    /* --- COMPONENT: ALISON CARD --- */
+    .alison-card {{
+        background: white;
+        border-left: 5px solid {ALISON_GREEN};
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        margin-top: 10px;
+    }}
+    .alison-title {{
+        color: {BRAND_DARK};
+        font-weight: 700;
+        font-size: 1rem;
+    }}
+    .alison-sub {{
+        color: #64748B;
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+    }}
+    .alison-link {{
+        color: {ALISON_GREEN};
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }}
+
+    /* --- COMPONENT: VALUE PROP --- */
+    .why-box {{
+        background: linear-gradient(135deg, #003366 0%, #0F172A 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 16px;
+        margin-top: 30px;
+        text-align: center;
+    }}
+    .why-grid {{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px;
+        margin-top: 20px;
+        text-align: left;
+    }}
+    .why-item h4 {{
+        color: {ACCENT_ORANGE};
+        margin-bottom: 5px;
+        font-family: 'Poppins', sans-serif;
+    }}
+    .why-item p {{
+        font-size: 0.9rem;
+        opacity: 0.9;
+        line-height: 1.5;
+    }}
+
     /* --- CHAT INTERFACE --- */
     .stChatMessage {{
         background: transparent;
@@ -286,7 +348,7 @@ def navbar():
     st.markdown(f"""
         <div class="nav-bar">
             <div class="nav-logo">Distoversity<span style="color:{ACCENT_ORANGE}">.</span></div>
-            <div class="nav-badge">AI Powered Analytics</div>
+            <div class="nav-badge">🇮🇳 Empowering India</div>
         </div>
         <div class="nav-spacer"></div>
     """, unsafe_allow_html=True)
@@ -294,92 +356,50 @@ def navbar():
 def hero():
     st.markdown(f"""
         <div class="hero-container">
-            <h1 class="hero-title">Your Career, <span style="color:{BRAND_PRIMARY}">Data-Driven</span></h1>
+            <h1 class="hero-title">Meet <span style="color:{BRAND_PRIMARY}">Eduveer</span><br>Your AI Career Architect</h1>
             <p class="hero-sub">Eduveer analyzes 50+ data points to match your unique profile with UGC-Verified Universities.</p>
         </div>
     """, unsafe_allow_html=True)
 
-# --- ENRICHED DATA (Added Placement Stats & Approvals) ---
+def render_why_distoversity():
+    st.markdown(f"""
+        <div class="why-box">
+            <h3 style="margin-bottom:10px; font-family:'Poppins',sans-serif;">🚀 Why Distoversity?</h3>
+            <p style="opacity:0.9; margin-bottom:25px; font-size:1.1rem;">Honest Advice. Zero Bias. Lifetime Community.</p>
+            <div class="why-grid">
+                <div class="why-item">
+                    <h4>🎯 Planning, Not Guessing</h4>
+                    <p>Don't guess your future. Our framework provides accurate, verified information so you make a calculated career move, not a gamble.</p>
+                </div>
+                <div class="why-item">
+                    <h4>📊 Data-Driven Guidance</h4>
+                    <p>We analyze placement records, approvals, and hidden fees. You get the raw data to make the smartest choice for your budget.</p>
+                </div>
+                <div class="why-item">
+                    <h4>🤝 The Community Advantage</h4>
+                    <p>You can take admission anywhere. But only here do you join a <b>Strong Learning Community</b>. We learn, network, and grow together beyond the degree.</p>
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+
+# --- DATA: UNIVERSITIES ---
 UNIVERSITIES = [
-    {
-        "name": "Amity Online", 
-        "programs": ["MBA", "MCA", "BBA"], 
-        "max_fee": 350000, 
-        "fee": "₹1.75L", 
-        "emi": "₹4,999/mo", 
-        "badges": ["UGC", "NAAC A+"], 
-        "logo": "🅰️", 
-        "best_for": ["Analyst"],
-        "avg_pkg": "₹6-8 LPA",
-        "high_pkg": "₹18 LPA",
-        "recruiters": "Amazon, Deloitte"
-    },
-    {
-        "name": "Manipal Jaipur", 
-        "programs": ["MBA", "BCA", "B.Com"], 
-        "max_fee": 300000, 
-        "fee": "₹1.50L", 
-        "emi": "₹3,500/mo", 
-        "badges": ["AICTE", "NAAC A+"], 
-        "logo": "Ⓜ️", 
-        "best_for": ["Creator"],
-        "avg_pkg": "₹5-7 LPA",
-        "high_pkg": "₹14 LPA",
-        "recruiters": "Google, Microsoft"
-    },
-    {
-        "name": "LPU Online", 
-        "programs": ["M.Sc CS", "MBA", "BA"], 
-        "max_fee": 180000, 
-        "fee": "₹98k", 
-        "emi": "₹2,500/mo", 
-        "badges": ["UGC", "AICTE"], 
-        "logo": "🏫", 
-        "best_for": ["Catalyst"],
-        "avg_pkg": "₹4-6 LPA",
-        "high_pkg": "₹12 LPA",
-        "recruiters": "Wipro, Cognizant"
-    },
-    {
-        "name": "NMIMS Global", 
-        "programs": ["MBA (Ex)", "Diploma"], 
-        "max_fee": 400000, 
-        "fee": "₹4.0L", 
-        "emi": "No Cost EMI", 
-        "badges": ["Top Ranked"], 
-        "logo": "📈", 
-        "best_for": ["Influencer"],
-        "avg_pkg": "₹10-12 LPA",
-        "high_pkg": "₹24 LPA",
-        "recruiters": "HDFC, Amex"
-    },
-    {
-        "name": "Chandigarh Uni", 
-        "programs": ["MCA", "MBA"], 
-        "max_fee": 150000, 
-        "fee": "₹1.10L", 
-        "emi": "₹3,000/mo", 
-        "badges": ["QS Ranked"], 
-        "logo": "🏛️", 
-        "best_for": ["Creator"],
-        "avg_pkg": "₹5-6 LPA",
-        "high_pkg": "₹15 LPA",
-        "recruiters": "Flipkart, Adobe"
-    },
-    {
-        "name": "DY Patil", 
-        "programs": ["BBA", "MBA"], 
-        "max_fee": 220000, 
-        "fee": "₹1.30L", 
-        "emi": "₹4,000/mo", 
-        "badges": ["NAAC A++"], 
-        "logo": "🏥", 
-        "best_for": ["Catalyst"],
-        "avg_pkg": "₹4.5-6.5 LPA",
-        "high_pkg": "₹11 LPA",
-        "recruiters": "Apollo, Fortis"
-    }
+    {"name": "Amity Online", "programs": ["MBA", "MCA", "BBA"], "max_fee": 350000, "fee": "₹1.75L", "emi": "₹4,999/mo", "badges": ["UGC", "NAAC A+"], "logo": "🅰️", "best_for": ["Analyst"], "avg_pkg": "₹6-8 LPA", "high_pkg": "₹18 LPA", "recruiters": "Amazon, Deloitte"},
+    {"name": "Manipal Jaipur", "programs": ["MBA", "BCA", "B.Com"], "max_fee": 300000, "fee": "₹1.50L", "emi": "₹3,500/mo", "badges": ["AICTE", "NAAC A+"], "logo": "Ⓜ️", "best_for": ["Creator"], "avg_pkg": "₹5-7 LPA", "high_pkg": "₹14 LPA", "recruiters": "Google, Microsoft"},
+    {"name": "LPU Online", "programs": ["M.Sc CS", "MBA", "BA"], "max_fee": 180000, "fee": "₹98k", "emi": "₹2,500/mo", "badges": ["UGC", "AICTE"], "logo": "🏫", "best_for": ["Catalyst"], "avg_pkg": "₹4-6 LPA", "high_pkg": "₹12 LPA", "recruiters": "Wipro, Cognizant"},
+    {"name": "NMIMS Global", "programs": ["MBA (Ex)", "Diploma"], "max_fee": 400000, "fee": "₹4.0L", "emi": "No Cost EMI", "badges": ["Top Ranked"], "logo": "📈", "best_for": ["Influencer"], "avg_pkg": "₹10-12 LPA", "high_pkg": "₹24 LPA", "recruiters": "HDFC, Amex"},
+    {"name": "Chandigarh Uni", "programs": ["MCA", "MBA"], "max_fee": 150000, "fee": "₹1.10L", "emi": "₹3,000/mo", "badges": ["QS Ranked"], "logo": "🏛️", "best_for": ["Creator"], "avg_pkg": "₹5-6 LPA", "high_pkg": "₹15 LPA", "recruiters": "Flipkart, Adobe"},
+    {"name": "DY Patil", "programs": ["BBA", "MBA"], "max_fee": 220000, "fee": "₹1.30L", "emi": "₹4,000/mo", "badges": ["NAAC A++"], "logo": "🏥", "best_for": ["Catalyst"], "avg_pkg": "₹4.5-6.5 LPA", "high_pkg": "₹11 LPA", "recruiters": "Apollo, Fortis"}
 ]
+
+# --- DATA: ALISON COURSES ---
+ALISON_COURSES = {
+    "Creator": {"title": "Diploma in Graphic Design", "desc": "Master visual storytelling tools.", "link": "https://alison.com/topic/graphic-design"},
+    "Influencer": {"title": "Public Speaking Mastery", "desc": "Learn to command the room.", "link": "https://alison.com/topic/public-speaking"},
+    "Analyst": {"title": "Data Analytics Essentials", "desc": "Excel, Python & SQL basics.", "link": "https://alison.com/topic/data-analytics"},
+    "Catalyst": {"title": "Project Management (PMP)", "desc": "Agile & Scrum methodologies.", "link": "https://alison.com/topic/project-management"}
+}
 
 QUESTIONS = [
     {"q": "When solving complex problems, you prefer:", "options": [("💡 Innovation", "Creator"), ("🗣️ Discussion", "Influencer"), ("📊 Data", "Analyst"), ("⚡ Action", "Catalyst")]},
@@ -389,13 +409,13 @@ QUESTIONS = [
     {"q": "Your role in a movie crew:", "options": [("🎬 Director", "Creator"), ("🌟 Actor", "Influencer"), ("🎞️ Editor", "Analyst"), ("📋 Producer", "Catalyst")]}
 ]
 
-# --- ENHANCED KNOWLEDGE BASE (DATA ANALYST STYLE) ---
+# --- ENHANCED KNOWLEDGE BASE ---
 KB = {
-    "placement": "Let's look at the data. 📈 **Amity and NMIMS** lead the pack with average packages of **8-10 LPA**. All our partners host virtual job fairs with recruiters like Amazon, Deloitte, and HDFC. ROI typically hits 150% within the first year.",
-    "valid": "I've checked the regulatory status. ✅ **100% of these universities are UGC-DEB verified.** This means your degree is legally equivalent to a campus degree for UPSC, SSC, and global higher education.",
-    "fee": "Financially speaking, these are high-value investments. 💰 EMI plans start as low as **₹2,500/month**, effectively costing less than a daily cup of coffee.",
-    "exam": "The examination process is optimized for professionals. 💻 **100% Online AI-Proctored exams** allow you to take tests from home on weekends, ensuring zero work disruption.",
-    "approval": "Approvals are non-negotiable. I only list universities with valid **UGC-DEB** (for online validity) and **NAAC** (for quality assurance) accreditations.",
+    "placement": "Let's look at the data. 📈 **Amity and NMIMS** lead the pack with average packages of **8-10 LPA**. All our partners host virtual job fairs with recruiters like Amazon, Deloitte, and HDFC.",
+    "valid": "I've checked the regulatory status. ✅ **100% of these universities are UGC-DEB verified.** This means your degree is legally equivalent to a campus degree.",
+    "fee": "Financially speaking, these are high-value investments. 💰 EMI plans start as low as **₹2,500/month**.",
+    "exam": "The examination process is optimized for professionals. 💻 **100% Online AI-Proctored exams** allow you to take tests from home.",
+    "approval": "Approvals are non-negotiable. I only list universities with valid **UGC-DEB** and **NAAC** accreditations.",
     "salary": "Based on recent trends, an MBA or MCA from these universities typically yields a **30-50% salary hike** upon switching jobs."
 }
 
@@ -426,7 +446,6 @@ def get_bot_response(q):
     return "That's a critical data point. I verify all universities for **UGC & NAAC approvals**. Would you like to dig into **Placement Statistics** or **ROI Analysis**?"
 
 def render_matches(matches):
-    # PREMIUM GRID (2 Columns for easy comparison)
     cols = st.columns(2)
     for i, u in enumerate(matches):
         with cols[i % 2]:
@@ -440,7 +459,6 @@ def render_matches(matches):
                         <span class="uni-meta">Top Choice for {u['best_for'][0]}</span>
                     </div>
                 </div>
-                
                 <div class="uni-metrics">
                     <div class="metric-item">
                         <span class="metric-label">Avg Package</span>
@@ -451,15 +469,12 @@ def render_matches(matches):
                         <span class="metric-val">{u['fee']}</span>
                     </div>
                 </div>
-                
                 <div class="badge-container">{badges}</div>
-                
                 <a href="#" class="card-btn">View Official Brochure</a>
             </div>
             """, unsafe_allow_html=True)
 
 def render_comparison(matches):
-    # DATA ANALYST STYLE COMPARISON
     data = []
     for u in matches:
         data.append({
@@ -470,9 +485,22 @@ def render_comparison(matches):
             "Approvals": ", ".join(u["badges"]),
             "Top Recruiters": u["recruiters"]
         })
-    
     st.markdown("### 📊 Detailed Data Comparison")
     st.table(pd.DataFrame(data))
+
+def render_alison_promo(profile):
+    course = ALISON_COURSES.get(profile, ALISON_COURSES["Analyst"])
+    st.markdown(f"""
+        <div class="alison-card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <div class="alison-title">💡 Free Skill Upgrade: {course['title']}</div>
+                    <div class="alison-sub">{course['desc']} | Powered by <b>ALISON</b></div>
+                </div>
+                <a href="{course['link']}" target="_blank" style="background:#83C341; color:white; padding:8px 15px; border-radius:20px; text-decoration:none; font-weight:600; font-size:0.8rem;">Start Free</a>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
 # --- MAIN LAYOUT ---
 navbar()
@@ -498,14 +526,17 @@ with st.container():
             render_matches(content)
         elif role == "comparison_chart":
             render_comparison(content)
+        elif role == "alison_promo":
+            render_alison_promo(content)
+        elif role == "why_us":
+            render_why_distoversity()
         else:
             with st.chat_message(role):
-                # Custom Headers for Chat
                 if role == "user":
                     name = st.session_state.user_info.get("name", "Candidate")
-                    st.markdown(f"<div style='font-size:0.75rem; font-weight:700; margin-bottom:4px; color:white;'>{name}</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='font-size:0.75rem; font-weight:700; margin-bottom:4px; color:white;'>👤 {name}</div>", unsafe_allow_html=True)
                 else:
-                    st.markdown(f"<div style='font-size:0.75rem; font-weight:700; margin-bottom:4px; color:{BRAND_PRIMARY};'>Eduveer AI</div>", unsafe_allow_html=True)
+                    st.markdown(f"<div style='font-size:0.75rem; font-weight:700; margin-bottom:4px; color:{BRAND_PRIMARY};'>🤖 Eduveer AI</div>", unsafe_allow_html=True)
                 st.markdown(content)
 
     # 3. LOGIC CONTROLLER
@@ -514,11 +545,9 @@ with st.container():
     if st.session_state.step == 1:
         curr = QUESTIONS[st.session_state.q_index]
         last_bot = next((m["content"] for m in reversed(st.session_state.messages) if m["role"] == "assistant"), "")
-        
         if curr["q"] not in last_bot:
             add_bot_msg(f"**Question {st.session_state.q_index + 1}/5:** {curr['q']}")
             st.rerun()
-            
         cols = st.columns(2)
         for i, (txt, en) in enumerate(curr["options"]):
             if cols[i%2].button(txt, key=f"q{st.session_state.q_index}_{i}", use_container_width=True):
@@ -536,7 +565,6 @@ with st.container():
         if "gate_msg" not in [m.get("id", "") for m in st.session_state.messages]:
             st.session_state.messages.append({"role": "assistant", "content": f"🌟 **Analysis Complete!**\n\nMy friend, you are a true **{primary}**. I've identified 3 universities that perfectly align with your career DNA. To customize your roadmap, may I have your name?", "id": "gate_msg"})
             st.rerun()
-
         with st.form("lead_gen"):
             st.markdown("#### 🔓 Unlock Your Matches")
             name = st.text_input("Full Name")
@@ -552,11 +580,9 @@ with st.container():
         if "probe_msg" not in [m.get("id", "") for m in st.session_state.messages]:
             st.session_state.messages.append({"role": "assistant", "content": f"Nice to meet you, **{st.session_state.user_info['name']}**! Let's be practical. What is your comfortable **Maximum Budget** for the entire course?", "id": "probe_msg"})
             st.rerun()
-
         col1, col2 = st.columns(2)
         with col1: course = st.selectbox("Preferred Course", ["MBA", "MCA", "BBA", "BCA", "M.Com"])
         with col2: budget = st.select_slider("Max Investment", ["1 Lakh", "2 Lakhs", "3 Lakhs", "4 Lakhs", "No Limit"])
-        
         if st.button("Show Top Recommendations", type="primary", use_container_width=True):
             b_map = {"1 Lakh": 100000, "2 Lakhs": 200000, "3 Lakhs": 300000, "4 Lakhs": 400000, "No Limit": 1000000}
             st.session_state.filter = {"budget": b_map[budget], "course": course}
@@ -572,21 +598,23 @@ with st.container():
         if not matches: matches = [u for u in UNIVERSITIES if primary in u["best_for"]][:2]
 
         if "res_msg" not in [m.get("id", "") for m in st.session_state.messages]:
-            st.session_state.messages.append({"role": "assistant", "content": f"🎉 **I've curated these Top Picks for you!**\n\nBased on your {primary} profile and budget, these universities offer the best ROI.", "id": "res_msg"})
+            # CONSULTATIVE CLOSING
+            st.session_state.messages.append({"role": "assistant", "content": f"🎉 **Strategy Ready!**\n\nMy friend, I've analyzed your profile. You don't just need a degree; you need a **Career Launchpad**.\n\nBased on your {primary} profile and budget, I have curated the best universities that offer the highest ROI. Let's focus on **Planning, not Guessing**.", "id": "res_msg"})
             st.session_state.messages.append({"role": "results_cards", "content": matches})
+            st.session_state.messages.append({"role": "assistant", "content": "I also found this **Free Course** to give you a head start:"})
+            st.session_state.messages.append({"role": "alison_promo", "content": primary})
+            st.session_state.messages.append({"role": "why_us", "content": ""})
             st.rerun()
 
-        # DYNAMIC HOOKS (Buttons)
         st.write("")
         cols = st.columns(4)
         for i, hook in enumerate(st.session_state.current_hooks):
             if cols[i % 4].button(hook, key=f"hook_{len(st.session_state.messages)}_{i}", use_container_width=True):
                 add_user_msg(hook)
                 if hook == "📊 Compare Top 5" or hook == "📊 Compare All":
-                     # Logic: Take top 5 available matches
                      compare_list = matches[:5] if len(matches) > 0 else UNIVERSITIES[:5]
                      st.session_state.messages.append({"role": "comparison_chart", "content": compare_list})
-                     st.session_state.messages.append({"role": "assistant", "content": "Here is the detailed data matrix comparing Placement Packages, Fees, and Recruiters."})
+                     st.session_state.messages.append({"role": "assistant", "content": "Here is the detailed data matrix."})
                 else:
                     response = get_bot_response(hook)
                     add_bot_msg(response)
