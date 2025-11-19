@@ -5,7 +5,7 @@ import random
 import streamlit.components.v1 as components
 import os
 
-# Try importing Groq
+# Try importing Groq (for future LLM scaling)
 try:
     from groq import Groq
     GROQ_AVAILABLE = True
@@ -37,7 +37,7 @@ ALISON_GREEN = "#83C341"
 BOT_AVATAR = "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=EduveerSmart"
 USER_AVATAR = "https://api.dicebear.com/9.x/micah/svg?seed=Felix"
 
-# --- CSS (MAINTAINED PREMIUM LOOK) ---
+# --- CSS (PREMIUM & CENTERED) ---
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap');
@@ -63,7 +63,7 @@ st.markdown(f"""
     .stChatMessage.assistant {{ padding-right: 15%; }}
     .stChatMessage.assistant .stMarkdown {{ background: white; border: 1px solid #E2E8F0; border-radius: 4px 16px 16px 16px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }}
     .stChatMessage.user {{ padding-left: 15%; flex-direction: row-reverse; }}
-    .stChatMessage.user .stMarkdown {{ background: #E0F2FE; border: 1px solid #BAE6FD; color: {BRAND_DARK}; border-radius: 16px 4px 16px 16px; padding: 16px 20px; text-align: left; }}
+    .stChatMessage.user .stMarkdown {{ background: #E0F2FE; border: 1px solid #BAE6FD; color: {BRAND_DARK}; border-radius: 16px 4px 16px 16px; padding: 16px 20px; text-align: left; box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1); }}
     .stChatMessage.user p {{ color: {BRAND_DARK} !important; }}
 
     /* CARDS */
@@ -127,36 +127,7 @@ def hero():
         </div>
     """, unsafe_allow_html=True)
 
-# --- PROACTIVE KNOWLEDGE BASE ---
-# This is the "Brain" that drives the conversation forward
-KB = {
-    "placement": [
-        "That is the most important question! 💼 **Amity and NMIMS** are fantastic for networking, often seeing packages around **8-10 LPA**. \n\n**Insight:** Placements depend heavily on your skills. Shall we look at the **Salary Hikes** usually seen?",
-        "Great question. Top recruiters include Amazon, Deloitte, and HDFC. \n\n**Pro Tip:** These universities have dedicated placement cells. Do you want to see the **ROI (Return on Investment)** analysis?"
-    ],
-    "valid": [
-        "I'm glad you asked. ✅ **100% of these universities are UGC-DEB verified.** \n\nThis means your degree is valid for **Govt Jobs (UPSC)** and Study Abroad. Should I show you the **Exam Process** next?",
-        "Absolutely valid. We don't deal with unapproved colleges. 🛡️ Your degree will be legally equivalent to a campus degree. \n\nDo you want to check the **Fee Structure** now?"
-    ],
-    "fee": [
-        "I know budget is key. 💰 To be financially smart, look at the EMI options. Most start at just **₹2,500/month**. \n\n**Next Step:** Should we check if you are eligible for a **Scholarship**?",
-        "These are high-value investments. The total fee is often recovered in the first 6 months of a job upgrade. \n\nWould you like to compare the **Fees of the Top 3** universities side-by-side?"
-    ],
-    "exam": [
-        "Good news! You don't need to take leave from work. 💻 **Exams are 100% Online & AI-Proctored.** \n\nYou can take them from your bedroom on weekends. Want to know about the **Syllabus**?",
-        "It's designed for working professionals. No centers, no travel. Just you and your laptop. \n\nSpeaking of learning, do you want to know about the **Faculty**?"
-    ],
-    "salary": [
-        "Let's talk numbers. 📈 Generally, an MBA/MCA from these universities yields a **30-50% salary hike** when you switch jobs. \n\nDo you want to see the **Top Recruiters** list?",
-        "A degree is a signal to employers. It often unlocks the 'Manager' tag and a pay bump. \n\n**Action:** Shall we lock a **Free Strategy Session** to plan your transition?"
-    ],
-    "default": [
-        "That's a great point. I verify everything for **transparency**. \n\nTo help you decide, would you like to know about **Placements**, **Fees**, or **Approvals**?",
-        "I understand. Making a career choice is big. \n\nLet's break it down. Should we look at the **Financials (Fees)** or the **Outcomes (Placements)** first?"
-    ]
-}
-
-# --- DATA ---
+# --- DATA (SINGLE SOURCE OF TRUTH) ---
 UNIVERSITIES = [
     {"name": "Amity Online", "programs": ["MBA", "MCA", "BBA"], "max_fee": 350000, "fee": "₹1.75L", "emi": "₹4,999/mo", "badges": ["UGC", "NAAC A+"], "logo": "🅰️", "best_for": ["Analyst"], "avg_pkg": "₹6-8 LPA", "high_pkg": "₹18 LPA", "recruiters": "Amazon, Deloitte"},
     {"name": "Manipal Jaipur", "programs": ["MBA", "BCA", "B.Com"], "max_fee": 300000, "fee": "₹1.50L", "emi": "₹3,500/mo", "badges": ["AICTE", "NAAC A+"], "logo": "Ⓜ️", "best_for": ["Creator"], "avg_pkg": "₹5-7 LPA", "high_pkg": "₹14 LPA", "recruiters": "Google, Microsoft"},
@@ -181,15 +152,67 @@ QUESTIONS = [
     {"q": "Your role in a movie crew:", "options": [("🎬 Director", "Creator"), ("🌟 Actor", "Influencer"), ("🎞️ Editor", "Analyst"), ("📋 Producer", "Catalyst")]}
 ]
 
-# --- CONTEXTUAL HOOK LOGIC ---
-# Which buttons to show based on the LAST topic discussed
-RELATED_HOOKS = {
-    "placement": ["📈 Salary Hike?", "💸 Check Fees", "🏆 Top Recruiters", "📊 Compare All"],
-    "fee": ["📉 ROI Analysis", "💳 Scholarship?", "💼 Placement Stats?", "📝 EMI Plans"],
-    "valid": ["📝 Exam Process?", "💼 Govt Jobs?", "🌍 Study Abroad?", "📊 Compare"],
-    "exam": ["📚 Syllabus?", "🏫 Faculty?", "📜 Degree Validity?", "💼 Job Support?"],
-    "salary": ["💰 Fee Structure", "🏢 Top Companies", "📉 ROI", "💎 Premium Session"]
+# --- DYNAMIC HOOKS ---
+HOOK_CATEGORIES = {
+    "Financial": ["💸 EMI Plans?", "💰 Hidden Costs?", "📉 ROI Analysis?", "💳 Scholarship Info?", "🏷️ Lowest Fee Option?"],
+    "Academic": ["🏫 Faculty Quality?", "📚 Syllabus Update?", "📝 Exam Difficulty?", "🎓 Pass Percentage?", "📖 Study Material?"],
+    "Outcome": ["💼 Placement Stats?", "📈 Salary Hike?", "🏢 Top Recruiters?", "🌍 Global Validity?", "🤝 Alumni Network?"],
+    "Comparison": ["📊 Compare Top 3", "🆚 Online vs Distance", "⚖️ Pros & Cons", "🏆 Rank Analysis"]
 }
+
+def generate_hooks():
+    cat1, cat2 = random.sample(list(HOOK_CATEGORIES.keys()), 2)
+    hook1 = random.choice(HOOK_CATEGORIES[cat1])
+    hook2 = random.choice(HOOK_CATEGORIES[cat2])
+    return [hook1, hook2]
+
+# --- SMART BRAIN LOGIC (THE DATA ANALYST) ---
+def get_smart_response(query, user_budget):
+    q = query.lower()
+    
+    # --- 1. BUDGET & FEE LOGIC ---
+    if "fee" in q or "cost" in q or "budget" in q or "cheap" in q:
+        # Find practical examples based on data
+        low_cost = next((u for u in UNIVERSITIES if u['max_fee'] < 150000), None)
+        high_roi = next((u for u in UNIVERSITIES if u['max_fee'] > 200000), None)
+        
+        if low_cost and high_roi:
+            return (
+                f"Let's talk numbers 💰. Based on our data:\n\n"
+                f"1. **For Tight Budgets:** **{low_cost['name']}** is unbeatable at **{low_cost['fee']}** total. "
+                f"It gets the job done with full UGC validity.\n\n"
+                f"2. **For Higher ROI:** If you can stretch your budget to **{high_roi['fee']}** (using EMI), "
+                f"**{high_roi['name']}** opens doors to premium recruiters like {high_roi['recruiters']}.\n\n"
+                f"**Analyst Tip:** Sometimes paying 50k more results in a 2L higher starting package. Want to see the **Placement Stats** to confirm?"
+            )
+            
+    # --- 2. PLACEMENT & ROI LOGIC ---
+    if "placement" in q or "job" in q or "salary" in q or "roi" in q:
+        top_pkg = max(UNIVERSITIES, key=lambda x: int(x['high_pkg'].split()[0].replace('₹','')))
+        
+        return (
+            f"Great question on ROI 📈. Here is the reality:\n\n"
+            f"Online degrees are now accepted by top MNCs. For instance, **{top_pkg['name']}** students have bagged packages as high as **{top_pkg['high_pkg']}**.\n\n"
+            f"**The Formula:** If you invest ₹1.5L in a degree and get a {top_pkg['avg_pkg']} job, you recover your cost in just **3-4 months**. \n\n"
+            f"Would you like to verify the **UGC Approvals** to ensure this degree is valid for Govt jobs too?"
+        )
+
+    # --- 3. APPROVALS & VALIDITY ---
+    if "valid" in q or "fake" in q or "ugc" in q or "govt" in q:
+        return (
+            "I verify this daily ✅. **100% of the universities I listed are UGC-DEB approved.**\n\n"
+            "This isn't just a certificate; it is a legal degree. You are eligible for:\n"
+            "- **UPSC & Govt Exams** 🏛️\n"
+            "- **Higher Studies (PhD/Abroad)** 🌍\n"
+            "- **Corporate Promotions** 💼\n\n"
+            "Don't worry about validity. Let's focus on which curriculum fits you. Want to see the **Syllabus**?"
+        )
+
+    # --- DEFAULT FALLBACK ---
+    return (
+        "That's a valid point. My goal is to ensure you don't just get a degree, but a career upgrade. 🚀\n\n"
+        "I have data on **Fees**, **Placements**, and **Curriculum**. Which aspect is worrying you the most right now?"
+    )
 
 # --- STATE ---
 if "messages" not in st.session_state: st.session_state.messages = []
@@ -204,31 +227,14 @@ if "last_topic" not in st.session_state: st.session_state.last_topic = "default"
 # --- FUNCTIONS ---
 def update_hooks(topic):
     """Updates the buttons based on the conversation context"""
-    if topic in RELATED_HOOKS:
-        st.session_state.current_hooks = random.sample(RELATED_HOOKS[topic], 2)
+    if topic in HOOK_CATEGORIES: # Simple rotation for now
+        st.session_state.current_hooks = generate_hooks()
     else:
-        st.session_state.current_hooks = ["💰 Check Fees", "💼 Placements"]
+        st.session_state.current_hooks = generate_hooks()
 
 def add_bot_msg(text): st.session_state.messages.append({"role": "assistant", "content": text})
 def add_user_msg(text): st.session_state.messages.append({"role": "user", "content": text})
 def get_energy(): return max(st.session_state.scores, key=st.session_state.scores.get)
-
-def get_bot_response(user_query):
-    q = user_query.lower()
-    topic = "default"
-    
-    # Keyword matching to determine topic
-    if "placement" in q or "job" in q or "recruit" in q: topic = "placement"
-    elif "valid" in q or "fake" in q or "approval" in q or "govt" in q: topic = "valid"
-    elif "fee" in q or "cost" in q or "emi" in q: topic = "fee"
-    elif "exam" in q or "test" in q: topic = "exam"
-    elif "salary" in q or "hike" in q: topic = "salary"
-    
-    st.session_state.last_topic = topic # Remember context
-    
-    # Pick a random variation from the KB to avoid repetition
-    response_list = KB.get(topic, KB["default"])
-    return random.choice(response_list)
 
 def render_matches(matches):
     for i, u in enumerate(matches):
@@ -330,6 +336,7 @@ def render_premium_upsell():
 # --- MAIN UI ---
 navbar()
 
+# 1. HERO (Only at start)
 if st.session_state.step == 0 and not st.session_state.messages:
     hero()
     c1, c2, c3 = st.columns([1, 1, 1])
@@ -443,11 +450,11 @@ elif st.session_state.step == 4:
                  st.session_state.messages.append({"role": "comparison_chart", "content": compare_list})
                  st.session_state.messages.append({"role": "assistant", "content": "Here is the detailed breakdown. Notice the 'Recruiters' column—that is where your value lies."})
             else:
-                response = get_bot_response(hook)
+                response = get_smart_response(hook, filt['budget'])
                 add_bot_msg(response)
             
             # UPDATE HOOKS BASED ON NEW CONTEXT
-            update_hooks(st.session_state.last_topic)
+            st.session_state.current_hooks = generate_hooks()
             st.rerun()
 
 # CHAT INPUT
@@ -455,8 +462,14 @@ if st.session_state.step > 0:
     user_query = st.chat_input("Ask Eduveer (e.g. 'Is LPU valid?')")
     if user_query:
         add_user_msg(user_query)
-        response = get_bot_response(user_query)
+        
+        # Retrieve User Budget for Context
+        user_budget = st.session_state.filter.get("budget", 1000000)
+        
+        # SMART RESPONSE
+        response = get_smart_response(user_query, user_budget)
         add_bot_msg(response)
-        # UPDATE HOOKS BASED ON NEW CONTEXT
-        update_hooks(st.session_state.last_topic)
+        
+        # UPDATE HOOKS
+        st.session_state.current_hooks = generate_hooks()
         st.rerun()
