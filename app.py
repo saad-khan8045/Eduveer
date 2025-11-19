@@ -1,5 +1,6 @@
 import streamlit as st
 from groq import Groq
+import random
 
 # --- 1. Web Page Configuration ---
 st.set_page_config(
@@ -8,78 +9,64 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- 2. Engaging UI Theme (Custom CSS) ---
+# --- 2. Engaging UI Theme (Soft & Welcoming) ---
 st.markdown("""
     <style>
-    /* 1. Main Background - Soft Blue */
+    /* Main Background - Soft Blue Gradient feel */
     .stApp {
-        background-color: #F4F9FF;
+        background: linear-gradient(to bottom, #F4F9FF, #FFFFFF);
     }
     
-    /* 2. Chat Input Box - Making it float and look modern */
+    /* Chat Input Box - Modern & Floating */
     [data-testid="stChatInput"] {
-        border-radius: 20px;
-        border: 1px solid #004aad;
-        box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.05);
+        border-radius: 25px;
+        border: 2px solid #004aad;
+        box-shadow: 0px -5px 15px rgba(0, 74, 173, 0.1);
+        padding: 5px;
     }
     
-    /* 3. Header Styling - Centered & Branded */
+    /* Header Styling */
     h1 {
         color: #004aad;
         text-align: center;
-        font-family: sans-serif;
+        font-family: 'Helvetica', sans-serif;
         font-weight: 800;
-        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-    }
-    h3 {
-        text-align: center;
-        color: #555;
-        font-weight: 400;
-        font-size: 1.2rem;
-    }
-
-    /* 4. Sidebar Styling */
-    [data-testid="stSidebar"] {
-        background-color: #FFFFFF;
-        border-right: 1px solid #E6E6E6;
     }
     
-    /* 5. Chat Bubbles - Clean Cards */
+    /* Chat Bubbles - Rounder & Friendlier */
     .stChatMessage {
         background-color: #FFFFFF;
-        border-radius: 12px;
-        box-shadow: 0px 2px 4px rgba(0,0,0,0.05);
-        margin-bottom: 10px;
+        border-radius: 18px;
+        padding: 15px;
+        margin-bottom: 12px;
+        border: 1px solid #Eef;
+        box-shadow: 2px 2px 8px rgba(0,0,0,0.04);
+    }
+    
+    /* User Bubble Color (Light Blue) */
+    div[data-testid="stChatMessage"]:nth-child(odd) {
+        background-color: #E3F2FD;
+        border: none;
     }
     </style>
     """, unsafe_allow_html=True)
 
 # --- 3. Sidebar Info ---
 with st.sidebar:
-    # Brand Logo
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=90)
     
     st.title("Diztoversity") 
     st.markdown("### **Empowering India** 🇮🇳")
     
-    st.success("Identify your true potential.")
-    
-    st.divider()
-    st.markdown("**Your Character Profile:**")
-    st.markdown("- 🎨 **Creator**")
-    st.markdown("- 📢 **Influencer**")
-    st.markdown("- 🤝 **Catalyst**")
-    st.markdown("- 📊 **Analyst**")
+    st.info("💡 **Tip:** Talk to Eduveer like a friend. Be honest about your dreams!")
     
     st.divider()
     st.caption("© 2025 Diztoversity Pvt Ltd") 
 
-# --- 4. Hero Section (Main Interface) ---
+# --- 4. Hero Section ---
 st.title("🎓 Eduveer AI") 
-st.markdown("<h3>Discover Your Wealth. Discover Your University.</h3>", unsafe_allow_html=True)
-
-# Spacer to push chat down a bit
-st.markdown("---")
+st.markdown("<h3 style='text-align: center; color: #444;'>Discover the career you were BORN to do.</h3>", unsafe_allow_html=True)
+st.write("") # Spacer
 
 # --- 5. Initialize Brain ---
 try:
@@ -89,39 +76,50 @@ except Exception:
     st.error("⚠️ API Key Missing. Please check Settings.")
     st.stop()
 
-# --- 6. AI Personality ---
+# --- 6. AI Personality (The "Dost/Mentor" Upgrade) ---
 system_instruction = """
-You are Eduveer, a friendly and wise AI Career Counselor from 'Diztoversity'.
+You are **Eduveer**, a warm, wise, and encouraging Career Mentor from **Diztoversity**.
+You are NOT a robot. You are a supportive guide (like a thoughtful elder brother or wise friend).
 
-YOUR GOAL: Keep the student engaged. Make them feel understood.
+YOUR GOAL:
+To Empower Indian students. Help them realize that their unique nature is their superpower.
 
-YOUR BRAND SLOGAN: "Empowering India"
+YOUR TONE:
+- **Warm & Welcoming:** Use phrases like "Don't worry," "I hear you," "That's a brilliant thought."
+- **Hinglish Friendly:** Use natural Indian English (e.g., "Bilkul," "Great choice," "Samajh gaya").
+- **Curious, Not Pushy:** Don't interrogate. Say things like, "Tell me more about that," or "What do you love doing in your free time?"
+- **Empowering:** When they share something, validate it. "Wow, that shows you have a creative mind!"
 
-YOUR METHODOLOGY (The 4 Segments):
-1. Creator: Innovation, Arts, Startups.
-2. Influencer: Media, Leadership, Law.
-3. Catalyst: Service, Nursing, Hospitality.
-4. Analyst: Data, Finance, Engineering.
+YOUR FRAMEWORK (Keep this logic hidden, just use it to guide them):
+1. **Creator:** Likes starting new things, ideas, art.
+2. **Influencer:** Likes leading, speaking, people.
+3. **Catalyst:** Likes helping, timing, connecting.
+4. **Analyst:** Likes data, logic, details.
 
 RULES:
-- Use emojis 🎓✨🚀 to make chat fun.
-- Ask ONE simple question at a time to keep the chat moving.
-- Be encouraging (e.g., "That's amazing!", "Great choice!").
-- Never give long boring lectures. Keep it conversational.
-- Speak in Hinglish if the user does.
+1. Keep replies SHORT (2-3 sentences max).
+2. Ask ONE open-ended question at a time.
+3. Use emojis 🌟🎓💪 to keep the vibe positive.
+4. If the user is confused, say: "Koi baat nahi (No problem). Let's figure it out together."
 """
 
-# --- 7. Chat History ---
+# --- 7. Chat History (With a Warm Welcome) ---
 if "messages" not in st.session_state:
+    # Random welcome message to feel alive
+    welcomes = [
+        "Namaste! 🙏 Main hoon Eduveer. \n\nMarks aur ranks se pare, main aapke **Asli Talent** ko dhoondne mein madad karunga.\n\nBataiye, aaj kal kis cheez mein sabse zyada maza aa raha hai?",
+        "Hello! 👋 Welcome to Diztoversity.\n\nMain yahan aapko judge karne nahi, **Support** karne aaya hoon.\n\nDil se bataiye, wo kaunsa kaam hai jo aap bina thake ghanton kar sakte hain?"
+    ]
+    selected_welcome = random.choice(welcomes)
+    
     st.session_state.messages = [
         {"role": "system", "content": system_instruction},
-        {"role": "assistant", "content": "Namaste! 🙏 I am **Eduveer**.\n\nI help you choose a career based on **WHO YOU ARE**, not just marks.\n\nTell me, **what is that one thing you can do for hours without getting bored?**"}
+        {"role": "assistant", "content": selected_welcome}
     ]
 
 # --- 8. Display Chat with Avatars ---
 for message in st.session_state.messages:
     if message["role"] != "system":
-        # Custom Avatars: Student (🧑‍🎓) vs AI (🤖)
         avatar_icon = "🧑‍🎓" if message["role"] == "user" else "🤖"
         with st.chat_message(message["role"], avatar=avatar_icon):
             st.markdown(message["content"])
@@ -133,8 +131,7 @@ def generate_chat_responses(chat_completion):
             yield chunk.choices[0].delta.content
 
 # --- 10. User Input ---
-# Custom Placeholder text to encourage typing
-if prompt := st.chat_input("Type here... (e.g., I love painting, or I love math)"):
+if prompt := st.chat_input("Dil khol ke baat karein..."):
     st.chat_message("user", avatar="🧑‍🎓").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
