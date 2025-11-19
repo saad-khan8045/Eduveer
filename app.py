@@ -1,6 +1,5 @@
 import streamlit as st
 from groq import Groq
-import random
 
 # --- 1. Web Page Configuration ---
 st.set_page_config(
@@ -39,8 +38,17 @@ st.markdown("""
     /* Button Styling */
     .stButton button {
         width: 100%;
-        border-radius: 20px;
+        border-radius: 10px;
         font-weight: bold;
+    }
+
+    /* Form Container Styling */
+    [data-testid="stForm"] {
+        background-color: #FFFFFF;
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+        border: 1px solid #E0E0E0;
     }
     
     /* Sidebar Booking Button Style */
@@ -67,102 +75,126 @@ except Exception:
     st.error("⚠️ API Key Missing. Please check Settings.")
     st.stop()
 
-# --- 4. System Instructions (THE HOOK LOGIC) ---
-system_instruction = """
-You are **Eduveer**, a Career Mentor from **Distoversity**.
-Your goal is to guide students and professionals.
-
-YOUR PHILOSOPHY:
-"Degree is a path, Skill is the destination."
-
-AUDIENCE RULES:
-1. **Working Pros:** Suggest Online Degrees (MBA/MCA) for flexibility.
-2. **Students:** Suggest Regular Colleges or Affordable Online options.
-
-THE "HUMAN HOOK" (CRITICAL RULE):
-If the user asks for:
-- Exact admission cutoffs or exact fees (which might change).
-- Deep emotional confusion or family problems.
-- A personalized roadmap for the next 5 years.
-- Or if you feel you cannot answer accurately...
-
-THEN you must say:
-"For a detailed personalized plan (and exact fee structure), I recommend speaking to our Human Expert."
-AND tell them to click the **"Book 1:1 Session"** button in the sidebar.
-
-TONE:
-- Speak like a supportive Mentor (Dost).
-- Use Hinglish (Hindi+English) naturally.
-- Keep answers short and clear.
-"""
+# --- 4. Session State Initialization ---
+if "user_profile" not in st.session_state:
+    st.session_state.user_profile = None
 
 # --- 5. Sidebar (Reset & Booking) ---
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=90)
-    # UPDATED NAME HERE
     st.title("Distoversity") 
     st.markdown("### **Empowering India** 🇮🇳")
     
-    st.success("🎓 **Modes We Guide:**\n\n✅ Regular College\n✅ Online Degrees (Job-ready)\n✅ Distance Education")
+    st.success("🎓 **Guidance For:**\n\n✅ Regular College\n✅ Online Degrees\n✅ Upskilling")
     
     st.divider()
     
-    # --- NEW: BOOKING BUTTON ---
-    st.markdown("### 📞 Need Expert Help?")
-    st.info("Confused? Talk to a human counselor.")
-    # Replace with your actual link
+    # --- BOOKING BUTTON ---
+    st.markdown("### 📞 Talk to an Expert")
+    st.info("Need personalized advice?")
     st.markdown('[📅 Book 1:1 Session](https://forms.gle/YourFormLinkHere)', unsafe_allow_html=True)
     
     st.divider()
     
     # Reset Button
-    if st.button("🗑️ Start New Chat", type="primary"):
-        st.session_state.messages = [
-            {"role": "system", "content": system_instruction},
-            {"role": "assistant", "content": "Namaste! 🙏 Welcome to **Distoversity**.\n\nMain hoon Eduveer. Main aapko **Regular** aur **Online Degrees** dono mein guide kar sakta hoon.\n\nSabse pehle batayein: **Aap abhi Student hain ya Job karte hain?**"}
-        ]
+    if st.button("🗑️ Start New Session", type="primary"):
+        st.session_state.messages = []
+        st.session_state.user_profile = None
         st.rerun()
 
     st.caption("© 2025 Distoversity Pvt Ltd") 
 
-# --- 6. Hero Section ---
+# --- 6. Main Interface Logic ---
 st.title("🎓 Eduveer AI") 
-st.markdown("<h3 style='text-align: center; color: #555;'>Sahi Career. Sahi Degree. Sahi Budget.</h3>", unsafe_allow_html=True)
-st.write("") 
 
-# --- 7. Chat History Setup ---
-if "messages" not in st.session_state:
-    st.session_state.messages = [
-        {"role": "system", "content": system_instruction},
-        {"role": "assistant", "content": "Namaste! 🙏 Welcome to **Distoversity**.\n\nMain hoon Eduveer. Main aapko **Regular** aur **Online Degrees** dono mein guide kar sakta hoon.\n\nSabse pehle batayein: **Aap abhi Student hain ya Job karte hain?**"}
-    ]
+# --- SCENARIO A: PROFILE FORM (Shows first) ---
+if st.session_state.user_profile is None:
+    st.markdown("<h3 style='text-align: center; color: #555;'>Let's get to know you first</h3>", unsafe_allow_html=True)
+    st.write("")
+    
+    with st.form("profile_form"):
+        st.markdown("**1. Current Status:**")
+        status = st.radio("Select one:", ["Student (12th Pass / Undergraduate)", "Working Professional"], label_visibility="collapsed")
+        
+        st.markdown("**2. What are you looking for?**")
+        goal = st.radio("Select goal:", ["Regular College Degree", "Online / Distance Degree (Flexible)", "Career Guidance / Upskilling"], label_visibility="collapsed")
+        
+        submitted = st.form_submit_button("Start Counseling 🚀")
+        
+        if submitted:
+            st.session_state.user_profile = {"status": status, "goal": goal}
+            st.rerun()
 
-# --- 8. Display Chat ---
-for message in st.session_state.messages:
-    if message["role"] != "system":
-        avatar_icon = "🧑‍🎓" if message["role"] == "user" else "🤖"
-        with st.chat_message(message["role"], avatar=avatar_icon):
-            st.markdown(message["content"])
+# --- SCENARIO B: CHAT INTERFACE (Shows after form) ---
+else:
+    user_data = st.session_state.user_profile
+    
+    # System Instructions with PROFESSIONAL TONE & PACING
+    system_instruction = f"""
+    You are **Eduveer**, a Professional Career Counselor from **Distoversity**.
+    
+    USER PROFILE:
+    - Status: {user_data['status']}
+    - Goal: {user_data['goal']}
+    
+    YOUR PHILOSOPHY:
+    "Degree is a path, Skill is the destination. Choose what fits your budget and time."
+    
+    TONE GUIDELINES:
+    - **Professional & Polished:** Use standard English. You can use very light Hinglish (e.g., "Bilkul", "Sahi") only to build rapport, but keep it 90% Professional English.
+    - **Supportive:** Be empathetic but authoritative like an expert consultant.
+    - **Concise:** Keep answers short (2-3 sentences).
+    
+    PACING RULE (CRITICAL):
+    - **Ask ONLY ONE question at a time.** Wait for the user to answer before asking the next.
+    - Do NOT ask multiple questions in one message.
+    
+    YOUR METHODOLOGY (The 4 Profiles):
+    - Creator -> Design/Startup/Arts
+    - Influencer -> Management/Law/Media
+    - Catalyst -> Hospitality/HR/Service
+    - Analyst -> Tech/Finance/Data
+    
+    START:
+    Since you already know their status ({user_data['status']}) and goal ({user_data['goal']}), start immediately by asking about their **Interests** to determine their Profile.
+    """
 
-# --- 9. Response Cleaner ---
-def generate_chat_responses(chat_completion):
-    for chunk in chat_completion:
-        if chunk.choices[0].delta.content:
-            yield chunk.choices[0].delta.content
+    # Initialize Chat History if empty
+    if "messages" not in st.session_state or not st.session_state.messages:
+        # Custom Welcome based on Form Data
+        welcome_msg = f"Hello! 👋 Thank you for sharing your details.\n\nSince you are looking for a **{user_data['goal']}**, I can definitely guide you.\n\nTo suggest the best program, I need to understand your nature.\n\n**Tell me, what kind of activities make you feel most energetic and productive?**"
+        
+        st.session_state.messages = [
+            {"role": "system", "content": system_instruction},
+            {"role": "assistant", "content": welcome_msg}
+        ]
 
-# --- 10. User Input ---
-if prompt := st.chat_input("Type here... (e.g., I am confused about MBA fees)"):
-    st.chat_message("user", avatar="🧑‍🎓").markdown(prompt)
-    st.session_state.messages.append({"role": "user", "content": prompt})
+    # Display Chat
+    for message in st.session_state.messages:
+        if message["role"] != "system":
+            avatar_icon = "🧑‍🎓" if message["role"] == "user" else "🤖"
+            with st.chat_message(message["role"], avatar=avatar_icon):
+                st.markdown(message["content"])
 
-    with st.chat_message("assistant", avatar="🤖"):
-        try:
-            stream = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=st.session_state.messages,
-                stream=True,
-            )
-            response = st.write_stream(generate_chat_responses(stream))
-            st.session_state.messages.append({"role": "assistant", "content": response})
-        except Exception as e:
-            st.error("⚠️ Connection Error. Please refresh.")
+    # Response Cleaner
+    def generate_chat_responses(chat_completion):
+        for chunk in chat_completion:
+            if chunk.choices[0].delta.content:
+                yield chunk.choices[0].delta.content
+
+    # User Input
+    if prompt := st.chat_input("Type here..."):
+        st.chat_message("user", avatar="🧑‍🎓").markdown(prompt)
+        st.session_state.messages.append({"role": "user", "content": prompt})
+
+        with st.chat_message("assistant", avatar="🤖"):
+            try:
+                stream = client.chat.completions.create(
+                    model="llama-3.3-70b-versatile",
+                    messages=st.session_state.messages,
+                    stream=True,
+                )
+                response = st.write_stream(generate_chat_responses(stream))
+                st.session_state.messages.append({"role": "assistant", "content": response})
+            except Exception as e:
+                st.error("⚠️ Connection Error. Please refresh.")
