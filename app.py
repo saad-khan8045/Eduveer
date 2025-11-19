@@ -37,7 +37,7 @@ ALISON_GREEN = "#83C341"
 BOT_AVATAR = "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=EduveerSmart"
 USER_AVATAR = "https://api.dicebear.com/9.x/micah/svg?seed=Felix"
 
-# --- CSS SYSTEM (FIXED) ---
+# --- CSS SYSTEM (MOBILE OPTIMIZED) ---
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap');
@@ -108,7 +108,38 @@ st.markdown(f"""
     .pill {{ font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; background: #F1F5F9; color: #475569; font-weight: 600; margin-right: 4px; display: inline-block; border: 1px solid #E2E8F0; }}
     .pill.verified {{ background: #ECFDF5; color: {SUCCESS_GREEN}; border-color: #A7F3D0; }}
     
-    /* 6. COMPARISON TABLE (FIXED CSS SYNTAX HERE) */
+    .card-btn {{ display: block; width: 100%; padding: 10px; text-align: center; background: {BRAND_PRIMARY}; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.85rem; margin-top: 5px; }}
+    
+    /* SPECIAL CARDS */
+    .alison-card {{ background: white; border-left: 4px solid {ALISON_GREEN}; padding: 16px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); margin-top: 15px; }}
+    
+    .premium-card {{ 
+        background: linear-gradient(135deg, #FFFBEB 0%, #FFF7ED 100%); 
+        border: 1px solid #FEF3C7; 
+        padding: 20px; 
+        border-radius: 16px; 
+        margin-top: 20px; 
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.1);
+    }}
+    .premium-badge {{
+        background: {GOLD_PREMIUM};
+        color: white;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        display: inline-block;
+        margin-bottom: 10px;
+    }}
+
+    .why-box {{ background: linear-gradient(145deg, #0F172A, #1E293B); color: white; padding: 25px; border-radius: 16px; margin-top: 25px; }}
+    .why-grid {{ display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; text-align: left; }}
+    @media (min-width: 600px) {{ .why-grid {{ grid-template-columns: 1fr 1fr 1fr; }} }}
+    .why-item h4 {{ color: {ACCENT_ORANGE}; font-size: 0.9rem; margin-bottom: 5px; font-family: 'Poppins'; }}
+    .why-item p {{ font-size: 0.85rem; opacity: 0.85; line-height: 1.6; margin: 0; }}
+
+    /* 6. COMPARISON TABLE */
     .comp-table-wrapper {{ overflow-x: auto; }}
     .comp-table {{ width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; min-width: 400px; }}
     .comp-table th {{ text-align: left; background: {BRAND_PRIMARY}; color: white; padding: 10px; font-weight: 600; font-size: 0.8rem; }}
@@ -127,12 +158,6 @@ st.markdown(f"""
     
     @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(5px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     .stChatMessage {{ animation: fadeIn 0.3s ease-out; }}
-    
-    /* MOBILE TWEAKS */
-    @media (max-width: 600px) {{
-        .hero-title {{ font-size: 1.8rem; }}
-        .uni-grid {{ flex-direction: row; }} 
-    }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -145,22 +170,22 @@ components.html(
 # --- NAV & HERO ---
 def navbar():
     st.markdown(f"""
-        <div class="nav-bar">
-            <div class="nav-content">
-                <div class="nav-logo">Distoversity<span style="color:{ACCENT_ORANGE}">.</span></div>
-                <div class="nav-badge">🇮🇳 Empowering India</div>
-            </div>
-        </div>
-        <div class="nav-spacer"></div>
-    """, unsafe_allow_html=True)
+<div class="nav-bar">
+    <div class="nav-content">
+        <div class="nav-logo">Distoversity<span style="color:{ACCENT_ORANGE}">.</span></div>
+        <div class="nav-badge">🇮🇳 Empowering India</div>
+    </div>
+</div>
+<div class="nav-spacer"></div>
+""", unsafe_allow_html=True)
 
 def hero():
     st.markdown(f"""
-        <div class="hero-container">
-            <h1 class="hero-title">Meet <span style="color:{BRAND_PRIMARY}">Eduveer</span><br>Your AI Career Architect</h1>
-            <p class="hero-sub">Data-driven career guidance. No guessing, just strategy.</p>
-        </div>
-    """, unsafe_allow_html=True)
+<div class="hero-container">
+    <h1 class="hero-title">Meet <span style="color:{BRAND_PRIMARY}">Eduveer</span><br>Your AI Career Architect</h1>
+    <p class="hero-sub">Data-driven career guidance. No guessing, just strategy.</p>
+</div>
+""", unsafe_allow_html=True)
 
 # --- DATA ---
 UNIVERSITIES = [
@@ -266,55 +291,55 @@ def render_matches(matches):
     for i, u in enumerate(matches):
         badges = "".join([f"<span class='pill verified'>✔ {b}</span>" for b in u['badges']])
         st.markdown(f"""
-        <div class="uni-card">
-            <div class="uni-header">
-                <div class="uni-logo-box">{u['logo']}</div>
-                <div class="uni-title">
-                    <h3>{u['name']}</h3>
-                    <span class="uni-meta">Top Choice for {u['best_for'][0]}</span>
-                </div>
-            </div>
-            
-            <div class="uni-grid">
-                <div class="grid-item">
-                    <span class="grid-label">Total Fee</span>
-                    <span class="grid-val">{u['fee']}</span>
-                </div>
-                <div class="grid-item">
-                    <span class="grid-label">Avg Package</span>
-                    <span class="grid-val">{u['avg_pkg']}</span>
-                </div>
-            </div>
-            
-            <div style="margin-bottom:10px;">{badges}</div>
-            
-            <a href="#" class="card-btn">View Official Brochure</a>
+<div class="uni-card">
+    <div class="uni-header">
+        <div class="uni-logo-box">{u['logo']}</div>
+        <div class="uni-title">
+            <h3>{u['name']}</h3>
+            <span class="uni-meta">Top Choice for {u['best_for'][0]}</span>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    
+    <div class="uni-grid">
+        <div class="grid-item">
+            <span class="grid-label">Total Fee</span>
+            <span class="grid-val">{u['fee']}</span>
+        </div>
+        <div class="grid-item">
+            <span class="grid-label">Avg Package</span>
+            <span class="grid-val">{u['avg_pkg']}</span>
+        </div>
+    </div>
+    
+    <div style="margin-bottom:10px;">{badges}</div>
+    
+    <a href="#" class="card-btn">View Official Brochure</a>
+</div>
+""", unsafe_allow_html=True)
 
 def render_comparison(matches):
-    # CUSTOM HTML TABLE FOR PROFESSIONAL LOOK
+    # CUSTOM HTML TABLE (UNINDENTED TO FIX RENDERING ISSUE)
     html = """
-    <div class="comp-table-wrapper">
-    <table class="comp-table">
-        <thead>
-            <tr>
-                <th>University</th>
-                <th>Total Fee</th>
-                <th>Highest Pkg</th>
-                <th>Approvals</th>
-            </tr>
-        </thead>
-        <tbody>
-    """
+<div class="comp-table-wrapper">
+<table class="comp-table">
+    <thead>
+        <tr>
+            <th>University</th>
+            <th>Total Fee</th>
+            <th>Highest Pkg</th>
+            <th>Approvals</th>
+        </tr>
+    </thead>
+    <tbody>
+"""
     for u in matches:
         html += f"""
-            <tr>
-                <td style="font-weight:600;">{u['name']}</td>
-                <td>{u['fee']}</td>
-                <td style="color:#10B981; font-weight:600;">{u['high_pkg']}</td>
-                <td>{', '.join(u['badges'])}</td>
-            </tr>
+        <tr>
+            <td style="font-weight:600;">{u['name']}</td>
+            <td>{u['fee']}</td>
+            <td style="color:#10B981; font-weight:600;">{u['high_pkg']}</td>
+            <td>{', '.join(u['badges'])}</td>
+        </tr>
         """
     html += "</tbody></table></div>"
     st.markdown("### 📊 Comparative Analysis Report")
@@ -323,49 +348,49 @@ def render_comparison(matches):
 def render_alison_promo(profile):
     course = ALISON_COURSES.get(profile, ALISON_COURSES["Analyst"])
     st.markdown(f"""
-        <div class="alison-card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <div style="color:{BRAND_DARK}; font-weight:700; font-size:0.9rem;">💡 Free Certification: {course['title']}</div>
-                    <div style="color:#64748B; font-size:0.8rem;">{course['desc']} | Powered by <b>ALISON</b></div>
-                </div>
-                <a href="{course['link']}" target="_blank" style="background:#83C341; color:white; padding:6px 12px; border-radius:20px; text-decoration:none; font-weight:600; font-size:0.75rem;">Start Free</a>
-            </div>
+<div class="alison-card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+            <div style="color:{BRAND_DARK}; font-weight:700; font-size:0.9rem;">💡 Free Certification: {course['title']}</div>
+            <div style="color:#64748B; font-size:0.8rem;">{course['desc']} | Powered by <b>ALISON</b></div>
         </div>
-    """, unsafe_allow_html=True)
+        <a href="{course['link']}" target="_blank" style="background:#83C341; color:white; padding:6px 12px; border-radius:20px; text-decoration:none; font-weight:600; font-size:0.75rem;">Start Free</a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 def render_why_distoversity():
     st.markdown(f"""
-        <div class="why-box">
-            <h3 style="margin-bottom:10px; font-family:'Poppins',sans-serif;">🚀 The Distoversity Advantage</h3>
-            <div class="why-grid">
-                <div class="why-item">
-                    <h4>🎯 Precision Planning</h4>
-                    <p>We use verified data to map your career trajectory.</p>
-                </div>
-                <div class="why-item">
-                    <h4>📊 Raw Transparency</h4>
-                    <p>We expose everything—fees, placements, and approvals.</p>
-                </div>
-                <div class="why-item">
-                    <h4>🤝 Lifetime Tribe</h4>
-                    <p>Join our exclusive network of professionals.</p>
-                </div>
-            </div>
+<div class="why-box">
+    <h3 style="margin-bottom:10px; font-family:'Poppins',sans-serif;">🚀 The Distoversity Advantage</h3>
+    <div class="why-grid">
+        <div class="why-item">
+            <h4>🎯 Precision Planning</h4>
+            <p>We use verified data to map your career trajectory.</p>
         </div>
-    """, unsafe_allow_html=True)
+        <div class="why-item">
+            <h4>📊 Raw Transparency</h4>
+            <p>We expose everything—fees, placements, and approvals.</p>
+        </div>
+        <div class="why-item">
+            <h4>🤝 Lifetime Tribe</h4>
+            <p>Join our exclusive network of professionals.</p>
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
 
 def render_premium_upsell():
     st.markdown(f"""
-        <div class="premium-card">
-            <div class="premium-badge">💎 PREMIUM GUIDANCE</div>
-            <h4 style="color:{BRAND_DARK}; margin-bottom:5px; font-family:'Poppins';">Need 100% Certainty?</h4>
-            <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">
-                Get a <b>1:1 Deep-Dive Session</b> with a Veteran Counsellor.
-            </p>
-            <button style="background-color:{GOLD_PREMIUM}; color:white; border:none; padding:10px 25px; border-radius:8px; font-weight:700; cursor:pointer; width:100%;">Book Session @ ₹499/-</button>
-        </div>
-    """, unsafe_allow_html=True)
+<div class="premium-card">
+    <div class="premium-badge">💎 PREMIUM GUIDANCE</div>
+    <h4 style="color:{BRAND_DARK}; margin-bottom:5px; font-family:'Poppins';">Need 100% Certainty?</h4>
+    <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">
+        Get a <b>1:1 Deep-Dive Session</b> with a Veteran Counsellor.
+    </p>
+    <button style="background-color:{GOLD_PREMIUM}; color:white; border:none; padding:10px 25px; border-radius:8px; font-weight:700; cursor:pointer; width:100%;">Book Session @ ₹499/-</button>
+</div>
+""", unsafe_allow_html=True)
 
 # --- MAIN UI ---
 navbar()
@@ -483,7 +508,7 @@ elif st.session_state.step == 4:
                  st.session_state.messages.append({"role": "comparison_chart", "content": compare_list})
                  st.session_state.messages.append({"role": "assistant", "content": "Here is the detailed breakdown. Notice the 'Recruiters' column—that is where your value lies."})
             else:
-                response = get_smart_response(hook, filt['budget'])
+                response = get_bot_response(hook, filt['budget'])
                 add_bot_msg(response)
             
             update_hooks(st.session_state.last_topic)
@@ -495,7 +520,7 @@ if st.session_state.step > 0:
     if user_query:
         add_user_msg(user_query)
         user_budget = st.session_state.filter.get("budget", 1000000)
-        response = get_smart_response(user_query, user_budget)
+        response = get_bot_response(user_query, user_budget)
         add_bot_msg(response)
         update_hooks(st.session_state.last_topic)
         st.rerun()
