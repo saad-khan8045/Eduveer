@@ -23,8 +23,8 @@ WHITE = "#FFFFFF"
 ALISON_GREEN = "#83C341"
 
 # --- AVATAR URLS ---
-BOT_AVATAR = "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=Eduveer1"
-USER_AVATAR = "https://api.dicebear.com/9.x/micah/svg?seed=Felix"
+BOT_AVATAR = "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=EduveerBrain"
+USER_AVATAR = "https://api.dicebear.com/9.x/micah/svg?seed=Student"
 
 # --- ADVANCED CSS SYSTEM ---
 st.markdown(f"""
@@ -40,9 +40,9 @@ st.markdown(f"""
     
     #MainMenu, footer, header {{visibility: hidden;}}
     
-    /* STRICTLY CENTERED CONTENT - MESSENGER STYLE */
+    /* STRICTLY CENTERED CONTENT */
     .block-container {{
-        max_width: 750px; /* Mobile/Tablet width optimized */
+        max_width: 750px; 
         padding-top: 2rem;
         padding-bottom: 10rem;
         margin: 0 auto;
@@ -60,7 +60,7 @@ st.markdown(f"""
         border-bottom: 1px solid #E2E8F0;
         display: flex;
         align-items: center;
-        justify-content: center; /* Centered Content */
+        justify-content: center;
         z-index: 9999;
     }}
     .nav-content {{
@@ -111,14 +111,13 @@ st.markdown(f"""
         line-height: 1.6;
     }}
 
-    /* 4. CHAT INTERFACE - DISTINCT BUBBLES */
+    /* 4. CHAT INTERFACE */
     .stChatMessage {{
         background: transparent;
         border: none;
         margin-bottom: 15px;
     }}
     
-    /* EDUVEER (Left) */
     .stChatMessage.assistant {{
         padding-right: 15%;
     }}
@@ -130,7 +129,6 @@ st.markdown(f"""
         box-shadow: 0 2px 8px rgba(0,0,0,0.03);
     }}
 
-    /* STUDENT (Right) */
     .stChatMessage.user {{
         padding-left: 15%;
         flex-direction: row-reverse;
@@ -179,7 +177,6 @@ st.markdown(f"""
     /* SPECIAL CARDS */
     .alison-card {{ background: white; border-left: 4px solid {ALISON_GREEN}; padding: 16px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); margin-top: 15px; }}
     
-    /* PREMIUM UPSELL CARD */
     .premium-card {{ 
         background: linear-gradient(135deg, #FFFBEB 0%, #FFF7ED 100%); 
         border: 1px solid #FEF3C7; 
@@ -200,7 +197,6 @@ st.markdown(f"""
         margin-bottom: 10px;
     }}
 
-    /* WHY US SECTION */
     .why-box {{ background: linear-gradient(145deg, #0F172A, #1E293B); color: white; padding: 25px; border-radius: 16px; margin-top: 25px; }}
     .why-grid {{ display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; text-align: left; }}
     .why-item h4 {{ color: {ACCENT_ORANGE}; font-size: 0.9rem; margin-bottom: 5px; font-family: 'Poppins'; }}
@@ -227,12 +223,10 @@ st.markdown(f"""
     }}
     .stTextInput input {{ border-radius: 25px; border: 1px solid #CBD5E1; padding: 12px 20px; }}
     
-    /* TABLE */
     table {{ width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; font-size: 0.85rem; margin-top: 15px; }}
     th {{ background: {BRAND_PRIMARY}; color: white; padding: 12px; text-align: left; }}
     td {{ padding: 12px; border-bottom: 1px solid #F1F5F9; color: {BRAND_DARK}; }}
     
-    /* ANIMATIONS */
     @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(10px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     .stChatMessage {{ animation: fadeIn 0.3s ease-out; }}
     </style>
@@ -332,8 +326,7 @@ QUESTIONS = [
     {"q": "Your role in a movie crew:", "options": [("🎬 Director", "Creator"), ("🌟 Actor", "Influencer"), ("🎞️ Editor", "Analyst"), ("📋 Producer", "Catalyst")]}
 ]
 
-# --- DYNAMIC HOOK GENERATOR ---
-# Creating categories to generate diverse question pairs
+# --- DYNAMIC HOOKS ---
 HOOK_CATEGORIES = {
     "Financial": ["💸 EMI Plans?", "💰 Hidden Costs?", "📉 ROI Analysis?", "💳 Scholarship Info?", "🏷️ Lowest Fee Option?"],
     "Academic": ["🏫 Faculty Quality?", "📚 Syllabus Update?", "📝 Exam Difficulty?", "🎓 Pass Percentage?", "📖 Study Material?"],
@@ -342,22 +335,26 @@ HOOK_CATEGORIES = {
 }
 
 def generate_hooks():
-    """Generates 2 distinct hooks from different categories to keep it fresh."""
     cat1, cat2 = random.sample(list(HOOK_CATEGORIES.keys()), 2)
     hook1 = random.choice(HOOK_CATEGORIES[cat1])
     hook2 = random.choice(HOOK_CATEGORIES[cat2])
     return [hook1, hook2]
 
-# --- KNOWLEDGE BASE ---
+# --- KNOWLEDGE BASE (THE BRAIN) ---
 KB = {
-    "placement": "That is the most important question! Let's be honest—a degree is about the job. 💼 **Amity and NMIMS** are fantastic for networking, often seeing packages around **8-10 LPA**. But honestly, placements also depend on *your* skills. That's why our community helps you upskill while you study.",
+    "placement": "That is the most important question! 💼 **Amity and NMIMS** are fantastic for networking, often seeing packages around **8-10 LPA**. But honestly, placements also depend on *your* skills. That's why our community helps you upskill while you study.",
     "valid": "I'm glad you asked. ✅ **100% of these universities are UGC-DEB verified.** I would never recommend a blacklisted uni. Your degree here is legally equivalent to a regular campus degree for Govt jobs (UPSC, Bank PO) and higher studies.",
     "fee": "I know fees can be a stress point. 💰 To be financially smart, look at the EMI options. Most of these universities allow you to start for just **₹2,500/month**. It's like the cost of a weekend outing, but it builds your future.",
     "exam": "Good news! You don't need to take leave from work. 💻 **Exams are 100% Online & AI-Proctored.** You can take them from your bedroom on weekends. It's designed for working professionals like us.",
     "approval": "Approvals are my #1 filter. I only list universities with valid **UGC-DEB** and **NAAC** accreditations. No fake degrees here, my friend.",
     "salary": "Let's talk numbers. 📈 Generally, an MBA/MCA from these universities yields a **30-50% salary hike** when you switch jobs. It's a strong signal to employers that you are ambitious and skilled.",
     "faculty": "You get the best of both worlds. 🏫 Academic professors cover the theory, while **Industry Experts** from companies like Google and Microsoft take weekend masterclasses.",
-    "hidden": "Transparency is key. 🔍 Usually, the fee covers everything, but some universities might charge small amounts for exam fees (approx ₹1000/sem). I can give you the exact breakdown for any specific college."
+    "hidden": "Transparency is key. 🔍 Usually, the fee covers everything, but some universities might charge small amounts for exam fees (approx ₹1000/sem). I can give you the exact breakdown for any specific college.",
+    "syllabus": "The curriculum is updated every 6 months to match industry standards. You won't be reading outdated textbooks; you'll be working on live case studies.",
+    "scholarship": "Yes! Defense personnel, differently-abled students, and merit holders often get **10-20% fee waivers**. Let me know if you fall into any of these categories.",
+    "rank": "Rankings matter! NMIMS is top-tier for Management, while Amity is globally recognized. LPU has excellent NAAC A++ accreditation, which is the highest quality stamp in India.",
+    "online vs distance": "Great distinction! **Online Degrees** (what we offer) include live classes, LMS access, and digital exams. Old-school 'Distance' is just books by post. You want Online for the career value.",
+    "pros & cons": "Honest analysis: **Pros** are flexibility, lower cost, and working while earning. **Cons**? You miss the campus canteen fun! But for career growth, the ROI is unbeatable."
 }
 
 # --- STATE ---
@@ -368,6 +365,7 @@ if "scores" not in st.session_state: st.session_state.scores = {"Creator": 0, "I
 if "user_info" not in st.session_state: st.session_state.user_info = {}
 if "filter" not in st.session_state: st.session_state.filter = {"budget": 1000000, "course": "All"}
 if "current_hooks" not in st.session_state: st.session_state.current_hooks = generate_hooks()
+if "last_topic" not in st.session_state: st.session_state.last_topic = None
 
 # --- FUNCTIONS ---
 def add_bot_msg(text): st.session_state.messages.append({"role": "assistant", "content": text})
@@ -376,17 +374,55 @@ def get_energy(): return max(st.session_state.scores, key=st.session_state.score
 
 def get_bot_response(q):
     q = q.lower()
-    if "placement" in q or "job" in q or "stats" in q: return KB["placement"]
-    if "valid" in q or "fake" in q or "approval" in q or "govt" in q: return KB["valid"]
-    if "fee" in q or "cost" in q or "roi" in q or "emi" in q: return KB["fee"]
-    if "exam" in q: return KB["exam"]
-    if "salary" in q or "hike" in q: return KB["salary"]
-    if "faculty" in q or "teacher" in q: return KB["faculty"]
-    if "hidden" in q: return KB["hidden"]
+    
+    # 1. Context Handling (Follow-up logic)
+    if st.session_state.last_topic and any(word in q for word in ["yes", "more", "detail", "go on", "tell me"]):
+        q = st.session_state.last_topic + " " + q # Append context
+    
+    # 2. Intelligent Matching
+    response = None
+    if "placement" in q or "job" in q or "stats" in q or "recruit" in q: 
+        response = KB["placement"]
+        st.session_state.last_topic = "placement"
+    elif "valid" in q or "fake" in q or "approval" in q or "govt" in q: 
+        response = KB["valid"]
+        st.session_state.last_topic = "valid"
+    elif "fee" in q or "cost" in q or "roi" in q or "emi" in q or "cheap" in q: 
+        response = KB["fee"]
+        st.session_state.last_topic = "fee"
+    elif "exam" in q or "test" in q or "difficult" in q: 
+        response = KB["exam"]
+        st.session_state.last_topic = "exam"
+    elif "salary" in q or "hike" in q or "package" in q: 
+        response = KB["salary"]
+        st.session_state.last_topic = "salary"
+    elif "faculty" in q or "teacher" in q or "prof" in q: 
+        response = KB["faculty"]
+        st.session_state.last_topic = "faculty"
+    elif "hidden" in q or "extra" in q: 
+        response = KB["hidden"]
+        st.session_state.last_topic = "hidden"
+    elif "syllabus" in q or "curriculum" in q or "subject" in q:
+        response = KB["syllabus"]
+        st.session_state.last_topic = "syllabus"
+    elif "scholarship" in q or "discount" in q:
+        response = KB["scholarship"]
+        st.session_state.last_topic = "scholarship"
+    elif "rank" in q or "tier" in q or "best" in q:
+        response = KB["rank"]
+        st.session_state.last_topic = "rank"
+    elif "online" in q or "distance" in q:
+        response = KB["online vs distance"]
+        st.session_state.last_topic = "online vs distance"
+    elif "pros" in q or "cons" in q or "bad" in q or "good" in q:
+        response = KB["pros & cons"]
+        st.session_state.last_topic = "pros & cons"
+        
+    if response: return response
+    
     return "That's a great question. I verify everything for **transparency**. Would you like to know about the **Fee Structure** or **Placement Records**?"
 
 def render_matches(matches):
-    # Render cards in a vertical stack for the narrow center layout
     for i, u in enumerate(matches):
         badges = "".join([f"<span class='pill verified'>✔ {b}</span>" for b in u['badges']])
         st.markdown(f"""
