@@ -1,5 +1,6 @@
 import streamlit as st
 from groq import Groq
+import time
 
 # --- 1. Web Page Configuration ---
 st.set_page_config(
@@ -8,202 +9,146 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- 2. ATTRACTIVE UI Styling (Modern CSS) ---
+# --- 2. ATTRACTIVE UI Styling ---
 st.markdown("""
     <style>
-    /* Import Modern Font */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* Gradient Background - Clean & Fresh */
-    .stApp {
-        background: linear-gradient(135deg, #F5F7FA 0%, #C3CFE2 100%);
-    }
-
-    /* Header Styling */
-    h1 {
-        color: #004aad;
-        font-weight: 800;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        text-align: center;
-    }
+    html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+    .stApp { background: linear-gradient(135deg, #F5F7FA 0%, #C3CFE2 100%); }
     
-    /* FORM CONTAINER - Glassmorphism Card Style */
-    [data-testid="stForm"] {
+    /* Header */
+    h1 { color: #004aad; font-weight: 800; text-align: center; }
+    
+    /* Form & Chat Input */
+    [data-testid="stForm"], [data-testid="stChatInput"] {
         background: rgba(255, 255, 255, 0.95);
-        padding: 30px;
         border-radius: 20px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        border: 1px solid rgba(255, 255, 255, 0.5);
     }
-
-    /* CHAT INPUT - Floating Style */
-    [data-testid="stChatInput"] {
-        border-radius: 30px;
-        border: 2px solid #004aad;
-        box-shadow: 0 5px 15px rgba(0, 74, 173, 0.15);
-    }
-
-    /* CHAT BUBBLES */
     
-    /* Assistant (Eduveer) Bubble */
+    /* Chat Bubbles */
     div[data-testid="stChatMessage"] {
         background-color: #FFFFFF;
         border-radius: 0px 20px 20px 20px;
         padding: 15px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        border-left: 5px solid #004aad; /* Professional Blue Accent */
+        border-left: 5px solid #004aad;
         margin-bottom: 15px;
     }
-    
-    /* User (Student) Bubble */
     div[data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: #E3F2FD; /* Soft Blue */
-        border-radius: 20px 0px 20px 20px;
+        background-color: #E3F2FD;
         border-left: none;
         border-right: 5px solid #0078ff;
-    }
-
-    /* BUTTONS - Gradient & Hover Effect */
-    .stButton button {
-        background: linear-gradient(90deg, #004aad 0%, #0078ff 100%);
-        color: white !important;
-        border: none;
-        padding: 12px 24px;
-        font-size: 16px;
-        font-weight: 600;
-        border-radius: 12px;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 74, 173, 0.3);
-    }
-    .stButton button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 74, 173, 0.4);
+        border-radius: 20px 0px 20px 20px;
     }
     
-    /* Sidebar Booking Button - Orange Gradient */
-    a[href*="forms"] {
-        display: inline-block;
+    /* CTA Button in Chat */
+    .cta-button {
+        display: block;
         width: 100%;
-        background: linear-gradient(45deg, #FF4B4B, #FF9068);
+        background: linear-gradient(45deg, #FF512F, #DD2476);
         color: white !important;
         text-align: center;
-        padding: 12px;
-        border-radius: 12px;
+        padding: 15px;
+        border-radius: 10px;
         text-decoration: none;
         font-weight: bold;
-        margin-top: 10px;
-        box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3);
-        transition: transform 0.2s;
+        margin: 10px 0;
+        box-shadow: 0 5px 15px rgba(221, 36, 118, 0.3);
     }
-    a[href*="forms"]:hover {
-        transform: scale(1.02);
-    }
+    .cta-button:hover { opacity: 0.9; transform: scale(1.02); }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. Initialize Brain (Groq) ---
+# --- 3. Initialize Brain ---
 try:
     api_key = st.secrets["GROQ_API_KEY"]
     client = Groq(api_key=api_key)
 except Exception:
-    st.error("⚠️ API Key Missing. Please check Settings.")
+    st.error("⚠️ API Key Missing.")
     st.stop()
 
-# --- 4. Session State Initialization ---
+# --- 4. Session State ---
 if "user_profile" not in st.session_state:
     st.session_state.user_profile = None
+if "msg_count" not in st.session_state:
+    st.session_state.msg_count = 0
 
-# --- 5. Sidebar (Reset & Booking) ---
+# --- 5. Sidebar (Data & Tools) ---
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=90)
     st.title("Distoversity") 
     st.markdown("### **Empowering India** 🇮🇳")
     
-    st.info("✨ **We Guide You For:**\n\n🏫 Regular College\n💻 Online Degrees\n📈 Upskilling")
+    st.info("📊 **For Data Analysis:**\nCurrently, data is NOT saved automatically. Please use the Booking Form to capture leads.")
+
+    # --- DATA CAPTURE LINK ---
+    # Yahan apna Google Form Link dalein
+    google_form_link = "https://forms.gle/YourFormLinkHere" 
+    
+    st.markdown(f"""
+        <a href="{google_form_link}" target="_blank" class="cta-button">
+        📝 Fill Admission Form
+        </a>
+        """, unsafe_allow_html=True)
     
     st.divider()
     
-    # --- BOOKING BUTTON ---
-    st.markdown("### 📞 Talk to an Expert")
-    st.write("Need a personal roadmap?")
-    st.markdown('[📅 Book 1:1 Session](https://forms.gle/YourFormLinkHere)', unsafe_allow_html=True)
-    
-    st.divider()
-    
-    # Reset Button
+    # --- DOWNLOAD CHAT BUTTON ---
+    if "messages" in st.session_state and len(st.session_state.messages) > 2:
+        chat_text = "\n".join([f"{m['role'].upper()}: {m['content']}" for m in st.session_state.messages])
+        st.download_button("📥 Download Chat History", chat_text, file_name="counseling_session.txt")
+
     if st.button("↻ Start New Session"):
         st.session_state.messages = []
         st.session_state.user_profile = None
+        st.session_state.msg_count = 0
         st.rerun()
 
     st.caption("© 2025 Distoversity Pvt Ltd") 
 
-# --- 6. Main Interface Logic ---
+# --- 6. Main Interface ---
 st.title("🎓 Eduveer AI") 
 
-# --- SCENARIO A: PROFILE FORM (Shows first) ---
+# --- SCENARIO A: PROFILE FORM ---
 if st.session_state.user_profile is None:
     st.markdown("<h3 style='text-align: center; color: #555;'>Let's build your future together.</h3>", unsafe_allow_html=True)
     st.write("")
     
-    # Using a Container for the card look
     with st.form("profile_form"):
-        st.subheader("👤 Tell us about yourself")
-        
-        st.markdown("**1. Current Status:**")
-        status = st.radio("Select one:", ["Student (12th Pass / Undergraduate)", "Working Professional"], label_visibility="collapsed")
-        
-        st.write("") # Spacer
-        
-        st.markdown("**2. What is your Goal?**")
-        goal = st.radio("Select goal:", ["Regular College Degree", "Online / Distance Degree (Flexible)", "Career Guidance / Upskilling"], label_visibility="collapsed")
-        
-        st.write("") # Spacer
-        
-        # Centered Submit Button
-        col1, col2, col3 = st.columns([1,2,1])
+        st.subheader("👤 Quick Profile Check")
+        col1, col2 = st.columns(2)
+        with col1:
+            status = st.radio("Current Status:", ["Student (12th/Grad)", "Working Professional"])
         with col2:
-            submitted = st.form_submit_button("Start Counseling 🚀")
+            goal = st.radio("Your Goal:", ["Regular College Degree", "Online/Distance Degree", "Upskilling/Certificate"])
+        
+        submitted = st.form_submit_button("Start Counseling 🚀")
         
         if submitted:
             st.session_state.user_profile = {"status": status, "goal": goal}
             st.rerun()
 
-# --- SCENARIO B: CHAT INTERFACE (Shows after form) ---
+# --- SCENARIO B: CHAT INTERFACE ---
 else:
     user_data = st.session_state.user_profile
     
-    # System Instructions
     system_instruction = f"""
-    You are **Eduveer**, a Professional Career Counselor from **Distoversity**.
+    You are **Eduveer**, a Career Mentor from **Distoversity**.
+    USER PROFILE: Status: {user_data['status']}, Goal: {user_data['goal']}
     
-    USER PROFILE:
-    - Status: {user_data['status']}
-    - Goal: {user_data['goal']}
+    PHILOSOPHY: "Degree is a path, Skill is the destination."
     
-    YOUR PHILOSOPHY:
-    "Degree is a path, Skill is the destination. Choose what fits your budget and time."
-    
-    TONE:
-    - Professional & Polished English.
-    - Supportive & Wise.
-    - Concise (2-3 sentences).
-    
-    RULE:
-    - Ask ONLY ONE question at a time.
-    
-    START:
-    Ask about their Interests to determine their Profile (Creator, Influencer, Catalyst, Analyst).
+    RULES:
+    - Professional & Supportive Tone.
+    - Ask ONE question at a time.
+    - If user is Working -> Pitch Online Degree.
+    - If Student -> Pitch Regular or Affordable Online.
+    - Keep answers SHORT.
     """
 
-    # Initialize Chat History
     if "messages" not in st.session_state or not st.session_state.messages:
-        welcome_msg = f"Hello! 👋 Thank you for your details.\n\nAs you are interested in a **{user_data['goal']}**, I can guide you to the best options.\n\nTo begin, I need to understand your strengths.\n\n**Tell me, what kind of work or activities make you feel most energetic?**"
-        
+        welcome_msg = f"Hello! 👋 Thanks for sharing details.\n\nSince you are interested in **{user_data['goal']}**, I can guide you perfectly.\n\nTo start, tell me: **What subjects or activities do you enjoy the most?**"
         st.session_state.messages = [
             {"role": "system", "content": system_instruction},
             {"role": "assistant", "content": welcome_msg}
@@ -216,16 +161,21 @@ else:
             with st.chat_message(message["role"], avatar=avatar_icon):
                 st.markdown(message["content"])
 
-    # Response Cleaner
+    # --- CONVERSION HOOK (After 4 messages) ---
+    # Ye logic check karega ki chat lambi ho gayi hai, to "Book Session" ka button dikhayega
+    if st.session_state.msg_count > 3 and st.session_state.msg_count < 5:
+        st.info("💡 **Finding this helpful?** Get a personalized University Shortlist from our Experts.")
+        st.markdown(f'<a href="{google_form_link}" target="_blank" class="cta-button">📅 Book Free 1:1 Session</a>', unsafe_allow_html=True)
+
     def generate_chat_responses(chat_completion):
         for chunk in chat_completion:
             if chunk.choices[0].delta.content:
                 yield chunk.choices[0].delta.content
 
-    # User Input
     if prompt := st.chat_input("Type here..."):
         st.chat_message("user", avatar="🧑‍🎓").markdown(prompt)
         st.session_state.messages.append({"role": "user", "content": prompt})
+        st.session_state.msg_count += 1 # Count badhao
 
         with st.chat_message("assistant", avatar="🤖"):
             try:
