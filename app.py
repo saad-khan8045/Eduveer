@@ -3,96 +3,149 @@ from groq import Groq
 
 # --- 1. Web Page Configuration ---
 st.set_page_config(
-    page_title="My Career AI",
+    page_title="Diztoversity AI",
     page_icon="🎓",
     layout="centered"
 )
 
-# --- 2. Sidebar Info ---
+# --- 2. Engaging UI Theme (Custom CSS) ---
+st.markdown("""
+    <style>
+    /* 1. Main Background - Soft Blue */
+    .stApp {
+        background-color: #F4F9FF;
+    }
+    
+    /* 2. Chat Input Box - Making it float and look modern */
+    [data-testid="stChatInput"] {
+        border-radius: 20px;
+        border: 1px solid #004aad;
+        box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* 3. Header Styling - Centered & Branded */
+    h1 {
+        color: #004aad;
+        text-align: center;
+        font-family: sans-serif;
+        font-weight: 800;
+        text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+    }
+    h3 {
+        text-align: center;
+        color: #555;
+        font-weight: 400;
+        font-size: 1.2rem;
+    }
+
+    /* 4. Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: #FFFFFF;
+        border-right: 1px solid #E6E6E6;
+    }
+    
+    /* 5. Chat Bubbles - Clean Cards */
+    .stChatMessage {
+        background-color: #FFFFFF;
+        border-radius: 12px;
+        box-shadow: 0px 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 10px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- 3. Sidebar Info ---
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=100)
-    st.title("My Brand Name") 
-    st.markdown("""
-    **Eduveer** is your AI Career Counselor.
+    # Brand Logo
+    st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=90)
     
-    **Our Framework:**
-    First, we identify your natural character, then we map you to the right University Segment.
+    st.title("Diztoversity") 
+    st.markdown("### **Empowering India** 🇮🇳")
     
-    - 🎨 **Creator:** Innovation & Ideas
-    - 📢 **Influencer:** People & Leadership
-    - 🤝 **Catalyst:** Service & Timing
-    - 📊 **Analyst:** Systems & Data
-    """)
+    st.success("Identify your true potential.")
+    
     st.divider()
-    st.caption("© 2025 My Brand Name Pvt Ltd") 
+    st.markdown("**Your Character Profile:**")
+    st.markdown("- 🎨 **Creator**")
+    st.markdown("- 📢 **Influencer**")
+    st.markdown("- 🤝 **Catalyst**")
+    st.markdown("- 📊 **Analyst**")
+    
+    st.divider()
+    st.caption("© 2025 Diztoversity Pvt Ltd") 
 
-# --- 3. Main Interface ---
+# --- 4. Hero Section (Main Interface) ---
 st.title("🎓 Eduveer AI") 
-st.subheader("Education meets Wealth Creation.")
-st.write("Most people choose universities based on specifications. We choose based on **WHO YOU ARE**.")
+st.markdown("<h3>Discover Your Wealth. Discover Your University.</h3>", unsafe_allow_html=True)
 
-# --- 4. Initialize the Brain (Groq) ---
+# Spacer to push chat down a bit
+st.markdown("---")
+
+# --- 5. Initialize Brain ---
 try:
     api_key = st.secrets["GROQ_API_KEY"]
     client = Groq(api_key=api_key)
 except Exception:
-    st.error("⚠️ **Setup Required:** Please add your `GROQ_API_KEY` in the Streamlit Secrets settings.")
+    st.error("⚠️ API Key Missing. Please check Settings.")
     st.stop()
 
-# --- 5. AI Personality ---
+# --- 6. AI Personality ---
 system_instruction = """
-You are Eduveer, the expert AI Career Counselor.
+You are Eduveer, a friendly and wise AI Career Counselor from 'Diztoversity'.
 
-YOUR CORE PHILOSOPHY:
-"Education is essential, but Wealth is most important. Both are interconnected. We do not select universities based on specifications alone; we first identify the student's Natural Character (Profile)."
+YOUR GOAL: Keep the student engaged. Make them feel understood.
+
+YOUR BRAND SLOGAN: "Empowering India"
 
 YOUR METHODOLOGY (The 4 Segments):
-1. **Creator**: Loves innovation, creating from scratch, artistic, dislikes details. Suggest: Design, Arts, Startups.
-2. **Influencer**: Loves talking, connecting with people, leadership. Suggest: Media, Management, Law.
-3. **Catalyst**: Grounded, sensory, timing, serving others. Suggest: Hospitality, Nursing, Supply Chain.
-4. **Analyst**: Loves data, calculation, systems, working alone. Suggest: Engineering, Finance, Accounting.
+1. Creator: Innovation, Arts, Startups.
+2. Influencer: Media, Leadership, Law.
+3. Catalyst: Service, Nursing, Hospitality.
+4. Analyst: Data, Finance, Engineering.
 
-YOUR RULES:
-- Start by asking questions to identify the profile.
-- Be empathetic and wise.
-- Keep responses concise.
-- Do NOT mention external frameworks.
+RULES:
+- Use emojis 🎓✨🚀 to make chat fun.
+- Ask ONE simple question at a time to keep the chat moving.
+- Be encouraging (e.g., "That's amazing!", "Great choice!").
+- Never give long boring lectures. Keep it conversational.
+- Speak in Hinglish if the user does.
 """
 
-# --- 6. Chat History Setup ---
+# --- 7. Chat History ---
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {"role": "system", "content": system_instruction},
-        {"role": "assistant", "content": "Namaste! I am Eduveer. Before we look at universities, I need to understand your natural character.\n\n**Tell me, what kind of work makes you feel most alive and energetic?**"}
+        {"role": "assistant", "content": "Namaste! 🙏 I am **Eduveer**.\n\nI help you choose a career based on **WHO YOU ARE**, not just marks.\n\nTell me, **what is that one thing you can do for hours without getting bored?**"}
     ]
 
-# --- 7. Display Chat ---
+# --- 8. Display Chat with Avatars ---
 for message in st.session_state.messages:
     if message["role"] != "system":
-        with st.chat_message(message["role"]):
+        # Custom Avatars: Student (🧑‍🎓) vs AI (🤖)
+        avatar_icon = "🧑‍🎓" if message["role"] == "user" else "🤖"
+        with st.chat_message(message["role"], avatar=avatar_icon):
             st.markdown(message["content"])
 
-# --- 8. Function to clean the AI Output ---
+# --- 9. Response Cleaner ---
 def generate_chat_responses(chat_completion):
-    """Filters the computer code and returns only text."""
     for chunk in chat_completion:
         if chunk.choices[0].delta.content:
             yield chunk.choices[0].delta.content
 
-# --- 9. Handle User Input ---
-if prompt := st.chat_input("e.g., I love talking to people..."):
-    st.chat_message("user").markdown(prompt)
+# --- 10. User Input ---
+# Custom Placeholder text to encourage typing
+if prompt := st.chat_input("Type here... (e.g., I love painting, or I love math)"):
+    st.chat_message("user", avatar="🧑‍🎓").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    with st.chat_message("assistant"):
+    with st.chat_message("assistant", avatar="🤖"):
         try:
             stream = client.chat.completions.create(
                 model="llama-3.3-70b-versatile",
                 messages=st.session_state.messages,
                 stream=True,
             )
-            # Use the cleaning function here
             response = st.write_stream(generate_chat_responses(stream))
             st.session_state.messages.append({"role": "assistant", "content": response})
         except Exception as e:
-            st.error(f"An error occurred: {e}")
+            st.error("⚠️ Connection Error. Please refresh.")
