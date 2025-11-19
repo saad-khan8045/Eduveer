@@ -1,296 +1,100 @@
 import streamlit as st
-from groq import Groq
-import time
-import streamlit.components.v1 as components
 
-# --- 1. Web Page Configuration ---
+# --- PAGE CONFIG ---
 st.set_page_config(
-    page_title="Distoversity AI",
+    page_title="Eduveer - Distoversity Career Advisor",
     page_icon="🎓",
     layout="centered"
 )
 
-# --- 2. FLASHING TAB TITLE SCRIPT ---
-# This JavaScript will make the tab title toggle every 2 seconds
-flashing_script = """
-<script>
-    var titles = ["Distoversity Guide", "Your Career Mentor", "Distoversity AI"];
-    var i = 0;
-    setInterval(function() {
-        document.title = titles[i % titles.length];
-        i++;
-    }, 2000); # Change every 2000 milliseconds (2 seconds)
-</script>
-"""
-components.html(flashing_script, height=0)
-
-# --- 3. WEBSITE-MATCHED UI Styling ---
+# --- CATCHY UI CSS ---
 st.markdown("""
-    <style>
-    /* Import 'Inter' font to match your website typography */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-    
-    html, body, [class*="css"] {
-        font-family: 'Inter', sans-serif;
-        background-color: #FFFFFF; /* Clean White Background */
-        color: #1F2937; /* Dark Grey Text for readability */
-    }
-    
-    /* Main App Background */
-    .stApp {
-        background-color: #F3F8FC; /* Very light blue/grey tint from your dashboard background */
-    }
-    
-    /* Headers - Matching the dark blue/black form headers */
-    h1, h2, h3 {
-        color: #0D1B2A; /* Deep Navy/Black from screenshots */
-        font-weight: 700;
-        text-align: center;
-    }
-    
-    /* --- BUTTONS (Matching the "Start Assessment" / "Request Demo" buttons) --- */
-    .stButton button {
-        background-color: #00AEEF; /* The vibrant Cyan-Blue from your buttons */
-        color: white !important;
-        border: none;
-        padding: 12px 32px;
-        font-size: 16px;
-        font-weight: 600;
-        border-radius: 4px; /* Slightly sharper corners as seen in 'Start Assessment' */
-        transition: all 0.3s ease;
-        box-shadow: 0 2px 4px rgba(0, 174, 239, 0.2);
-        width: 100%; /* Full width on mobile, responsive */
-    }
-    .stButton button:hover {
-        background-color: #0095CC; /* Slightly darker on hover */
-        transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(0, 174, 239, 0.3);
-    }
-    
-    /* --- FORM & CARDS (Matching "Genius Profile" cards) --- */
-    [data-testid="stForm"], [data-testid="stChatInput"] {
-        background-color: #FFFFFF;
-        border: 1px solid #E2E8F0; /* Subtle border */
-        border-radius: 12px; /* Rounded corners like the profile cards */
-        padding: 32px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* Soft shadow */
-        margin-bottom: 20px;
-    }
+<style>
+body, .stApp {
+    background: linear-gradient(90deg, #0077b6 0%, #00AEEF 80%, #CAF0F8 100%);
+}
+h1, h2, h3 {
+    color: #0D1B2A;
+    font-weight: 800;
+    text-shadow: 0 2px 18px #00AEEF99;
+    text-align: center;
+}
+.stButton button {
+    background: linear-gradient(90deg, #00AEEF, #0077b6 60%, #CAF0F8 100%);
+    color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px #00AEEF68;
+    padding: 14px 38px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: box-shadow 0.3s, transform 0.2s;
+}
+.stButton button:hover {
+    box-shadow: 0 8px 28px #00AEEF99;
+    transform: scale(1.05);
+}
+.card {
+    background-color: #fff;
+    border: 2px solid #00AEEF;
+    border-radius: 16px;
+    box-shadow: 0 2px 16px #CAF0F844;
+    padding: 26px;
+    margin: 18px 0;
+    text-align: left;
+}
+</style>
+""", unsafe_allow_html=True)
 
-    /* --- CHAT BUBBLES --- */
-    
-    /* Eduveer (AI) - Clean White Card Style */
-    div[data-testid="stChatMessage"] {
-        background-color: #FFFFFF;
-        border: 1px solid #F1F5F9;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        margin-bottom: 16px;
-    }
-    
-    /* User (Student) - Light Blue Accent matching site theme */
-    div[data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: #E0F2FE; /* Very light blue background */
-        border: 1px solid #BAE6FD;
-    }
-    
-    /* Sidebar Styling */
-    [data-testid="stSidebar"] {
-        background-color: #FFFFFF;
-        border-right: 1px solid #F1F5F9;
-    }
-    
-    /* Sidebar Booking Button */
-    a[href*="forms"] {
-        display: inline-block;
-        width: 100%;
-        background-color: #00AEEF; /* Matching Primary Brand Color */
-        color: white !important;
-        text-align: center;
-        padding: 12px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 600;
-        margin-top: 10px;
-        transition: background-color 0.3s;
-    }
-    a[href*="forms"]:hover {
-        background-color: #0095CC;
-    }
+# --- UNIVERSITY DATA (Expand as Needed) ---
+universities = [
+    {"name": "Amity Online", "logo": "https://www.amityonline.com/themes/custom/amityonline/images/favicon/apple-touch-icon.png",
+     "degrees": ["MBA Online", "BCA Online", "BBA Online"], "apply": "https://www.amityonline.com/"},
+    {"name": "Jain Online", "logo": "https://www.jainuniversity.ac.in/themes/custom/jain/favicon.ico",
+     "degrees": ["MCA Online", "BCom Online"], "apply": "https://jainuniversity.ac.in/"},
+    {"name": "Manipal Online", "logo": "https://www.onlinemanipal.com/static/favicon.ico",
+     "degrees": ["BSc Data Science", "MBA Online"], "apply": "https://www.onlinemanipal.com/"},
+]
 
-    /* Radio Button Selection Color */
-    div[role="radiogroup"] label > div:first-child {
-        background-color: #00AEEF !important;
-    }
-    
-    /* Hide Streamlit branding for cleaner look */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    </style>
-    """, unsafe_allow_html=True)
+energy_to_degrees = {
+    "Creator": ["BBA Online", "BA Journalism", "B.Des (Design)"],
+    "Influencer": ["MBA Online", "BCom Online", "BA Psychology"],
+    "Catalyst": ["BA Social Work", "B.Ed Online"],
+    "Analyst": ["BCA Online", "BSc Data Science", "MCA Online"]
+}
 
-# --- 4. Initialize Brain ---
-try:
-    api_key = st.secrets["GROQ_API_KEY"]
-    client = Groq(api_key=api_key)
-except Exception:
-    st.error("⚠️ API Key Missing.")
-    st.stop()
+# --- APP HEADER ---
+st.title("🎓 Eduveer – India's Veteran Career Advisor")
+st.markdown("<div style='text-align:center;color:#0077b6;font-size:1.15rem;'>Expert guidance for your online degree dream. Powered by Distoversity.</div>", unsafe_allow_html=True)
+st.markdown("")
 
-# --- 5. Session State ---
-if "user_profile" not in st.session_state:
-    st.session_state.user_profile = None
-if "msg_count" not in st.session_state:
-    st.session_state.msg_count = 0
+# --- USER PROFILE DEMO for QUICK TESTING ---
+status = st.selectbox("Who are you?", ["Student (12th/Grad)", "Working Professional"])
+goal = st.selectbox("Your Goal:", ["Online/Distance Degree", "Regular Degree", "Upskilling/Certificate"])
+energy = st.selectbox("Which describes you best?", ["Creator", "Influencer", "Catalyst", "Analyst"])
+st.markdown("")
 
-# --- 6. Sidebar (Data & Tools) ---
-with st.sidebar:
-    # Using your logo placeholder (Update link if you have hosted logo)
-    st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=80)
-    
-    st.markdown("### **Distoversity**") 
-    st.caption("Empowering India's Future Leaders 🇮🇳")
-    
-    st.info("📊 **Admissions Open**\nConnect with top universities matched to your profile.")
+# --- UNIVERSITY RECOMMENDATIONS ---
+st.subheader("🔎 Top Online Universities For You")
+matching_degrees = energy_to_degrees[energy]
 
-    # --- DATA CAPTURE LINK ---
-    google_form_link = "https://forms.gle/YourFormLinkHere" 
-    
-    st.markdown(f"""
-        <a href="{google_form_link}" target="_blank">
-        📝 Start Application
-        </a>
+for uni in universities:
+    # Filter university's degrees by user energy type
+    offered = [deg for deg in uni["degrees"] if deg in matching_degrees]
+    if offered:
+        st.markdown(f"""
+        <div class="card">
+            <img src="{uni['logo']}" width="44" style="border-radius:8px;float:left;margin-right:15px;" />
+            <strong style="font-size:1.3em;">{uni['name']}</strong><br>
+            <span style="color:#0077b6;font-weight:600;">Degree Programs:</span> {', '.join(offered)}<br>
+            <a href="{uni['apply']}" target="_blank"><button style="
+                background:linear-gradient(90deg,#00AEEF,#0077b6 70%,#CAF0F8 100%);
+                color:white;padding:10px 28px;border:none;border-radius:6px;
+                font-weight:700;margin-top:14px;cursor:pointer;">Apply Now</button></a>
+        </div>
         """, unsafe_allow_html=True)
-    
-    st.divider()
-    
-    # --- DOWNLOAD CHAT BUTTON ---
-    if "messages" in st.session_state and len(st.session_state.messages) > 2:
-        chat_text = "\n".join([f"{m['role'].upper()}: {m['content']}" for m in st.session_state.messages])
-        st.download_button("📥 Save Recommendations", chat_text, file_name="my_career_roadmap.txt")
 
-    if st.button("↻ Start New Session"):
-        st.session_state.messages = []
-        st.session_state.user_profile = None
-        st.session_state.msg_count = 0
-        st.rerun()
+# --- WISE ADVISOR MESSAGE ---
+st.success(f"In my 20 years, students with '{energy}' energy thrive in careers linked to these degrees. These online programs are recognized, flexible, and respected across India.\n\nWould you like a personalized career assessment or application help?")
 
-    st.caption("© 2025 Distoversity Pvt Ltd") 
+st.markdown("<div style='text-align:center;'><a href='https://forms.gle/YourFormLinkHere' target='_blank' style='color:white;font-weight:700;background:#00AEEF;padding:10px 20px;border-radius:4px;text-decoration:none;'>Book Free Career Session</a></div>", unsafe_allow_html=True)
 
-# --- 7. Main Interface ---
-# Header matching your site style
-st.title("Discover Your Genius Profile") 
-st.markdown("<p style='text-align: center; color: #64748B; font-size: 1.1rem;'>Unlock personalized university recommendations based on your unique strengths.</p>", unsafe_allow_html=True)
-
-# --- SCENARIO A: PROFILE FORM (Aligned & Responsive) ---
-if st.session_state.user_profile is None:
-    st.write("")
-    
-    # Container for alignment
-    with st.form("profile_form"):
-        st.markdown("### Let's get started")
-        st.write("")
-        
-        # Responsive Columns
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("**Current Status**")
-            st.caption("Select what describes you best")
-            status = st.radio("Status", 
-                            ["Student (12th/Grad)", "Working Professional"], 
-                            label_visibility="collapsed")
-        
-        with col2:
-            st.markdown("**Your Goal**")
-            st.caption("What are you looking for?")
-            goal = st.radio("Goal", 
-                          ["Regular College Degree", "Online/Distance Degree", "Upskilling/Certificate"], 
-                          label_visibility="collapsed")
-        
-        st.write("")
-        st.write("")
-        
-        # Centered Button
-        c1, c2, c3 = st.columns([1, 2, 1])
-        with c2:
-            submitted = st.form_submit_button("Start Free Assessment ➔")
-        
-        if submitted:
-            st.session_state.user_profile = {"status": status, "goal": goal}
-            st.rerun()
-
-# --- SCENARIO B: CHAT INTERFACE ---
-else:
-    user_data = st.session_state.user_profile
-    
-    # --- VETERAN ADVISOR INSTRUCTIONS (Distoversity Framework) ---
-    system_instruction = f"""
-    You are **Eduveer**, a Senior Career Counselor at **Distoversity** with 20 years of experience.
-    USER PROFILE: Status: {user_data['status']}, Goal: {user_data['goal']}
-    
-    YOUR CORE TASK:
-    Profile the student based on the **4 Energies of Distoversity**:
-    1. **Creator (Innovation):** Likes starting new things, ideas, art, big picture thinking.
-    2. **Influencer (People):** Likes leading, speaking, connecting, managing people.
-    3. **Catalyst (Service/Timing):** Likes helping, patient, grounded, excellent timing & coordination.
-    4. **Analyst (Data/Systems):** Likes numbers, logic, details, perfection, working alone.
-
-    TONE & LANGUAGE:
-    - **Veteran & Wise:** Speak with authority but kindness. Use phrases like "In my experience," "The smart choice is," "Think about the long term."
-    - **Simple English:** Explain concepts simply (12th-grade level). No complex jargon.
-    - **Empathetic:** Acknowledge that career choices are confusing.
-    
-    COMMUNICATION RULES:
-    1. **Short Answers:** Keep replies to 2-3 sentences max.
-    2. **One Question Rule:** Ask ONLY ONE question per message.
-    3. **Diagnosis First:** Ask questions to figure out which of the 4 Energies they are.
-    4. **Recommendation:** Once you identify their energy (e.g., Creator), suggest courses aligned with it (e.g., Design, Architecture).
-    
-    STRATEGY:
-    - If Working Pro: Recommend Online Degrees for flexibility.
-    - If Student: Focus on building a strong foundation.
-    """
-
-    if "messages" not in st.session_state or not st.session_state.messages:
-        welcome_msg = f"Hello. It is good to meet you.\n\nI see you are looking for **{user_data['goal']}**. That is a very important decision for your future.\n\nTo guide you correctly, I need to understand your natural energy.\n\n**Which of these sounds more like you?**\n\nA) I love coming up with new ideas and creating things.\nB) I love talking to people and leading teams."
-        st.session_state.messages = [
-            {"role": "system", "content": system_instruction},
-            {"role": "assistant", "content": welcome_msg}
-        ]
-
-    # Display Chat
-    for message in st.session_state.messages:
-        if message["role"] != "system":
-            # Using simpler avatars to match the clean UI
-            avatar_icon = "🧑‍🎓" if message["role"] == "user" else "🎓"
-            with st.chat_message(message["role"], avatar=avatar_icon):
-                st.markdown(message["content"])
-
-    # --- CONVERSION HOOK ---
-    if st.session_state.msg_count > 3 and st.session_state.msg_count < 5:
-        st.info("💡 **Need a verified university list?**")
-        st.markdown(f'<a href="{google_form_link}" target="_blank" style="text-decoration:none; color: #00AEEF; font-weight:bold;">Click here to Book a Free Session &rarr;</a>', unsafe_allow_html=True)
-
-    def generate_chat_responses(chat_completion):
-        for chunk in chat_completion:
-            if chunk.choices[0].delta.content:
-                yield chunk.choices[0].delta.content
-
-    if prompt := st.chat_input("Type your answer here..."):
-        st.chat_message("user", avatar="🧑‍🎓").markdown(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        st.session_state.msg_count += 1
-
-        with st.chat_message("assistant", avatar="🎓"):
-            try:
-                stream = client.chat.completions.create(
-                    model="llama-3.3-70b-versatile",
-                    messages=st.session_state.messages,
-                    stream=True,
-                )
-                response = st.write_stream(generate_chat_responses(stream))
-                st.session_state.messages.append({"role": "assistant", "content": response})
-            except Exception as e:
-                st.error("⚠️ Connection Error. Please refresh.")
