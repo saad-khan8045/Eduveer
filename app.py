@@ -1,5 +1,7 @@
 import streamlit as st
+import pandas as pd
 import time
+import random
 
 # --- CONFIGURATION & THEME ---
 st.set_page_config(
@@ -57,16 +59,35 @@ st.markdown(f"""
     }}
 
     /* CHAT UI */
+    /* Remove default Streamlit avatars to use our custom headers */
+    .stChatMessage {{
+        background-color: transparent !important;
+    }}
+    
+    /* Assistant Bubble */
+    div[data-testid="chatAvatarIcon-assistant"] {{
+        display: none;
+    }}
     .stChatMessage.assistant {{
         background: white;
-        border-left: 4px solid {PRIMARY_BLUE};
+        border-left: 5px solid {PRIMARY_BLUE};
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        border-radius: 0 12px 12px 12px;
+        border-radius: 0 15px 15px 15px;
+        padding: 10px;
+        margin-right: 20%;
+    }}
+    
+    /* User Bubble */
+    div[data-testid="chatAvatarIcon-user"] {{
+        display: none;
     }}
     .stChatMessage.user {{
-        background: #EBF8FF;
-        border-right: 4px solid {DEEP_BLUE};
-        border-radius: 12px 0 12px 12px;
+        background: #E3F2FD; /* Light Blue */
+        border-right: 5px solid {DEEP_BLUE};
+        border-radius: 15px 0 15px 15px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        padding: 10px;
+        margin-left: 20%;
         text-align: right;
     }}
 
@@ -97,12 +118,12 @@ st.markdown(f"""
         border-top: 1px solid #EDF2F7;
     }}
     
-    /* BUTTONS & HOOKS */
+    /* DYNAMIC BUTTONS */
     .stButton>button {{
         background-color: white;
         color: {PRIMARY_BLUE};
         border: 1px solid {PRIMARY_BLUE};
-        border-radius: 20px; /* Pill shape for hooks */
+        border-radius: 20px;
         font-weight: 600;
         width: 100%;
         transition: all 0.2s;
@@ -112,19 +133,38 @@ st.markdown(f"""
         color: white;
         transform: translateY(-2px);
     }}
-    .primary-btn {{
-        background-color: {ACCENT_ORANGE};
-        color: white;
-        padding: 8px 20px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
+    
+    /* Highlight Name Header */
+    .chat-header {{
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }}
+    .user-header {{ color: {DEEP_BLUE}; }}
+    .bot-header {{ color: {PRIMARY_BLUE}; }}
 
-    /* BADGES */
+    /* COMPARISON TABLE STYLING */
+    div[data-testid="stTable"] table {{
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+        border: 1px solid #E2E8F0;
+        border-radius: 10px;
+        overflow: hidden;
+    }}
+    div[data-testid="stTable"] th {{
+        background-color: {PRIMARY_BLUE};
+        color: white;
+        font-weight: 600;
+    }}
+    div[data-testid="stTable"] td {{
+        background-color: white;
+        color: {TEXT_MAIN};
+    }}
+    
+    /* Badges */
     .verified-badge {{
         background: #F0FFF4;
         color: {SUCCESS_GREEN};
@@ -155,16 +195,26 @@ QUESTIONS = [
     {"q": "Pick a movie role:", "options": [("Director", "Creator"), ("Hero", "Influencer"), ("Editor", "Analyst"), ("Producer", "Catalyst")]}
 ]
 
-# --- KNOWLEDGE BASE ---
+# --- EXPANDED KNOWLEDGE BASE ---
 KB = {
-    "placement": "All the universities I recommend have dedicated placement cells. For example, Amity and Manipal conduct virtual job fairs with top recruiters like Amazon and Deloitte.",
-    "valid": "Yes! Every university listed here is **UGC-DEB Approved**. The degree is legally equivalent to a regular campus degree for government jobs and further studies.",
-    "exam": "Exams are conducted online with AI proctoring. You can take them from home on weekends, so your job isn't disturbed.",
-    "fee": "Most universities offer EMI options starting as low as ₹3,000/month to make it affordable.",
-    "lpu": "LPU is excellent for affordability and holds NAAC A++ accreditation. It's a great choice if you want a recognized degree on a budget.",
-    "amity": "Amity is a premium choice known for its global recognition and strong corporate network.",
-    "manipal": "Manipal Jaipur is fantastic for new-age courses like BCA and Digital Marketing with great content delivery."
+    "placement": "All the universities I recommend have dedicated placement cells. Amity and Manipal are top-tier, often hosting virtual job fairs with companies like Amazon, Deloitte, and HDFC.",
+    "valid": "100% Yes. Every university here is **UGC-DEB Approved**. In India, this is the gold standard. Your degree is legally equal to a regular campus degree for government jobs (UPSC, SSC) and higher studies.",
+    "exam": "Exams are fully online with AI Proctoring. You can take them from your living room on weekends. No need to travel to centers!",
+    "fee": "Most universities offer monthly EMI options (starting ₹3,000-₹5,000) so you don't have to pay the full amount upfront.",
+    "lpu": "LPU is the 'Value for Money' king. NAAC A++ accredited and very affordable. Great if you want a solid degree without a huge loan.",
+    "amity": "Amity is for the 'Brand Conscious'. It has global recognition and excellent networking opportunities, though it costs a bit more.",
+    "manipal": "Manipal Jaipur is perfect for 'Modern Careers'. Their digital platform is slick, and they focus heavily on new-age skills like Data Science and Marketing.",
+    "salary": "While it depends on your skills, an MBA/MCA from these universities can typically hike your salary by 30-50% if you are switching domains.",
+    "syllabus": "The syllabus is updated regularly to match industry standards. It includes practical projects and case studies, not just theory.",
+    "faculty": "You get to learn from both experienced professors and industry experts who guest lecture on weekends."
 }
+
+# --- POOL OF DYNAMIC HOOKS ---
+HOOK_POOL = [
+    "💰 Check Placements", "📜 Is this Valid?", "📊 Compare All", "💸 Check EMI Options",
+    "🏫 Faculty Quality?", "📈 Salary Hike?", "📝 Exam Difficulty?", "🌍 Valid Abroad?",
+    "📚 Syllabus Details?", "💼 Job Support?"
+]
 
 # --- STATE MANAGEMENT ---
 if "messages" not in st.session_state: st.session_state.messages = []
@@ -172,8 +222,14 @@ if "step" not in st.session_state: st.session_state.step = 0
 if "q_index" not in st.session_state: st.session_state.q_index = 0
 if "scores" not in st.session_state: st.session_state.scores = {"Creator": 0, "Influencer": 0, "Analyst": 0, "Catalyst": 0}
 if "filter" not in st.session_state: st.session_state.filter = {"budget": 1000000, "course": "All"}
+if "user_info" not in st.session_state: st.session_state.user_info = {}
+if "current_hooks" not in st.session_state: st.session_state.current_hooks = random.sample(HOOK_POOL, 4)
 
 # --- HELPER FUNCTIONS ---
+def refresh_hooks():
+    """Randomly selects 4 new hooks to keep the chat fresh"""
+    st.session_state.current_hooks = random.sample(HOOK_POOL, 4)
+
 def add_bot_msg(text, role="assistant"):
     st.session_state.messages.append({"role": role, "content": text})
 
@@ -185,13 +241,15 @@ def get_energy():
 
 def get_bot_response(user_query):
     query = user_query.lower()
-    if "placement" in query or "job" in query: return KB["placement"]
-    if "valid" in query or "fake" in query or "ugc" in query: return KB["valid"]
+    if "placement" in query or "job" in query or "salary" in query: return KB["placement"] + " " + KB["salary"]
+    if "valid" in query or "fake" in query or "ugc" in query or "abroad" in query: return KB["valid"]
     if "exam" in query: return KB["exam"]
-    if "fee" in query or "cost" in query: return KB["fee"]
+    if "fee" in query or "cost" in query or "emi" in query: return KB["fee"]
     if "lpu" in query: return KB["lpu"]
     if "amity" in query: return KB["amity"]
     if "manipal" in query: return KB["manipal"]
+    if "syllabus" in query: return KB["syllabus"]
+    if "faculty" in query: return KB["faculty"]
     return "That's a great question. I focus on finding UGC-approved universities. Would you like to know about their **Placements**, **Fees**, or **Validity**?"
 
 def render_matches(matches):
@@ -217,10 +275,24 @@ def render_matches(matches):
                 <div style="font-size:0.85rem; color:#555;">Best for: {", ".join(u['best_for'])}</div>
             </div>
             <div class="cv-footer">
-                <button class="primary-btn" style="width:100%;">View Brochure</button>
+                <button style="background:#FF6B6B; color:white; border:none; padding:8px; border-radius:5px; width:100%; cursor:pointer;">View Brochure</button>
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+def render_comparison_chart(matches):
+    """Renders a pandas comparison table"""
+    data = []
+    for u in matches:
+        data.append({
+            "University": u["name"],
+            "Total Fee": u["fees_display"],
+            "Approvals": ", ".join(u["badges"]),
+            "EMI Plan": u["emi"]
+        })
+    df = pd.DataFrame(data)
+    st.markdown("### 📊 University Comparison Matrix")
+    st.table(df)
 
 # --- MAIN UI HEADER ---
 st.markdown(f"""
@@ -235,16 +307,26 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# --- 1. DISPLAY CHAT STREAM (This handles Text AND Cards) ---
+# --- 1. DISPLAY CHAT STREAM ---
+# This loop handles rendering messages with custom Headers for Name Flashing
 for msg in st.session_state.messages:
-    # Special handler for "Card Messages" so they scroll up with history
-    if msg.get("role") == "results_cards":
-        render_matches(msg["content"])
+    role = msg.get("role")
+    content = msg.get("content")
     
-    # Standard Text Messages
+    if role == "results_cards":
+        render_matches(content)
+    elif role == "comparison_chart":
+        render_comparison_chart(content)
     else:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+        with st.chat_message(role):
+            # CUSTOM NAME HEADERS
+            if role == "user":
+                user_name = st.session_state.user_info.get("name", "You").split()[0].upper()
+                st.markdown(f"<div class='chat-header user-header'>👤 {user_name}</div>", unsafe_allow_html=True)
+            else:
+                st.markdown(f"<div class='chat-header bot-header'>🤖 Eduveer</div>", unsafe_allow_html=True)
+            
+            st.markdown(content)
 
 # --- 2. LOGIC CONTROLLER ---
 
@@ -319,45 +401,42 @@ elif st.session_state.step == 4:
     primary = get_energy()
     filt = st.session_state.filter
     
+    # Calculate matches (memoized mostly by streamlit flow)
+    matches = [u for u in UNIVERSITIES if (u["max_fee"] <= filt["budget"]) and (filt["course"] in u["programs"] or filt["course"] == "Other")]
+    if not matches: matches = [u for u in UNIVERSITIES if primary in u["best_for"]][:2]
+
     if "res_msg" not in [m.get("id", "") for m in st.session_state.messages]:
-        # 1. Add Text Message
         st.session_state.messages.append({"role": "assistant", "content": f"🎉 **Here are your Top Matches!**\n\nI have filtered these for your **{primary}** profile and budget.", "id": "res_msg"})
-        
-        # 2. Add CARDS as a Message (This makes them scrollable!)
-        matches = [u for u in UNIVERSITIES if (u["max_fee"] <= filt["budget"]) and (filt["course"] in u["programs"] or filt["course"] == "Other")]
-        if not matches: matches = [u for u in UNIVERSITIES if primary in u["best_for"]][:2]
-        
         st.session_state.messages.append({"role": "results_cards", "content": matches})
-        
-        # 3. Add Follow-up Text
         st.session_state.messages.append({"role": "assistant", "content": "👇 **Click a question below or type your own to chat with me!**"})
         st.rerun()
 
-# --- 3. INTERACTIVE HOOKS & INPUT ---
-# Only show hooks if we are in the final chat stage
-if st.session_state.step == 4:
-    
-    # SMART HOOKS (Buttons that act like user input)
-    hooks = ["💰 Check Placements", "📜 Is this Valid?", "💸 Check EMI Options", "🏦 Compare Fees"]
+    # --- DYNAMIC INTERACTIVE HOOKS ---
+    # These change every time to keep it fresh
     cols = st.columns(2)
-    for i, hook in enumerate(hooks):
-        if cols[i % 2].button(hook, key=f"hook_{i}"):
-            # Treat click as user input
+    for i, hook in enumerate(st.session_state.current_hooks):
+        if cols[i % 2].button(hook, key=f"hook_{len(st.session_state.messages)}_{i}"):
             add_user_msg(hook)
-            response = get_bot_response(hook)
-            add_bot_msg(response)
+            
+            if hook == "📊 Compare All":
+                 st.session_state.messages.append({"role": "comparison_chart", "content": matches})
+                 st.session_state.messages.append({"role": "assistant", "content": "Here is the comparison. Anything else?"})
+            else:
+                response = get_bot_response(hook)
+                add_bot_msg(response)
+            
+            refresh_hooks() # SHUFFLE OPTIONS FOR NEXT TURN
             st.rerun()
 
 # CHAT INPUT
 user_query = st.chat_input("Ask Eduveer (e.g., 'Is LPU valid?', 'How are placements?')")
 if user_query:
     add_user_msg(user_query)
-    
-    # Logic for handling chat based on step
     if st.session_state.step < 4:
         response = get_bot_response(user_query)
         add_bot_msg(f"{response}\n\n_Let's continue with the assessment above!_ 👆")
     else:
         response = get_bot_response(user_query)
         add_bot_msg(response)
+        refresh_hooks() # SHUFFLE OPTIONS FOR NEXT TURN
     st.rerun()
