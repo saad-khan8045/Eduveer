@@ -37,7 +37,7 @@ ALISON_GREEN = "#83C341"
 BOT_AVATAR = "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=EduveerSmart"
 USER_AVATAR = "https://api.dicebear.com/9.x/micah/svg?seed=Felix"
 
-# --- CSS SYSTEM (MOBILE OPTIMIZED) ---
+# --- CSS SYSTEM (FIXED) ---
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap');
@@ -46,7 +46,7 @@ st.markdown(f"""
     .stApp {{ background-color: {BRAND_LIGHT}; font-family: 'Inter', sans-serif; color: {BRAND_DARK}; }}
     #MainMenu, footer, header {{visibility: hidden;}}
     
-    /* RESPONSIVE CONTAINER - THE "APP" FEEL */
+    /* RESPONSIVE CONTAINER */
     .block-container {{
         max_width: 800px;
         padding-top: 1rem;
@@ -85,7 +85,7 @@ st.markdown(f"""
     .stChatMessage.user .stMarkdown {{ background: #E0F2FE; border: 1px solid #BAE6FD; color: {BRAND_DARK}; border-radius: 16px 4px 16px 16px; padding: 14px 18px; text-align: left; }}
     .stChatMessage.user p {{ color: {BRAND_DARK} !important; }}
 
-    /* 5. PREMIUM CARDS (College Vidya Style) */
+    /* 5. PREMIUM CARDS */
     .uni-card {{
         background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 12px;
         transition: all 0.2s; position: relative; overflow: hidden;
@@ -100,7 +100,6 @@ st.markdown(f"""
     .uni-title h3 {{ margin: 0; font-size: 1rem; font-weight: 700; font-family: 'Poppins'; color: {BRAND_DARK}; }}
     .uni-meta {{ font-size: 0.75rem; color: #64748B; font-weight: 500; }}
     
-    /* Data Grid inside Card */
     .uni-grid {{ display: flex; justify-content: space-between; background: #F8FAFC; padding: 10px; border-radius: 8px; margin-bottom: 12px; }}
     .grid-item {{ text-align: center; flex: 1; }}
     .grid-label {{ font-size: 0.6rem; text-transform: uppercase; color: #94A3B8; font-weight: 700; display: block; }}
@@ -109,8 +108,8 @@ st.markdown(f"""
     .pill {{ font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; background: #F1F5F9; color: #475569; font-weight: 600; margin-right: 4px; display: inline-block; border: 1px solid #E2E8F0; }}
     .pill.verified {{ background: #ECFDF5; color: {SUCCESS_GREEN}; border-color: #A7F3D0; }}
     
-    /* 6. COMPARISON TABLE (Custom HTML) */
-    .comp-table-wrapper { overflow-x: auto; }
+    /* 6. COMPARISON TABLE (FIXED CSS SYNTAX HERE) */
+    .comp-table-wrapper {{ overflow-x: auto; }}
     .comp-table {{ width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; min-width: 400px; }}
     .comp-table th {{ text-align: left; background: {BRAND_PRIMARY}; color: white; padding: 10px; font-weight: 600; font-size: 0.8rem; }}
     .comp-table td {{ padding: 10px; border-bottom: 1px solid #E2E8F0; color: {BRAND_DARK}; vertical-align: middle; }}
