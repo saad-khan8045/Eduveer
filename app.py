@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import time
 import random
+import streamlit.components.v1 as components
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -13,48 +14,57 @@ st.set_page_config(
 
 # --- BRAND IDENTITY ---
 BRAND_PRIMARY = "#0EA5E9"   # Premium Sky Blue
-BRAND_DARK = "#0F172A"      # Slate 900 (High Contrast Text)
-BRAND_LIGHT = "#F8FAFC"     # Slate 50 (Clean Background)
-ACCENT_ORANGE = "#F97316"   # Call to Action
-SUCCESS_GREEN = "#10B981"   # Verification/Success
+BRAND_DARK = "#0F172A"      # Slate 900
+BRAND_LIGHT = "#F8FAFC"     # Slate 50
+ACCENT_ORANGE = "#F97316"   # Action Orange
+SUCCESS_GREEN = "#10B981"   # Verification Green
 WHITE = "#FFFFFF"
-ALISON_GREEN = "#83C341"    # Alison Brand Color
+ALISON_GREEN = "#83C341"
 
 # --- ADVANCED CSS SYSTEM ---
 st.markdown(f"""
     <style>
-    /* IMPORT FONTS */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap');
 
-    /* GLOBAL RESET */
+    /* 1. GLOBAL LAYOUT & RESPONSIVENESS */
     .stApp {{
         background-color: {BRAND_LIGHT};
         font-family: 'Inter', sans-serif;
         color: {BRAND_DARK};
     }}
     
-    /* HIDE DEFAULT ELEMENTS */
+    /* Hide Streamlit Elements */
     #MainMenu, footer, header {{visibility: hidden;}}
+    
+    /* Center the Main Content Container - Responsive Fix */
+    /* On Desktop: Limit width and center */
+    /* On Mobile: Full width */
+    .block-container {{
+        max_width: 800px;
+        padding-top: 2rem;
+        padding-bottom: 10rem; /* Space for chat input */
+        margin: 0 auto;
+    }}
 
-    /* --- COMPONENT: STICKY NAVBAR --- */
+    /* 2. STICKY NAVBAR */
     .nav-bar {{
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        height: 70px;
+        height: 60px;
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
         border-bottom: 1px solid #E2E8F0;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0 5%;
+        padding: 0 20px;
         z-index: 9999;
     }}
     .nav-logo {{
         font-family: 'Poppins', sans-serif;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         font-weight: 700;
         color: {BRAND_PRIMARY};
         letter-spacing: -0.5px;
@@ -62,115 +72,137 @@ st.markdown(f"""
     .nav-badge {{
         background: #F0F9FF;
         color: {BRAND_PRIMARY};
-        padding: 6px 12px;
+        padding: 4px 10px;
         border-radius: 20px;
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         font-weight: 700;
         border: 1px solid #BAE6FD;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
     }}
-    .nav-spacer {{ height: 90px; }}
+    
+    /* Spacer to push content below fixed nav */
+    .nav-spacer {{ height: 70px; }}
 
-    /* --- COMPONENT: HERO --- */
+    /* 3. HERO SECTION */
     .hero-container {{
         text-align: center;
-        padding: 40px 20px;
+        padding: 30px 10px;
         margin-bottom: 20px;
     }}
     .hero-title {{
         font-family: 'Poppins', sans-serif;
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 800;
         color: {BRAND_DARK};
         margin-bottom: 10px;
+        line-height: 1.2;
     }}
     .hero-sub {{
-        font-size: 1rem;
+        font-size: 0.95rem;
         color: #64748B;
-        max-width: 600px;
-        margin: 0 auto;
+        line-height: 1.5;
     }}
 
-    /* --- CHAT INTERFACE (CENTERED & DISTINCT) --- */
+    /* 4. CHAT INTERFACE - OPTIMIZED COLORS */
     .stChatMessage {{
         background: transparent;
         border: none;
-        margin-bottom: 10px;
+        margin-bottom: 0px;
     }}
     
-    /* EDUVEER (ASSISTANT) BUBBLE */
+    /* EDUVEER (ASSISTANT) */
     .stChatMessage.assistant {{
         background: white;
         border: 1px solid #E2E8F0;
         border-radius: 0 16px 16px 16px;
-        padding: 15px 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-        margin-right: 15%; /* Limit width */
+        padding: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        margin-right: 10%;
     }}
     
-    /* STUDENT (USER) BUBBLE */
+    /* STUDENT (USER) */
     .stChatMessage.user {{
-        background: #E0F2FE; /* Very Light Blue */
+        background: #E0F2FE; /* Soft Blue */
         border: 1px solid #BAE6FD;
         color: {BRAND_DARK};
         border-radius: 16px 0 16px 16px;
-        padding: 15px 20px;
-        margin-left: 15%; /* Limit width */
-        text-align: left; /* Text aligns naturally */
+        padding: 15px;
+        margin-left: 10%;
+        text-align: left;
     }}
     .stChatMessage.user p {{ color: {BRAND_DARK} !important; }}
-    
-    /* --- CARDS & WIDGETS --- */
+
+    /* 5. UNIVERSITY CARDS & WIDGETS */
     .uni-card {{
         background: white;
         border: 1px solid #E2E8F0;
-        border-radius: 16px;
-        padding: 20px;
-        height: 100%;
-        transition: all 0.3s;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        transition: transform 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }}
-    .uni-card:hover {{
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-        border-color: {BRAND_PRIMARY};
-    }}
-    .uni-header {{ display: flex; gap: 12px; align-items: center; margin-bottom: 15px; }}
-    .uni-logo-box {{ font-size: 1.8rem; background: #F8FAFC; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }}
-    .uni-title h3 {{ margin: 0; font-size: 1rem; font-weight: 700; font-family: 'Poppins'; }}
-    .uni-meta {{ font-size: 0.75rem; color: #64748B; }}
+    .uni-header {{ display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }}
+    .uni-logo-box {{ font-size: 1.5rem; background: #F8FAFC; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }}
+    .uni-title h3 {{ margin: 0; font-size: 0.95rem; font-weight: 700; font-family: 'Poppins'; }}
     
-    .uni-metrics {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #F8FAFC; padding: 12px; border-radius: 10px; margin-bottom: 15px; }}
-    .metric-label {{ font-size: 0.65rem; text-transform: uppercase; color: #94A3B8; font-weight: 700; }}
-    .metric-val {{ font-size: 0.85rem; font-weight: 700; color: {BRAND_DARK}; }}
+    .uni-metrics {{ display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #F8FAFC; padding: 10px; border-radius: 8px; margin-bottom: 10px; }}
+    .metric-label {{ font-size: 0.6rem; text-transform: uppercase; color: #94A3B8; font-weight: 700; }}
+    .metric-val {{ font-size: 0.8rem; font-weight: 700; color: {BRAND_DARK}; }}
     
-    .pill {{ font-size: 0.65rem; padding: 3px 8px; border-radius: 12px; background: #F1F5F9; color: #475569; font-weight: 600; margin-right: 4px; display: inline-block; margin-bottom: 4px;}}
+    .pill {{ font-size: 0.6rem; padding: 2px 6px; border-radius: 10px; background: #F1F5F9; color: #475569; font-weight: 600; margin-right: 4px; display: inline-block; }}
     .pill.verified {{ background: #ECFDF5; color: {SUCCESS_GREEN}; border: 1px solid #A7F3D0; }}
     
-    .card-btn {{ display: block; width: 100%; padding: 10px; text-align: center; background: {BRAND_PRIMARY}; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.85rem; margin-top: 10px; }}
-    .card-btn:hover {{ background: #0284C7; color: white; }}
-
+    .card-btn {{ display: block; width: 100%; padding: 8px; text-align: center; background: {BRAND_PRIMARY}; color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.8rem; margin-top: 5px; }}
+    
     /* ALISON CARD */
     .alison-card {{ background: white; border-left: 4px solid {ALISON_GREEN}; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); margin-top: 10px; }}
-    
+
     /* WHY US BOX */
-    .why-box {{ background: linear-gradient(145deg, #0F172A, #1E293B); color: white; padding: 25px; border-radius: 16px; margin-top: 20px; }}
-    .why-grid {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 15px; text-align: left; }}
+    .why-box {{ background: linear-gradient(145deg, #0F172A, #1E293B); color: white; padding: 20px; border-radius: 16px; margin-top: 20px; }}
+    .why-grid {{ display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; text-align: left; }} /* Stack on mobile */
+    @media (min-width: 600px) {{ .why-grid {{ grid-template-columns: 1fr 1fr 1fr; }} }}
+    
     .why-item h4 {{ color: {ACCENT_ORANGE}; font-size: 0.9rem; margin-bottom: 5px; font-family: 'Poppins'; }}
     .why-item p {{ font-size: 0.8rem; opacity: 0.85; line-height: 1.5; margin: 0; }}
 
-    /* FORM ELEMENTS */
-    .stButton button {{ width: 100%; border-radius: 8px; height: 45px; font-weight: 600; border: 1px solid #E2E8F0; color: {BRAND_DARK}; background: white; }}
-    .stButton button:hover {{ border-color: {BRAND_PRIMARY}; color: {BRAND_PRIMARY}; background: #F0F9FF; }}
+    /* 6. INTERACTIVE ELEMENTS */
+    .stButton button {{ 
+        width: 100%; 
+        border-radius: 8px; 
+        height: auto; 
+        padding: 10px; 
+        font-weight: 600; 
+        border: 1px solid #E2E8F0; 
+        color: {BRAND_DARK}; 
+        background: white; 
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }}
+    .stButton button:hover {{ 
+        border-color: {BRAND_PRIMARY}; 
+        color: {BRAND_PRIMARY}; 
+        background: #F0F9FF; 
+    }}
     .stTextInput input {{ border-radius: 25px; border: 1px solid #CBD5E1; padding: 10px 20px; }}
     
     /* TABLE */
-    table {{ width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 0.85rem; }}
-    th {{ background: {BRAND_PRIMARY}; color: white; padding: 12px; text-align: left; }}
-    td {{ padding: 12px; border-bottom: 1px solid #F1F5F9; color: {BRAND_DARK}; }}
+    table {{ width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; font-size: 0.8rem; }}
+    th {{ background: {BRAND_PRIMARY}; color: white; padding: 10px; text-align: left; }}
+    td {{ padding: 10px; border-bottom: 1px solid #F1F5F9; color: {BRAND_DARK}; }}
     </style>
 """, unsafe_allow_html=True)
+
+# --- AUTO-SCROLL JAVASCRIPT (Fixes the scroll issue) ---
+# This script forces the browser to scroll to the bottom of the page on every reload.
+components.html(
+    """
+    <script>
+        window.scrollTo(0, document.body.scrollHeight);
+    </script>
+    """,
+    height=0,
+    width=0,
+)
 
 # --- COMPONENT FUNCTIONS ---
 
@@ -198,15 +230,15 @@ def render_why_distoversity():
             <div class="why-grid">
                 <div class="why-item">
                     <h4>🎯 Planning, Not Guessing</h4>
-                    <p>Don't gamble with your degree. We give you verified data so you can plan your future with confidence.</p>
+                    <p>We give you verified data so you make a calculated career move, not a gamble.</p>
                 </div>
                 <div class="why-item">
-                    <h4>📊 Transparent Guidance</h4>
-                    <p>We share everything—fees, approvals, hidden costs. We are your friends in this journey, not just agents.</p>
+                    <h4>📊 Data-Driven</h4>
+                    <p>Decisions backed by placement records and approvals. We are your friends in this journey.</p>
                 </div>
                 <div class="why-item">
-                    <h4>🤝 Lifetime Community</h4>
-                    <p>Admissions are easy. Finding a tribe is hard. Join our community to network and grow long after you graduate.</p>
+                    <h4>🤝 Community</h4>
+                    <p>Join our exclusive network of learners to network and grow long after you graduate.</p>
                 </div>
             </div>
         </div>
@@ -223,10 +255,10 @@ UNIVERSITIES = [
 ]
 
 ALISON_COURSES = {
-    "Creator": {"title": "Diploma in Graphic Design", "desc": "Master visual storytelling tools.", "link": "https://alison.com/topic/graphic-design"},
+    "Creator": {"title": "Diploma in Graphic Design", "desc": "Master visual storytelling.", "link": "https://alison.com/topic/graphic-design"},
     "Influencer": {"title": "Public Speaking Mastery", "desc": "Learn to command the room.", "link": "https://alison.com/topic/public-speaking"},
     "Analyst": {"title": "Data Analytics Essentials", "desc": "Excel, Python & SQL basics.", "link": "https://alison.com/topic/data-analytics"},
-    "Catalyst": {"title": "Project Management (PMP)", "desc": "Agile & Scrum methodologies.", "link": "https://alison.com/topic/project-management"}
+    "Catalyst": {"title": "Project Management (PMP)", "desc": "Agile & Scrum methods.", "link": "https://alison.com/topic/project-management"}
 }
 
 QUESTIONS = [
@@ -237,10 +269,10 @@ QUESTIONS = [
     {"q": "Your role in a movie crew:", "options": [("🎬 Director", "Creator"), ("🌟 Actor", "Influencer"), ("🎞️ Editor", "Analyst"), ("📋 Producer", "Catalyst")]}
 ]
 
-# --- KNOWLEDGE BASE (FRIENDLY & TRANSPARENT) ---
+# --- KNOWLEDGE BASE ---
 KB = {
     "placement": "That is the most important question! Let's be honest—a degree is about the job. 💼 **Amity and NMIMS** are fantastic for networking, often seeing packages around **8-10 LPA**. But honestly, placements also depend on *your* skills. That's why our community helps you upskill while you study.",
-    "valid": "I'm glad you asked. ✅ **100% of these universities are UGC-DEB verified.** I would never recommend a blacklisted uni. Your degree here is legally equivalent to a regular campus degree for Govt jobs (UPSC, Bank PO) and higher studies abroad.",
+    "valid": "I'm glad you asked. ✅ **100% of these universities are UGC-DEB verified.** I would never recommend a blacklisted uni. Your degree here is legally equivalent to a regular campus degree for Govt jobs (UPSC, Bank PO) and higher studies.",
     "fee": "I know fees can be a stress point. 💰 To be financially smart, look at the EMI options. Most of these universities allow you to start for just **₹2,500/month**. It's like the cost of a weekend outing, but it builds your future.",
     "exam": "Good news! You don't need to take leave from work. 💻 **Exams are 100% Online & AI-Proctored.** You can take them from your bedroom on weekends. It's designed for working professionals like us.",
     "approval": "Approvals are my #1 filter. I only list universities with valid **UGC-DEB** and **NAAC** accreditations. No fake degrees here, my friend.",
@@ -310,10 +342,9 @@ def render_comparison(matches):
             "Highest Pkg": u["high_pkg"],
             "Avg Pkg": u["avg_pkg"],
             "Total Fee": u["fee"],
-            "Approvals": ", ".join(u["badges"]),
-            "Top Recruiters": u["recruiters"]
+            "Approvals": ", ".join(u["badges"])
         })
-    st.markdown("### 📊 Detailed Data Comparison")
+    st.markdown("### 📊 Detailed Comparison")
     st.table(pd.DataFrame(data))
 
 def render_alison_promo(profile):
@@ -343,121 +374,116 @@ if st.session_state.step == 0 and not st.session_state.messages:
             add_bot_msg("Namaste! 🙏 I am **Eduveer**. I'm here to understand your goals and match you with the perfect university. Shall we start with your work style?")
             st.rerun()
 
-# 2. MAIN CONTENT CONTAINER (CENTERED)
-# Use columns to center the content nicely on wide screens
-spacer1, main_col, spacer2 = st.columns([1, 2.5, 1])
-
-with main_col:
-    # CHAT STREAM
-    for msg in st.session_state.messages:
-        role = msg["role"]
-        content = msg["content"]
-        
-        if role == "results_cards":
-            render_matches(content)
-        elif role == "comparison_chart":
-            render_comparison(content)
-        elif role == "alison_promo":
-            render_alison_promo(content)
-        elif role == "why_us":
-            render_why_distoversity()
-        else:
-            with st.chat_message(role):
-                if role == "user":
-                    name = st.session_state.user_info.get("name", "Candidate").split()[0]
-                    st.markdown(f"<div style='font-size:0.75rem; font-weight:700; margin-bottom:4px; color:{BRAND_DARK};'>👤 {name}</div>", unsafe_allow_html=True)
-                else:
-                    st.markdown(f"<div style='font-size:0.75rem; font-weight:700; margin-bottom:4px; color:{BRAND_PRIMARY};'>🤖 Eduveer</div>", unsafe_allow_html=True)
-                st.markdown(content)
-
-    # 3. LOGIC CONTROLLER
+# 2. CHAT STREAM & LOGIC
+for msg in st.session_state.messages:
+    role = msg["role"]
+    content = msg["content"]
     
-    # STEP 1: ASSESSMENT
-    if st.session_state.step == 1:
-        curr = QUESTIONS[st.session_state.q_index]
-        last_bot = next((m["content"] for m in reversed(st.session_state.messages) if m["role"] == "assistant"), "")
-        if curr["q"] not in last_bot:
-            add_bot_msg(f"**Question {st.session_state.q_index + 1}/5:** {curr['q']}")
+    if role == "results_cards":
+        render_matches(content)
+    elif role == "comparison_chart":
+        render_comparison(content)
+    elif role == "alison_promo":
+        render_alison_promo(content)
+    elif role == "why_us":
+        render_why_distoversity()
+    else:
+        with st.chat_message(role):
+            if role == "user":
+                name = st.session_state.user_info.get("name", "Candidate").split()[0]
+                st.markdown(f"<div style='font-size:0.7rem; font-weight:700; margin-bottom:4px; color:{BRAND_DARK};'>👤 {name}</div>", unsafe_allow_html=True)
+            else:
+                st.markdown(f"<div style='font-size:0.7rem; font-weight:700; margin-bottom:4px; color:{BRAND_PRIMARY};'>🤖 Eduveer</div>", unsafe_allow_html=True)
+            st.markdown(content)
+
+# 3. LOGIC CONTROLLER
+
+# STEP 1: ASSESSMENT
+if st.session_state.step == 1:
+    curr = QUESTIONS[st.session_state.q_index]
+    last_bot = next((m["content"] for m in reversed(st.session_state.messages) if m["role"] == "assistant"), "")
+    if curr["q"] not in last_bot:
+        add_bot_msg(f"**Question {st.session_state.q_index + 1}/5:** {curr['q']}")
+        st.rerun()
+    
+    cols = st.columns(2)
+    for i, (txt, en) in enumerate(curr["options"]):
+        if cols[i%2].button(txt, key=f"q{st.session_state.q_index}_{i}", use_container_width=True):
+            st.session_state.scores[en] += 1
+            add_user_msg(txt)
+            if st.session_state.q_index < 4:
+                st.session_state.q_index += 1
+            else:
+                st.session_state.step = 2
             st.rerun()
-        cols = st.columns(2)
-        for i, (txt, en) in enumerate(curr["options"]):
-            if cols[i%2].button(txt, key=f"q{st.session_state.q_index}_{i}", use_container_width=True):
-                st.session_state.scores[en] += 1
-                add_user_msg(txt)
-                if st.session_state.q_index < 4:
-                    st.session_state.q_index += 1
-                else:
-                    st.session_state.step = 2
+
+# STEP 2: LEAD GEN
+elif st.session_state.step == 2:
+    primary = get_energy()
+    if "gate_msg" not in [m.get("id", "") for m in st.session_state.messages]:
+        st.session_state.messages.append({"role": "assistant", "content": f"🌟 **Brilliant! You are a {primary}.**\n\nI've found 3 universities that fit your DNA. To generate your custom roadmap, what should I call you?", "id": "gate_msg"})
+        st.rerun()
+    with st.form("lead_gen"):
+        st.markdown("#### 🔓 Unlock Your Roadmap")
+        name = st.text_input("Full Name")
+        if st.form_submit_button("Continue", type="primary"):
+            if name:
+                st.session_state.user_info = {"name": name}
+                add_user_msg(f"I am {name}")
+                st.session_state.step = 3
                 st.rerun()
 
-    # STEP 2: LEAD GEN
-    elif st.session_state.step == 2:
-        primary = get_energy()
-        if "gate_msg" not in [m.get("id", "") for m in st.session_state.messages]:
-            st.session_state.messages.append({"role": "assistant", "content": f"🌟 **Brilliant! You are a {primary}.**\n\nI've found 3 universities that fit your DNA. To generate your custom roadmap, what should I call you?", "id": "gate_msg"})
-            st.rerun()
-        with st.form("lead_gen"):
-            st.markdown("#### 🔓 Unlock Your Roadmap")
-            name = st.text_input("Full Name")
-            if st.form_submit_button("Continue", type="primary"):
-                if name:
-                    st.session_state.user_info = {"name": name}
-                    add_user_msg(f"I am {name}")
-                    st.session_state.step = 3
-                    st.rerun()
+# STEP 3: BUDGET PROBE
+elif st.session_state.step == 3:
+    if "probe_msg" not in [m.get("id", "") for m in st.session_state.messages]:
+        st.session_state.messages.append({"role": "assistant", "content": f"Nice to meet you, **{st.session_state.user_info['name']}**! 👋\n\nLet's be practical about this investment. What is your comfortable **Maximum Budget** for the entire course?", "id": "probe_msg"})
+        st.rerun()
+    col1, col2 = st.columns(2)
+    with col1: course = st.selectbox("Preferred Course", ["MBA", "MCA", "BBA", "BCA", "M.Com"])
+    with col2: budget = st.select_slider("Max Investment", ["1 Lakh", "2 Lakhs", "3 Lakhs", "4 Lakhs", "No Limit"])
+    if st.button("Show My Strategic Plan", type="primary", use_container_width=True):
+        b_map = {"1 Lakh": 100000, "2 Lakhs": 200000, "3 Lakhs": 300000, "4 Lakhs": 400000, "No Limit": 1000000}
+        st.session_state.filter = {"budget": b_map[budget], "course": course}
+        add_user_msg(f"Looking for {course} under {budget}")
+        st.session_state.step = 4
+        st.rerun()
 
-    # STEP 3: BUDGET PROBE
-    elif st.session_state.step == 3:
-        if "probe_msg" not in [m.get("id", "") for m in st.session_state.messages]:
-            st.session_state.messages.append({"role": "assistant", "content": f"Nice to meet you, **{st.session_state.user_info['name']}**! 👋\n\nLet's be practical about this investment. What is your comfortable **Maximum Budget** for the entire course?", "id": "probe_msg"})
-            st.rerun()
-        col1, col2 = st.columns(2)
-        with col1: course = st.selectbox("Preferred Course", ["MBA", "MCA", "BBA", "BCA", "M.Com"])
-        with col2: budget = st.select_slider("Max Investment", ["1 Lakh", "2 Lakhs", "3 Lakhs", "4 Lakhs", "No Limit"])
-        if st.button("Show My Strategic Plan", type="primary", use_container_width=True):
-            b_map = {"1 Lakh": 100000, "2 Lakhs": 200000, "3 Lakhs": 300000, "4 Lakhs": 400000, "No Limit": 1000000}
-            st.session_state.filter = {"budget": b_map[budget], "course": course}
-            add_user_msg(f"Looking for {course} under {budget}")
-            st.session_state.step = 4
-            st.rerun()
+# STEP 4: RESULTS & HOOKS
+elif st.session_state.step == 4:
+    primary = get_energy()
+    filt = st.session_state.filter
+    matches = [u for u in UNIVERSITIES if (u["max_fee"] <= filt["budget"]) and (filt["course"] in u["programs"] or filt["course"] == "Other" or "Other" in u["programs"])]
+    if not matches: matches = [u for u in UNIVERSITIES if primary in u["best_for"]][:2]
 
-    # STEP 4: RESULTS & HOOKS
-    elif st.session_state.step == 4:
-        primary = get_energy()
-        filt = st.session_state.filter
-        matches = [u for u in UNIVERSITIES if (u["max_fee"] <= filt["budget"]) and (filt["course"] in u["programs"] or filt["course"] == "Other" or "Other" in u["programs"])]
-        if not matches: matches = [u for u in UNIVERSITIES if primary in u["best_for"]][:2]
+    if "res_msg" not in [m.get("id", "") for m in st.session_state.messages]:
+        st.session_state.messages.append({"role": "assistant", "content": f"🎉 **Strategy Ready!**\n\nMy friend, I've curated these universities for you. They align with your {primary} strengths and budget. This isn't just a degree; it's your career launchpad.", "id": "res_msg"})
+        st.session_state.messages.append({"role": "results_cards", "content": matches})
+        st.session_state.messages.append({"role": "assistant", "content": "To help you start immediately, I also found this **Free Certification**:"})
+        st.session_state.messages.append({"role": "alison_promo", "content": primary})
+        st.session_state.messages.append({"role": "why_us", "content": ""})
+        st.rerun()
 
-        if "res_msg" not in [m.get("id", "") for m in st.session_state.messages]:
-            # CONSULTATIVE CLOSING
-            st.session_state.messages.append({"role": "assistant", "content": f"🎉 **Strategy Ready!**\n\nMy friend, I've curated these universities for you. They align with your {primary} strengths and budget. This isn't just a degree; it's your career launchpad.", "id": "res_msg"})
-            st.session_state.messages.append({"role": "results_cards", "content": matches})
-            st.session_state.messages.append({"role": "assistant", "content": "To help you start immediately, I also found this **Free Certification**:"})
-            st.session_state.messages.append({"role": "alison_promo", "content": primary})
-            st.session_state.messages.append({"role": "why_us", "content": ""})
-            st.rerun()
-
-        st.write("")
-        cols = st.columns(2) # 2 cols for hooks looks cleaner in center layout
-        for i, hook in enumerate(st.session_state.current_hooks):
-            if cols[i % 2].button(hook, key=f"hook_{len(st.session_state.messages)}_{i}", use_container_width=True):
-                add_user_msg(hook)
-                if hook == "📊 Compare Top 5" or hook == "📊 Compare All":
-                     compare_list = matches[:5] if len(matches) > 0 else UNIVERSITIES[:5]
-                     st.session_state.messages.append({"role": "comparison_chart", "content": compare_list})
-                     st.session_state.messages.append({"role": "assistant", "content": "Here is the transparency matrix. We believe in full disclosure."})
-                else:
-                    response = get_bot_response(hook)
-                    add_bot_msg(response)
-                refresh_hooks()
-                st.rerun()
-
-    # CHAT INPUT
-    if st.session_state.step > 0:
-        user_query = st.chat_input("Ask Eduveer (e.g. 'Is LPU valid?')")
-        if user_query:
-            add_user_msg(user_query)
-            response = get_bot_response(user_query)
-            add_bot_msg(response)
+    st.write("")
+    cols = st.columns(2)
+    for i, hook in enumerate(st.session_state.current_hooks):
+        if cols[i % 2].button(hook, key=f"hook_{len(st.session_state.messages)}_{i}", use_container_width=True):
+            add_user_msg(hook)
+            if hook == "📊 Compare Top 5" or hook == "📊 Compare All":
+                 compare_list = matches[:5] if len(matches) > 0 else UNIVERSITIES[:5]
+                 st.session_state.messages.append({"role": "comparison_chart", "content": compare_list})
+                 st.session_state.messages.append({"role": "assistant", "content": "Here is the transparency matrix. We believe in full disclosure."})
+            else:
+                response = get_bot_response(hook)
+                add_bot_msg(response)
             refresh_hooks()
             st.rerun()
+
+# CHAT INPUT (Bottom Fixed)
+if st.session_state.step > 0:
+    user_query = st.chat_input("Ask Eduveer (e.g. 'Is LPU valid?')")
+    if user_query:
+        add_user_msg(user_query)
+        response = get_bot_response(user_query)
+        add_bot_msg(response)
+        refresh_hooks()
+        st.rerun()
