@@ -12,57 +12,59 @@ st.set_page_config(
 # --- 2. WEBSITE-MATCHED UI Styling ---
 st.markdown("""
     <style>
-    /* Import 'Inter' font */
+    /* Import 'Inter' font to match your website typography */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
-        background-color: #FFFFFF;
-        color: #1F2937;
+        background-color: #FFFFFF; /* Clean White Background */
+        color: #1F2937; /* Dark Grey Text for readability */
     }
     
     /* Main App Background */
     .stApp {
-        background-color: #F3F8FC;
+        background-color: #F3F8FC; /* Very light blue/grey tint from your dashboard background */
     }
     
-    /* Headers */
+    /* Headers - Matching the dark blue/black form headers */
     h1, h2, h3 {
-        color: #0D1B2A;
+        color: #0D1B2A; /* Deep Navy/Black from screenshots */
         font-weight: 700;
         text-align: center;
     }
     
-    /* --- BUTTONS --- */
+    /* --- BUTTONS (Matching the "Start Assessment" / "Request Demo" buttons) --- */
     .stButton button {
-        background-color: #00AEEF;
+        background-color: #00AEEF; /* The vibrant Cyan-Blue from your buttons */
         color: white !important;
         border: none;
         padding: 12px 32px;
         font-size: 16px;
         font-weight: 600;
-        border-radius: 4px;
+        border-radius: 4px; /* Slightly sharper corners as seen in 'Start Assessment' */
         transition: all 0.3s ease;
         box-shadow: 0 2px 4px rgba(0, 174, 239, 0.2);
-        width: 100%;
+        width: 100%; /* Full width on mobile, responsive */
     }
     .stButton button:hover {
-        background-color: #0095CC;
+        background-color: #0095CC; /* Slightly darker on hover */
         transform: translateY(-1px);
         box-shadow: 0 4px 6px rgba(0, 174, 239, 0.3);
     }
     
-    /* --- FORM & CARDS --- */
+    /* --- FORM & CARDS (Matching "Genius Profile" cards) --- */
     [data-testid="stForm"], [data-testid="stChatInput"] {
         background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
+        border: 1px solid #E2E8F0; /* Subtle border */
+        border-radius: 12px; /* Rounded corners like the profile cards */
         padding: 32px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* Soft shadow */
         margin-bottom: 20px;
     }
 
     /* --- CHAT BUBBLES --- */
+    
+    /* Eduveer (AI) - Clean White Card Style */
     div[data-testid="stChatMessage"] {
         background-color: #FFFFFF;
         border: 1px solid #F1F5F9;
@@ -71,8 +73,10 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         margin-bottom: 16px;
     }
+    
+    /* User (Student) - Light Blue Accent matching site theme */
     div[data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: #E0F2FE;
+        background-color: #E0F2FE; /* Very light blue background */
         border: 1px solid #BAE6FD;
     }
     
@@ -86,7 +90,7 @@ st.markdown("""
     a[href*="forms"] {
         display: inline-block;
         width: 100%;
-        background-color: #00AEEF;
+        background-color: #00AEEF; /* Matching Primary Brand Color */
         color: white !important;
         text-align: center;
         padding: 12px;
@@ -105,6 +109,7 @@ st.markdown("""
         background-color: #00AEEF !important;
     }
     
+    /* Hide Streamlit branding for cleaner look */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
@@ -126,6 +131,7 @@ if "msg_count" not in st.session_state:
 
 # --- 5. Sidebar (Data & Tools) ---
 with st.sidebar:
+    # Using your logo placeholder (Update link if you have hosted logo)
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=80)
     
     st.markdown("### **Distoversity**") 
@@ -158,17 +164,20 @@ with st.sidebar:
     st.caption("© 2025 Distoversity Pvt Ltd") 
 
 # --- 6. Main Interface ---
+# Header matching your site style
 st.title("Discover Your Genius Profile") 
 st.markdown("<p style='text-align: center; color: #64748B; font-size: 1.1rem;'>Unlock personalized university recommendations based on your unique strengths.</p>", unsafe_allow_html=True)
 
-# --- SCENARIO A: PROFILE FORM ---
+# --- SCENARIO A: PROFILE FORM (Aligned & Responsive) ---
 if st.session_state.user_profile is None:
     st.write("")
     
+    # Container for alignment
     with st.form("profile_form"):
         st.markdown("### Let's get started")
         st.write("")
         
+        # Responsive Columns
         col1, col2 = st.columns(2)
         
         with col1:
@@ -188,6 +197,7 @@ if st.session_state.user_profile is None:
         st.write("")
         st.write("")
         
+        # Centered Button
         c1, c2, c3 = st.columns([1, 2, 1])
         with c2:
             submitted = st.form_submit_button("Start Free Assessment ➔")
@@ -200,25 +210,36 @@ if st.session_state.user_profile is None:
 else:
     user_data = st.session_state.user_profile
     
-    # --- NEW PUNCHY INSTRUCTIONS ---
+    # --- VETERAN ADVISOR INSTRUCTIONS (Distoversity Framework) ---
     system_instruction = f"""
-    You are **Eduveer**, a Smart & Punchy Career Strategist from **Distoversity**.
+    You are **Eduveer**, a Senior Career Counselor at **Distoversity** with 20 years of experience.
     USER PROFILE: Status: {user_data['status']}, Goal: {user_data['goal']}
     
-    COMMUNICATION STYLE (STRICT):
-    1. **Short & Crisp:** Max 2-3 sentences. No boring lectures.
-    2. **Catchy Hooks:** Start with power words like "That's a game-changer!", "Here's the secret:", "Smart move!", "Let's be real."
-    3. **High Energy:** Be motivating and direct.
-    4. **One Thing at a Time:** Ask ONLY ONE simple question to keep the chat moving fast.
+    YOUR CORE TASK:
+    Profile the student based on the **4 Energies of Distoversity**:
+    1. **Creator (Innovation):** Likes starting new things, ideas, art, big picture thinking.
+    2. **Influencer (People):** Likes leading, speaking, connecting, managing people.
+    3. **Catalyst (Service/Timing):** Likes helping, patient, grounded, excellent timing & coordination.
+    4. **Analyst (Data/Systems):** Likes numbers, logic, details, perfection, working alone.
+
+    TONE & LANGUAGE:
+    - **Veteran & Wise:** Speak with authority but kindness. Use phrases like "In my experience," "The smart choice is," "Think about the long term."
+    - **Simple English:** Explain concepts simply (12th-grade level). No complex jargon.
+    - **Empathetic:** Acknowledge that career choices are confusing.
+    
+    COMMUNICATION RULES:
+    1. **Short Answers:** Keep replies to 2-3 sentences max.
+    2. **One Question Rule:** Ask ONLY ONE question per message.
+    3. **Diagnosis First:** Ask questions to figure out which of the 4 Energies they are.
+    4. **Recommendation:** Once you identify their energy (e.g., Creator), suggest courses aligned with it (e.g., Design, Architecture).
     
     STRATEGY:
-    - If Working Pro: Pitch "Online Degrees" as the ultimate career hack (Flexible & Valid).
-    - If Student: Focus on "Future-Proof" skills + Degree.
+    - If Working Pro: Recommend Online Degrees for flexibility.
+    - If Student: Focus on building a strong foundation.
     """
 
     if "messages" not in st.session_state or not st.session_state.messages:
-        # Short & Catchy Welcome
-        welcome_msg = f"Bingo! 🎯 Thanks for the details.\n\nSince you're looking for **{user_data['goal']}**, I've got some solid options for you.\n\nLet's crack your profile first: **What’s that one activity (subject or hobby) that makes you lose track of time?**"
+        welcome_msg = f"Hello. It is good to meet you.\n\nI see you are looking for **{user_data['goal']}**. That is a very important decision for your future.\n\nTo guide you correctly, I need to understand your natural energy.\n\n**Which of these sounds more like you?**\n\nA) I love coming up with new ideas and creating things.\nB) I love talking to people and leading teams."
         st.session_state.messages = [
             {"role": "system", "content": system_instruction},
             {"role": "assistant", "content": welcome_msg}
@@ -227,13 +248,14 @@ else:
     # Display Chat
     for message in st.session_state.messages:
         if message["role"] != "system":
+            # Using simpler avatars to match the clean UI
             avatar_icon = "🧑‍🎓" if message["role"] == "user" else "🎓"
             with st.chat_message(message["role"], avatar=avatar_icon):
                 st.markdown(message["content"])
 
     # --- CONVERSION HOOK ---
     if st.session_state.msg_count > 3 and st.session_state.msg_count < 5:
-        st.info("💡 **Want the full roadmap?**")
+        st.info("💡 **Need a verified university list?**")
         st.markdown(f'<a href="{google_form_link}" target="_blank" style="text-decoration:none; color: #00AEEF; font-weight:bold;">Click here to Book a Free Session &rarr;</a>', unsafe_allow_html=True)
 
     def generate_chat_responses(chat_completion):
