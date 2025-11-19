@@ -97,12 +97,12 @@ st.markdown(f"""
         border-top: 1px solid #EDF2F7;
     }}
     
-    /* BUTTONS */
+    /* BUTTONS & HOOKS */
     .stButton>button {{
         background-color: white;
         color: {PRIMARY_BLUE};
         border: 1px solid {PRIMARY_BLUE};
-        border-radius: 8px;
+        border-radius: 20px; /* Pill shape for hooks */
         font-weight: 600;
         width: 100%;
         transition: all 0.2s;
@@ -121,6 +121,7 @@ st.markdown(f"""
         font-size: 0.9rem;
         font-weight: 600;
         border: none;
+        cursor: pointer;
     }}
 
     /* BADGES */
@@ -154,7 +155,7 @@ QUESTIONS = [
     {"q": "Pick a movie role:", "options": [("Director", "Creator"), ("Hero", "Influencer"), ("Editor", "Analyst"), ("Producer", "Catalyst")]}
 ]
 
-# --- KNOWLEDGE BASE (For the Chatbot) ---
+# --- KNOWLEDGE BASE ---
 KB = {
     "placement": "All the universities I recommend have dedicated placement cells. For example, Amity and Manipal conduct virtual job fairs with top recruiters like Amazon and Deloitte.",
     "valid": "Yes! Every university listed here is **UGC-DEB Approved**. The degree is legally equivalent to a regular campus degree for government jobs and further studies.",
@@ -165,20 +166,24 @@ KB = {
     "manipal": "Manipal Jaipur is fantastic for new-age courses like BCA and Digital Marketing with great content delivery."
 }
 
-# --- STATE ---
+# --- STATE MANAGEMENT ---
 if "messages" not in st.session_state: st.session_state.messages = []
 if "step" not in st.session_state: st.session_state.step = 0
 if "q_index" not in st.session_state: st.session_state.q_index = 0
 if "scores" not in st.session_state: st.session_state.scores = {"Creator": 0, "Influencer": 0, "Analyst": 0, "Catalyst": 0}
 if "filter" not in st.session_state: st.session_state.filter = {"budget": 1000000, "course": "All"}
 
-# --- FUNCTIONS ---
-def add_bot_msg(text): st.session_state.messages.append({"role": "assistant", "content": text})
-def add_user_msg(text): st.session_state.messages.append({"role": "user", "content": text})
-def get_energy(): return max(st.session_state.scores, key=st.session_state.scores.get)
+# --- HELPER FUNCTIONS ---
+def add_bot_msg(text, role="assistant"):
+    st.session_state.messages.append({"role": role, "content": text})
+
+def add_user_msg(text):
+    st.session_state.messages.append({"role": "user", "content": text})
+
+def get_energy():
+    return max(st.session_state.scores, key=st.session_state.scores.get)
 
 def get_bot_response(user_query):
-    """Simple RAG-like response logic"""
     query = user_query.lower()
     if "placement" in query or "job" in query: return KB["placement"]
     if "valid" in query or "fake" in query or "ugc" in query: return KB["valid"]
@@ -189,7 +194,35 @@ def get_bot_response(user_query):
     if "manipal" in query: return KB["manipal"]
     return "That's a great question. I focus on finding UGC-approved universities. Would you like to know about their **Placements**, **Fees**, or **Validity**?"
 
-# --- UI ---
+def render_matches(matches):
+    """Renders the university cards"""
+    for u in matches:
+        badges = "".join([f"<span class='verified-badge'>{b}</span> " for b in u['badges']])
+        st.markdown(f"""
+        <div class="cv-card">
+            <div class="cv-header">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.8rem;">{u['logo']}</span>
+                    <div>
+                        <div style="font-weight:700; font-size:1.1rem; color:#003366;">{u['name']}</div>
+                        <div style="font-size:0.8rem; color:#718096;">{badges}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="cv-body">
+                <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:10px;">
+                    <span>💰 <b>{u['fees_display']}</b></span>
+                    <span>📅 <b>{u['emi']}</b></span>
+                </div>
+                <div style="font-size:0.85rem; color:#555;">Best for: {", ".join(u['best_for'])}</div>
+            </div>
+            <div class="cv-footer">
+                <button class="primary-btn" style="width:100%;">View Brochure</button>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+# --- MAIN UI HEADER ---
 st.markdown(f"""
     <div class="hero-box">
         <h1 style="color:white; margin:0; font-size:1.8rem;">Distoversity</h1>
@@ -202,12 +235,18 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# --- CHAT HISTORY ---
+# --- 1. DISPLAY CHAT STREAM (This handles Text AND Cards) ---
 for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+    # Special handler for "Card Messages" so they scroll up with history
+    if msg.get("role") == "results_cards":
+        render_matches(msg["content"])
+    
+    # Standard Text Messages
+    else:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
 
-# --- LOGIC CONTROLLER ---
+# --- 2. LOGIC CONTROLLER ---
 
 # STEP 0: INTRO
 if st.session_state.step == 0:
@@ -228,7 +267,6 @@ elif st.session_state.step == 1:
         add_bot_msg(f"**Q{st.session_state.q_index + 1}:** {curr['q']}")
         st.rerun()
 
-    # Assessment Buttons
     cols = st.columns(2)
     for i, (txt, en) in enumerate(curr["options"]):
         if cols[i%2].button(txt, key=f"q{st.session_state.q_index}_{i}"):
@@ -276,56 +314,50 @@ elif st.session_state.step == 3:
         st.session_state.step = 4
         st.rerun()
 
-# STEP 4: RESULTS & CHAT
+# STEP 4: RESULTS (Initial Generation)
 elif st.session_state.step == 4:
     primary = get_energy()
     filt = st.session_state.filter
     
     if "res_msg" not in [m.get("id", "") for m in st.session_state.messages]:
-        st.session_state.messages.append({"role": "assistant", "content": f"🎉 **Here are your Top Matches!**\n\nI have filtered these for your **{primary}** profile and budget. \n\n👇 **You can now ask me specific questions about these colleges below.**", "id": "res_msg"})
+        # 1. Add Text Message
+        st.session_state.messages.append({"role": "assistant", "content": f"🎉 **Here are your Top Matches!**\n\nI have filtered these for your **{primary}** profile and budget.", "id": "res_msg"})
+        
+        # 2. Add CARDS as a Message (This makes them scrollable!)
+        matches = [u for u in UNIVERSITIES if (u["max_fee"] <= filt["budget"]) and (filt["course"] in u["programs"] or filt["course"] == "Other")]
+        if not matches: matches = [u for u in UNIVERSITIES if primary in u["best_for"]][:2]
+        
+        st.session_state.messages.append({"role": "results_cards", "content": matches})
+        
+        # 3. Add Follow-up Text
+        st.session_state.messages.append({"role": "assistant", "content": "👇 **Click a question below or type your own to chat with me!**"})
         st.rerun()
 
-    matches = [u for u in UNIVERSITIES if (u["max_fee"] <= filt["budget"]) and (filt["course"] in u["programs"] or filt["course"] == "Other")]
-    if not matches: matches = [u for u in UNIVERSITIES if primary in u["best_for"]][:2]
+# --- 3. INTERACTIVE HOOKS & INPUT ---
+# Only show hooks if we are in the final chat stage
+if st.session_state.step == 4:
+    
+    # SMART HOOKS (Buttons that act like user input)
+    hooks = ["💰 Check Placements", "📜 Is this Valid?", "💸 Check EMI Options", "🏦 Compare Fees"]
+    cols = st.columns(2)
+    for i, hook in enumerate(hooks):
+        if cols[i % 2].button(hook, key=f"hook_{i}"):
+            # Treat click as user input
+            add_user_msg(hook)
+            response = get_bot_response(hook)
+            add_bot_msg(response)
+            st.rerun()
 
-    st.markdown("---")
-    for u in matches:
-        badges = "".join([f"<span class='verified-badge'>{b}</span> " for b in u['badges']])
-        st.markdown(f"""
-        <div class="cv-card">
-            <div class="cv-header">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <span style="font-size:1.8rem;">{u['logo']}</span>
-                    <div>
-                        <div style="font-weight:700; font-size:1.1rem; color:#003366;">{u['name']}</div>
-                        <div style="font-size:0.8rem; color:#718096;">{badges}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="cv-body">
-                <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:10px;">
-                    <span>💰 <b>{u['fees_display']}</b></span>
-                    <span>📅 <b>{u['emi']}</b></span>
-                </div>
-                <div style="font-size:0.85rem; color:#555;">Best for: {", ".join(u['best_for'])}</div>
-            </div>
-            <div class="cv-footer">
-                <button class="primary-btn" style="width:100%;">View Brochure</button>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-# --- GLOBAL CHAT INPUT (Always Active Logic) ---
-# This is what makes it an "Interactive Bot"
+# CHAT INPUT
 user_query = st.chat_input("Ask Eduveer (e.g., 'Is LPU valid?', 'How are placements?')")
 if user_query:
     add_user_msg(user_query)
-    # If in assessment, nudge back. If in results, answer.
+    
+    # Logic for handling chat based on step
     if st.session_state.step < 4:
         response = get_bot_response(user_query)
         add_bot_msg(f"{response}\n\n_Let's continue with the assessment above!_ 👆")
     else:
-        # Full Answer Mode
         response = get_bot_response(user_query)
         add_bot_msg(response)
     st.rerun()
