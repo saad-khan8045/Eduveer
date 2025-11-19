@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 import random
+import re
 
 # --- CONFIGURATION & THEME ---
 st.set_page_config(
@@ -48,18 +49,24 @@ st.markdown(f"""
         margin-bottom: 2rem;
     }}
     .stButton>button {{
-        background-color: {PRIMARY_BLUE};
-        color: white;
-        border-radius: 30px;
-        border: none;
-        padding: 10px 25px;
+        background-color: white;
+        color: {PRIMARY_BLUE};
+        border-radius: 12px;
+        border: 2px solid {PRIMARY_BLUE};
+        padding: 10px 20px;
         font-weight: 600;
         width: 100%;
         transition: all 0.3s ease;
     }}
     .stButton>button:hover {{
-        background-color: #008CC2;
+        background-color: {PRIMARY_BLUE};
+        color: white;
         transform: scale(1.02);
+    }}
+    /* Primary Action Button Style (for Form) */
+    .css-1he4a3e {{ 
+        background-color: {PRIMARY_BLUE} !important; 
+        color: white !important; 
     }}
     .university-card {{
         background-color: white;
@@ -69,18 +76,22 @@ st.markdown(f"""
         margin-bottom: 15px;
         border-left: 5px solid {PRIMARY_BLUE};
     }}
-    .energy-badge {{
-        background-color: {LIGHT_BLUE_BG};
-        color: {PRIMARY_BLUE};
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 0.8rem;
-        font-weight: bold;
-    }}
     </style>
 """, unsafe_allow_html=True)
 
-# --- DATA: UNIVERSITIES & ENERGIES ---
+# --- DATA: KNOWLEDGE BASE (Offline Intelligence) ---
+KNOWLEDGE_BASE = {
+    "ugc": "UGC stands for University Grants Commission. For any university in India (Online or Offline), UGC recognition is mandatory. It ensures the degree is valid for government jobs.",
+    "deb": "DEB (Distance Education Bureau) is a specific wing of UGC. For an **Online Degree** to be valid, the university MUST have UGC-DEB approval specifically for that year.",
+    "naac": "NAAC grades universities on quality (A++, A+, A, B). An 'A+' or 'A++' grade usually means top-tier faculty, infrastructure, and global recognition.",
+    "aicte": "AICTE approval is technical validation. For MBA and MCA courses, AICTE approval is a gold standard, though UGC-DEB is the primary legal requirement for online degrees.",
+    "fake": "A degree is valid ONLY if the university is listed on the official UGC-DEB website. Never pay fees into a personal bank account; always pay to the university directly.",
+    "placement": "Online degrees now have strong acceptance. Top universities like Amity, Manipal, and NMIMS offer dedicated placement cells similar to their on-campus programs.",
+    "exam": "Exams for online degrees are usually conducted online with proctoring (AI monitoring). You can take them from home on your laptop.",
+    "job": "Yes, UGC-DEB entitled online degrees are treated as equivalent to regular degrees for government jobs and higher education (like PhD) in India."
+}
+
+# --- DATA: UNIVERSITIES ---
 UNIVERSITIES = [
     {
         "name": "Amity University Online",
@@ -132,60 +143,60 @@ UNIVERSITIES = [
     }
 ]
 
-# Questions Mapping: (Option A -> Energy 1, Option B -> Energy 2...)
+# --- DATA: 5 QUESTIONS ---
 QUESTIONS = [
     {
-        "q": "When solving a problem, what's your first instinct?",
+        "q": "To start, when you face a tough problem, what's your first instinct?",
         "options": [
-            ("Brainstorm a new, unique solution.", "Creator"),
-            ("Call a team meeting to discuss.", "Influencer"),
-            ("Look at the data and facts first.", "Analyst"),
-            ("Just start fixing it immediately.", "Catalyst")
+            ("💡 Brainstorm a unique idea", "Creator"),
+            ("🗣️ Discuss with a team", "Influencer"),
+            ("📊 Analyze data & facts", "Analyst"),
+            ("⚡ Just start fixing it", "Catalyst")
         ]
     },
     {
-        "q": "Which workspace sounds perfect to you?",
+        "q": "Which workspace vibe do you prefer?",
         "options": [
-            ("A design studio with music and art.", "Creator"),
-            ("A busy room full of people talking.", "Influencer"),
-            ("A quiet room with multiple monitors.", "Analyst"),
-            ("On-site, moving around, getting things done.", "Catalyst")
+            ("🎨 Creative Studio", "Creator"),
+            ("📢 Busy Conference Room", "Influencer"),
+            ("💻 Quiet Tech Setup", "Analyst"),
+            ("🏗️ On-site / Field Work", "Catalyst")
         ]
     },
     {
-        "q": "Friends usually describe you as...",
+        "q": "How do your friends describe you?",
         "options": [
-            ("The Creative Visionary.", "Creator"),
-            ("The Social Butterfly / Leader.", "Influencer"),
-            ("The Logical Thinker.", "Analyst"),
-            ("The Reliable Doer.", "Catalyst")
+            ("✨ The Visionary", "Creator"),
+            ("🎤 The Leader", "Influencer"),
+            ("🧠 The Logical One", "Analyst"),
+            ("🛡️ The Reliable One", "Catalyst")
         ]
     },
     {
-        "q": "What motivates you most?",
+        "q": "What drives you the most?",
         "options": [
-            ("Creating something that didn't exist before.", "Creator"),
-            ("Leading and inspiring others.", "Influencer"),
-            ("Understanding how things work (Logic).", "Analyst"),
-            ("Checking items off my to-do list.", "Catalyst")
+            ("🚀 Innovation", "Creator"),
+            ("🤝 Leadership", "Influencer"),
+            ("🔍 Logic & Truth", "Analyst"),
+            ("✅ Getting Results", "Catalyst")
         ]
     },
     {
-        "q": "Pick a role in a movie production:",
+        "q": "Pick a movie role:",
         "options": [
-            ("Director/Scriptwriter.", "Creator"),
-            ("Lead Actor/PR Manager.", "Influencer"),
-            ("Editor/CGI Specialist.", "Analyst"),
-            ("Producer/Stunt Coordinator.", "Catalyst")
+            ("🎬 Director", "Creator"),
+            ("🌟 Lead Actor", "Influencer"),
+            ("🎞️ Editor/VFX", "Analyst"),
+            ("📋 Producer", "Catalyst")
         ]
     }
 ]
 
-# --- SESSION STATE MANAGEMENT ---
+# --- SESSION STATE ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "step" not in st.session_state:
-    st.session_state.step = 0  # 0: Intro, 1: Questions, 2: Lead Gen, 3: Results
+    st.session_state.step = 0  # 0: Intro, 1: Assessment Loop, 2: Gate, 3: Results
 if "q_index" not in st.session_state:
     st.session_state.q_index = 0
 if "scores" not in st.session_state:
@@ -193,16 +204,7 @@ if "scores" not in st.session_state:
 if "user_info" not in st.session_state:
     st.session_state.user_info = {}
 
-# --- HELPER FUNCTIONS ---
-def type_text(text):
-    """Simulates typing effect for the bot"""
-    message_placeholder = st.empty()
-    full_response = ""
-    for chunk in text.split():
-        full_response += chunk + " "
-        time.sleep(0.05) # Adjust speed here
-        # In a real app, you'd yield this to the stream, but for st.chat_message we just print
-    return text
+# --- FUNCTIONS ---
 
 def add_bot_message(text):
     st.session_state.messages.append({"role": "assistant", "content": text})
@@ -210,167 +212,157 @@ def add_bot_message(text):
 def add_user_message(text):
     st.session_state.messages.append({"role": "user", "content": text})
 
+def check_knowledge_base(user_text):
+    """Checks if user asked about a specific term and returns answer."""
+    text_lower = user_text.lower()
+    for key, answer in KNOWLEDGE_BASE.items():
+        if key in text_lower:
+            return answer
+    return None
+
 def get_primary_energy():
     return max(st.session_state.scores, key=st.session_state.scores.get)
 
-# --- UI LAYOUT ---
+# --- MAIN UI ---
 
 # Header
 st.markdown("<h1 class='main-header'>Distoversity</h1>", unsafe_allow_html=True)
-st.markdown("<p class='sub-header'>Unlock Your Potential with <b>Eduveer</b> | AI Career Architect</p>", unsafe_allow_html=True)
+st.markdown("<p class='sub-header'><b>Eduveer</b> | Your AI Career Guide</p>", unsafe_allow_html=True)
 
-# Chat Container
-chat_container = st.container()
+# 1. DISPLAY CHAT HISTORY
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        st.markdown(msg["content"])
 
-# Display Chat History
-with chat_container:
-    for msg in st.session_state.messages:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
+# 2. LOGIC CONTROLLER
 
-# --- LOGIC FLOW ---
-
-# STEP 0: INTRO
+# --- STEP 0: WELCOME ---
 if st.session_state.step == 0:
     if not st.session_state.messages:
-        intro_msg = (
+        intro = (
             "**Namaste! I am Eduveer.** 👋\n\n"
-            "I'm here to help you construct your perfect career blueprint. "
-            "At **Distoversity**, we don't just look at grades; we look at your **Energy**.\n\n"
-            "Are you a **Creator**, **Influencer**, **Catalyst**, or **Analyst**?\n\n"
-            "Let's find out in 60 seconds. Ready to unlock your profile?"
+            "I'm here to help you choose the right Online University and Career Path.\n\n"
+            "I can answer your questions about **UGC, DEB, Approvals, and Placements** anytime.\n\n"
+            "But first, let's find your 'Career Energy' in 5 quick questions. Ready?"
         )
-        add_bot_message(intro_msg)
+        add_bot_message(intro)
         st.rerun()
-    
-    if st.button("🚀 Start My Discovery"):
-        add_user_message("I'm ready! Let's start.")
+
+    # Button to start
+    if st.button("🚀 Start Assessment", key="start_btn"):
+        add_user_message("Let's start!")
         st.session_state.step = 1
         st.rerun()
 
-# STEP 1: ASSESSMENT (5 Questions)
+# --- STEP 1: ASSESSMENT LOOP (Hybrid Chat) ---
 elif st.session_state.step == 1:
-    q_data = QUESTIONS[st.session_state.q_index]
+    current_q = QUESTIONS[st.session_state.q_index]
     
-    # Ask the question if it hasn't been asked in the last message
-    last_msg = st.session_state.messages[-1]["content"]
-    if q_data["q"] not in last_msg:
-        add_bot_message(f"**Q{st.session_state.q_index + 1}:** {q_data['q']}")
+    # Ensure the question is displayed as the last bot message
+    last_bot_msg = next((m["content"] for m in reversed(st.session_state.messages) if m["role"] == "assistant"), "")
+    if current_q["q"] not in last_bot_msg:
+        add_bot_message(f"**Q{st.session_state.q_index + 1}/5:** {current_q['q']}")
         st.rerun()
 
-    # Display Options
+    # LAYOUT: Options on top, Chat input on bottom
+    st.write("Select an option OR ask me a question below:")
+    
+    # Display Options as Buttons
     cols = st.columns(2)
-    for idx, (option_text, energy_type) in enumerate(q_data["options"]):
-        col = cols[idx % 2]
-        if col.button(option_text, key=f"q{st.session_state.q_index}_opt{idx}"):
-            # Logic when clicked
-            st.session_state.scores[energy_type] += 1
-            add_user_message(option_text)
+    for idx, (opt_text, energy) in enumerate(current_q["options"]):
+        if cols[idx % 2].button(opt_text, key=f"q{st.session_state.q_index}_opt{idx}"):
+            st.session_state.scores[energy] += 1
+            add_user_message(opt_text) # Record answer
             
-            # Move to next question or finish
+            # Progress logic
             if st.session_state.q_index < len(QUESTIONS) - 1:
                 st.session_state.q_index += 1
-                st.rerun()
             else:
-                st.session_state.step = 2
-                st.rerun()
+                st.session_state.step = 2 # Go to Gate
+            st.rerun()
 
-# STEP 2: THE GATE (Lead Gen)
+# --- STEP 2: LEAD GEN GATE ---
 elif st.session_state.step == 2:
-    if "gate_msg" not in [m.get("id", "") for m in st.session_state.messages]: # Prevent duplicate msg
-        msg = "⚡ **Brilliant! Analysis Complete.**\n\nI have calculated your unique Energy Profile and selected 3 top universities that match your DNA.\n\n**Please enter your details to generate your detailed Career Report.**"
-        add_bot_message(msg)
-        st.session_state.messages[-1]["id"] = "gate_msg" # Flag to ensure single execution
+    if "gate_shown" not in [m.get("id", "") for m in st.session_state.messages]:
+        msg = "🎉 **Fantastic! Assessment Complete.**\n\nI have your Energy Profile ready. To send you the detailed career roadmap and matched universities, I just need your contact details."
+        st.session_state.messages.append({"role": "assistant", "content": msg, "id": "gate_shown"})
         st.rerun()
 
-    with st.form("lead_gen_form"):
-        name = st.text_input("Full Name", placeholder="e.g. Veer Sharma")
-        phone = st.text_input("Mobile Number", placeholder="e.g. 9876543210")
-        email = st.text_input("Email Address", placeholder="e.g. veer@gmail.com")
-        is_student = st.radio("Are you currently:", ["Student", "Working Professional"])
-        
-        submitted = st.form_submit_button("🔓 Unlock My Report")
-        
-        if submitted:
+    with st.form("lead_gate"):
+        name = st.text_input("Name")
+        phone = st.text_input("WhatsApp Number")
+        email = st.text_input("Email")
+        utype = st.radio("Current Status", ["Student", "Working Professional"])
+        if st.form_submit_button("🔓 Unlock My Report"):
             if name and phone and email:
-                st.session_state.user_info = {
-                    "name": name, 
-                    "phone": phone, 
-                    "email": email, 
-                    "type": is_student
-                }
-                add_user_message(f"Details shared. Name: {name}, Type: {is_student}")
+                st.session_state.user_info = {"name": name, "phone": phone, "email": email, "type": utype}
+                add_user_message(f"Here are my details: {name}, {utype}")
                 st.session_state.step = 3
                 st.rerun()
             else:
-                st.error("Please fill in all fields to proceed.")
+                st.error("Please fill in all details to proceed.")
 
-# STEP 3: THE REVELATION (Results)
+# --- STEP 3: RESULTS & RECOMMENDATIONS ---
 elif st.session_state.step == 3:
-    # Calculate Result
-    primary_energy = get_primary_energy()
-    user_name = st.session_state.user_info['name']
-    
-    # Display Results only once
+    primary = get_primary_energy()
     if "result_shown" not in st.session_state:
         st.session_state.result_shown = True
         
-        # Personalized Insight
         insight = ""
-        if primary_energy == "Creator":
-            insight = "You are built for **Innovation**. You see things others miss. Your ideal career involves design, strategy, or entrepreneurship."
-        elif primary_energy == "Influencer":
-            insight = "You are a natural **Leader**. Your power lies in communication. Sales, HR, and Management are your playgrounds."
-        elif primary_energy == "Analyst":
-            insight = "You are driven by **Logic**. Data is your weapon. Tech, Finance, and Research are where you will thrive."
-        elif primary_energy == "Catalyst":
-            insight = "You are the **Engine**. You get things done. Operations, Logistics, and Project Management need you."
+        if primary == "Creator": insight = "You are a **Visionary**. You thrive on innovation and design."
+        elif primary == "Influencer": insight = "You are a **Leader**. People and communication are your strengths."
+        elif primary == "Analyst": insight = "You are a **Thinker**. Data, logic, and systems drive you."
+        elif primary == "Catalyst": insight = "You are a **Doer**. Efficiency and operations are your forte."
 
-        final_msg = (
-            f"### 🎯 Analysis for {user_name}\n\n"
-            f"**Dominant Energy:** 🌟 **{primary_energy}**\n\n"
-            f"{insight}\n\n"
-            "Based on your profile, here are the **Top University Programs** that align with your natural strengths:"
-        )
-        add_bot_message(final_msg)
+        msg = f"### 🎯 Profile: {primary}\n\n{insight}\n\nBased on this, here are the best Online Universities for you:"
+        add_bot_message(msg)
         st.rerun()
 
-    # --- DISPLAY RECOMMENDATIONS (Outside Chat Bubble for better UI) ---
-    st.markdown("---")
-    st.subheader(f"🎓 Curated for {primary_energy}s")
-    
-    # Filter Logic (Simple Recommendation Engine)
-    recommended = [u for u in UNIVERSITIES if primary_energy in u["best_for"]]
-    
-    # Fallback if not enough specific matches, show top rated
-    if len(recommended) < 2:
-        recommended = UNIVERSITIES[:3]
+    # Show Recommendations
+    matched_unis = [u for u in UNIVERSITIES if primary in u["best_for"]]
+    if not matched_unis: matched_unis = UNIVERSITIES[:3]
 
-    for uni in recommended:
-        with st.container():
-            st.markdown(f"""
-            <div class="university-card">
-                <h3>{uni['name']} <span style="font-size:0.8rem; color:#777;">({uni['accreditation']})</span></h3>
-                <p><b>Recommended Degrees:</b> {", ".join(uni['programs'])}</p>
-                <p><b>Investment:</b> {uni['fees']}</p>
-                <p style="background-color: #E0F2FE; padding: 8px; border-radius: 8px; font-style: italic; color: #005f85;">
-                    💡 <b>Real Success:</b> {uni['success_story']}
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-
-    # --- FINAL CTA ---
     st.markdown("---")
-    st.info("Want to map out your exact roadmap with a human expert?")
+    for uni in matched_unis:
+        st.markdown(f"""
+        <div class="university-card">
+            <h3>{uni['name']}</h3>
+            <p style="font-size:0.9rem; color:#666;">✅ {uni['accreditation']}</p>
+            <p><b>Best Programs:</b> {", ".join(uni['programs'])}</p>
+            <p><b>Fee Range:</b> {uni['fees']}</p>
+            <p style="background-color:#eef; padding:5px; border-radius:5px;"><i>"{uni['success_story']}"</i></p>
+        </div>
+        """, unsafe_allow_html=True)
     
-    col1, col2 = st.columns([1, 4])
-    with col2:
-        st.button("📅 Book Free 1:1 Career Strategy Session", type="primary")
+    st.info("Tip: You can ask me questions about these universities below!")
+
+# --- GLOBAL CHAT INPUT (Available in Step 1 & 3) ---
+# This allows the user to interrupt the flow with questions
+if st.session_state.step in [1, 3]:
+    user_input = st.chat_input("Ask about UGC, Approvals, or type your answer...")
+    
+    if user_input:
+        add_user_message(user_input)
+        
+        # 1. Check Knowledge Base (Interrupt Logic)
+        kb_answer = check_knowledge_base(user_input)
+        if kb_answer:
+            response = f"🤖 **Eduveer Insight:** {kb_answer}"
+            if st.session_state.step == 1:
+                response += "\n\nNow, let's get back to the question above! 👆"
+            add_bot_message(response)
+            st.rerun()
+        
+        # 2. If not a KB question and in Step 1, gently nudge back
+        elif st.session_state.step == 1:
+            fallback = "That's interesting! I'm noting that down. To give you the best recommendation, please select one of the options above so we can complete your profile. 👇"
+            add_bot_message(fallback)
+            st.rerun()
+            
+        # 3. If in Step 3 (Results), generic fallback
+        elif st.session_state.step == 3:
+            add_bot_message("I'm currently focusing on university data. Feel free to book a 1:1 session for deeper career counseling!")
+            st.rerun()
 
 # --- FOOTER ---
-st.markdown("""
-    <div style="text-align: center; margin-top: 50px; color: #aaa; font-size: 0.8rem;">
-        © 2025 Distoversity Pvt Ltd | AI Career Counseling<br>
-        <i>Empowering India's Future</i>
-    </div>
-""", unsafe_allow_html=True)
+st.markdown("<div style='text-align:center; margin-top:50px; color:#aaa;'>© 2025 Distoversity | AI Career Counseling</div>", unsafe_allow_html=True)
