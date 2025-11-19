@@ -1,6 +1,7 @@
 import streamlit as st
 from groq import Groq
 import time
+import streamlit.components.v1 as components
 
 # --- 1. Web Page Configuration ---
 st.set_page_config(
@@ -9,7 +10,21 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- 2. WEBSITE-MATCHED UI Styling ---
+# --- 2. FLASHING TAB TITLE SCRIPT ---
+# This JavaScript will make the tab title toggle every 2 seconds
+flashing_script = """
+<script>
+    var titles = ["Distoversity Guide", "Your Career Mentor", "Distoversity AI"];
+    var i = 0;
+    setInterval(function() {
+        document.title = titles[i % titles.length];
+        i++;
+    }, 2000); # Change every 2000 milliseconds (2 seconds)
+</script>
+"""
+components.html(flashing_script, height=0)
+
+# --- 3. WEBSITE-MATCHED UI Styling ---
 st.markdown("""
     <style>
     /* Import 'Inter' font to match your website typography */
@@ -115,7 +130,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. Initialize Brain ---
+# --- 4. Initialize Brain ---
 try:
     api_key = st.secrets["GROQ_API_KEY"]
     client = Groq(api_key=api_key)
@@ -123,13 +138,13 @@ except Exception:
     st.error("⚠️ API Key Missing.")
     st.stop()
 
-# --- 4. Session State ---
+# --- 5. Session State ---
 if "user_profile" not in st.session_state:
     st.session_state.user_profile = None
 if "msg_count" not in st.session_state:
     st.session_state.msg_count = 0
 
-# --- 5. Sidebar (Data & Tools) ---
+# --- 6. Sidebar (Data & Tools) ---
 with st.sidebar:
     # Using your logo placeholder (Update link if you have hosted logo)
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=80)
@@ -163,7 +178,7 @@ with st.sidebar:
 
     st.caption("© 2025 Distoversity Pvt Ltd") 
 
-# --- 6. Main Interface ---
+# --- 7. Main Interface ---
 # Header matching your site style
 st.title("Discover Your Genius Profile") 
 st.markdown("<p style='text-align: center; color: #64748B; font-size: 1.1rem;'>Unlock personalized university recommendations based on your unique strengths.</p>", unsafe_allow_html=True)
