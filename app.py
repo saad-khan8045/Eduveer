@@ -2,6 +2,7 @@ import streamlit as st
 from groq import Groq
 import time
 import json
+import streamlit.components.v1 as components
 
 # --- 1. Web Page Configuration ---
 st.set_page_config(
@@ -10,7 +11,20 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- 2. WEBSITE-MATCHED UI Styling (Same as before) ---
+# --- 2. FLASHING TAB TITLE SCRIPT ---
+flashing_script = """
+<script>
+    var titles = ["Distoversity Guide", "Your Career Mentor", "Distoversity AI"];
+    var i = 0;
+    setInterval(function() {
+        document.title = titles[i % titles.length];
+        i++;
+    }, 2000);
+</script>
+"""
+components.html(flashing_script, height=0)
+
+# --- 3. WEBSITE-MATCHED UI Styling ---
 st.markdown("""
     <style>
     /* Import 'Inter' font */
@@ -111,7 +125,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 3. Initialize Brain ---
+# --- 4. Initialize Brain ---
 try:
     api_key = st.secrets["GROQ_API_KEY"]
     client = Groq(api_key=api_key)
@@ -119,9 +133,9 @@ except Exception:
     st.error("⚠️ API Key Missing.")
     st.stop()
 
-# --- 4. Session State Initialization ---
+# --- 5. Session State Initialization ---
 if "step" not in st.session_state:
-    st.session_state.step = 1  # 1: Profile Form, 2: Quiz, 3: Contact Info, 4: Report
+    st.session_state.step = 1
 if "user_profile" not in st.session_state:
     st.session_state.user_profile = {}
 if "quiz_answers" not in st.session_state:
@@ -131,7 +145,7 @@ if "contact_info" not in st.session_state:
 if "final_report" not in st.session_state:
     st.session_state.final_report = ""
 
-# --- 5. Sidebar ---
+# --- 6. Sidebar ---
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=80)
     st.markdown("### **Distoversity**") 
@@ -140,22 +154,22 @@ with st.sidebar:
     if st.session_state.step > 1:
         progress = (len(st.session_state.quiz_answers) / 5) if st.session_state.step == 2 else 1.0
         st.progress(progress)
-        st.caption(f"Assessment Progress")
+        st.caption(f"Career Analysis Progress")
 
     st.divider()
-    if st.button("↻ Restart Assessment"):
+    if st.button("↻ Restart"):
         for key in list(st.session_state.keys()):
             del st.session_state[key]
         st.rerun()
     st.caption("© 2025 Distoversity Pvt Ltd") 
 
-# --- 6. Main Logic ---
+# --- 7. Main Logic ---
 
 st.title("Discover Your Genius Profile") 
 
 # --- STEP 1: INITIAL PROFILE FORM ---
 if st.session_state.step == 1:
-    st.markdown("<p style='text-align: center; color: #64748B; font-size: 1.1rem;'>Unlock personalized university recommendations based on your unique strengths.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #64748B; font-size: 1.1rem;'>A guided assessment to find the university that fits your unique potential.</p>", unsafe_allow_html=True)
     st.write("")
     
     with st.form("profile_form"):
@@ -170,42 +184,46 @@ if st.session_state.step == 1:
             goal = st.radio("Goal", ["Regular College Degree", "Online/Distance Degree", "Upskilling/Certificate"], label_visibility="collapsed")
         
         st.write("")
-        submitted = st.form_submit_button("Start 5-Question Assessment ➔")
+        submitted = st.form_submit_button("Begin Assessment ➔")
         
         if submitted:
             st.session_state.user_profile = {"status": status, "goal": goal}
             st.session_state.step = 2
             st.rerun()
 
-# --- STEP 2: THE 5-QUESTION QUIZ (Chat Interface) ---
+# --- STEP 2: THE GUIDED ASSESSMENT (Chat Interface) ---
 elif st.session_state.step == 2:
     
-    # Define the 5 Questions directly here for control
+    # Questions designed to feel like a conversation
     questions = [
-        "1. When starting a new project, what do you enjoy most? (Ideating, Leading people, Organizing details, or Researching data?)",
-        "2. In a group, what role do you naturally take? (The Creative Spark, The Leader/Speaker, The Reliable Helper, or The Analyzer?)",
-        "3. What kind of tasks drain your energy? (Repetitive details, Being alone too long, Conflict/Pressure, or Vague ideas without data?)",
-        "4. If you could have a superpower at work/study, what would it be? (Endless Creativity, Super Persuasion, Perfect Timing/Harmony, or Instant Calculation?)",
-        "5. How do you make decisions? (Gut feeling/Innovation, Discussing with others, Sensing the right time, or Logic and spreadsheet?)"
+        "**Let's start.** When you think about your ideal work day, what are you doing? (Brainstorming new ideas, Leading a team discussion, Organizing a complex plan, or Analyzing data alone?)",
+        "**Interesting.** Now, in a group project, what role do you naturally fall into? (The 'Idea Person', The 'Speaker/Presenter', The 'Support/Organizer', or The 'Fact-Checker'?)",
+        "**Got it.** Everyone has tasks they dislike. What drains your energy the most? (Repetitive details, Working in isolation, Chaos/Uncertainty, or Emotional conflicts?)",
+        "**That makes sense.** If you could have one superpower to help you succeed, what would it be? (Limitless Creativity, Magnetic Persuasion, Perfect Timing, or Instant Calculation?)",
+        "**Final question.** How do you prefer to make big decisions? (Trusting your gut/vision, talking it out with others, waiting for the right moment, or analyzing the data first?)"
     ]
     
     current_q_index = len(st.session_state.quiz_answers)
     
     if current_q_index < 5:
-        st.markdown(f"### Question {current_q_index + 1} of 5")
-        st.info(questions[current_q_index])
+        # Dynamic Header
+        st.markdown(f"### Insight {current_q_index + 1} of 5")
+        
+        # Use chat message to ask
+        with st.chat_message("assistant", avatar="🎓"):
+            st.write(questions[current_q_index])
         
         # Chat input for the answer
         if answer := st.chat_input("Type your answer here..."):
             st.session_state.quiz_answers.append(answer)
             st.rerun()
             
-        # Display previous Q&A for context
+        # Display previous conversation for context
         for i, ans in enumerate(st.session_state.quiz_answers):
             with st.chat_message("assistant", avatar="🎓"):
-                st.write(questions[i])
+                st.markdown(questions[i])
             with st.chat_message("user", avatar="🧑‍🎓"):
-                st.write(ans)
+                st.markdown(ans)
                 
     else:
         st.session_state.step = 3
@@ -213,29 +231,30 @@ elif st.session_state.step == 2:
 
 # --- STEP 3: CONTACT INFO FORM ---
 elif st.session_state.step == 3:
-    st.markdown("### Assessment Complete! 🎉")
-    st.markdown("To generate your detailed **Genius Profile Report** and university shortlist, please provide your details.")
+    st.markdown("### Analysis Complete! 🎉")
+    st.markdown("I have analyzed your responses. To provide you with a **Personalized Guidance Report** and a list of universities that match your energy, please share your details.")
     
     with st.form("contact_form"):
         name = st.text_input("Full Name")
         email = st.text_input("Email Address")
         phone = st.text_input("Mobile Number")
         
-        submit_contact = st.form_submit_button("Generate My Report ➔")
+        st.info("🔒 Your data is secure. We use this only to send your career report.")
+        
+        submit_contact = st.form_submit_button("View My Career Report ➔")
         
         if submit_contact and name and email and phone:
             st.session_state.contact_info = {"name": name, "email": email, "phone": phone}
             st.session_state.step = 4
             st.rerun()
         elif submit_contact:
-            st.error("Please fill in all fields to get your report.")
+            st.error("Please fill in all fields to unlock your report.")
 
-# --- STEP 4: REPORT GENERATION & ANALYSIS ---
+# --- STEP 4: GUIDANCE REPORT GENERATION ---
 elif st.session_state.step == 4:
     if not st.session_state.final_report:
-        with st.spinner("Analyzing your 4 Energies... Calculating percentages..."):
+        with st.spinner("Synthesizing your profile... Matching universities..."):
             
-            # Prepare data for AI Analysis
             user_data_str = f"""
             User Status: {st.session_state.user_profile['status']}
             User Goal: {st.session_state.user_profile['goal']}
@@ -249,43 +268,39 @@ elif st.session_state.step == 4:
             """
             
             prompt = f"""
-            Act as a Veteran Career Assessment Expert at Distoversity.
-            Analyze the following user answers based on the 4 Energies Framework:
-            - Creator (Innovation, Ideas)
-            - Influencer (People, Leadership)
-            - Catalyst (Service, Timing, Grounded)
-            - Analyst (Data, Systems, Logic)
+            Act as a Senior Career Strategist at Distoversity.
+            Analyze the user based on the 4 Energies: Creator, Influencer, Catalyst, Analyst.
 
             USER DATA:
             {user_data_str}
 
             TASK:
-            1. Calculate an estimated percentage for each of the 4 energies based on the answers. (e.g., Creator: 60%, Influencer: 20%, etc.). Ensure no single profile is blindly 100% unless answers strongly suggest it.
-            2. Identify the DOMINANT profile.
-            3. Write a "Veteran's Insight" explaining their strengths simply (12th-grade level English).
-            4. Suggest 3 specific career paths or courses suitable for this mix.
+            1. Calculate Profile % (Estimate based on answers).
+            2. Identify DOMINANT profile.
+            3. Provide **GUIDANCE**, not just a label. Explain *HOW* they should study and *WHAT* kind of career environment suits them.
+            4. Suggest 3 specific paths/courses.
 
-            OUTPUT FORMAT (Strictly follow this):
-            # 🎓 Genius Profile Report for [User Name placeholder]
+            OUTPUT FORMAT (Markdown):
+            # 🎓 Career Guidance Report for [Name]
             
-            ## ⚡ Energy Distribution
+            ## ⚡ Your Energy Profile
             - **Creator:** [X]%
             - **Influencer:** [X]%
             - **Catalyst:** [X]%
             - **Analyst:** [X]%
             
-            ## 🏆 Your Dominant Profile: [Profile Name]
+            ## 🏆 Your Core Strength: [Profile Name]
             
-            ### 🧠 Veteran's Insight
-            [Write a 3-4 sentence warm, wise analysis of why they fit this profile and how it's a superpower.]
+            ### 🧭 Expert Guidance
+            [Write 3-4 sentences explaining their working style. Focus on their STRENGTHS. Example: "You thrive in environments where... You should avoid roles that are too rigid..."]
             
-            ### 🚀 Recommended Paths
-            1. **[Path 1]**: [Why?]
-            2. **[Path 2]**: [Why?]
-            3. **[Path 3]**: [Why?]
+            ### 🚀 Recommended Career Paths
+            1. **[Path 1]**: [Brief reason why]
+            2. **[Path 2]**: [Brief reason why]
+            3. **[Path 3]**: [Brief reason why]
             
             ---
-            *Report generated by Distoversity AI*
+            *Guidance by Distoversity AI*
             """
             
             try:
@@ -300,16 +315,15 @@ elif st.session_state.step == 4:
 
     # Display Report
     if st.session_state.final_report:
-        st.success("Analysis Complete!")
+        st.success(" Your Career Roadmap is Ready!")
         
-        # Custom CSS for Report Card
         st.markdown("""
         <div class="report-card">
             """ + st.session_state.final_report.replace("\n", "<br>") + """
         </div>
         """, unsafe_allow_html=True)
         
-        # Data Capture String (For email/admin)
+        # Data Capture String
         capture_data = f"""
         NEW LEAD:
         Name: {st.session_state.contact_info['name']}
@@ -317,20 +331,19 @@ elif st.session_state.step == 4:
         Email: {st.session_state.contact_info['email']}
         Profile: {st.session_state.user_profile['status']} - {st.session_state.user_profile['goal']}
         
-        REPORT SUMMARY:
+        REPORT:
         {st.session_state.final_report}
         """
         
         st.download_button(
-            label="📥 Download Your Report",
+            label="📥 Download & Save Report",
             data=capture_data,
-            file_name=f"Distoversity_Report_{st.session_state.contact_info['name']}.txt",
+            file_name=f"Distoversity_Guidance_{st.session_state.contact_info['name']}.txt",
             mime="text/plain"
         )
         
-        st.markdown("### 📞 Next Steps")
-        st.info("Our expert counselors have received your profile. We will contact you shortly to discuss university admissions based on this report.")
+        st.markdown("### 📞 Take the Next Step")
+        st.info("This report is just the beginning. Our counselors can help you apply to the universities that match this profile.")
         
-        # Google Form Link for manual submission if they want
         google_form_link = "https://forms.gle/YourFormLinkHere"
-        st.markdown(f'<a href="{google_form_link}" target="_blank">Submit to Counselor Directly ➔</a>', unsafe_allow_html=True)
+        st.markdown(f'<a href="{google_form_link}" target="_blank">Connect with a Counselor ➔</a>', unsafe_allow_html=True)
