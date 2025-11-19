@@ -1,96 +1,376 @@
 import streamlit as st
+import time
+import random
 
-# --- COLOR THEME ---
-st.markdown("""
-<style>
-body, .stApp { background: #F3F8FC; }
-h1, h2, h3 { color: #00AEEF; text-align: center; font-weight: 800; }
-.stButton button, .cta-btn {
-    background: #00AEEF; color: #FFF !important; border-radius: 8px;
-    font-weight: 700; box-shadow: 0 4px 16px #00AEEF33;
-    font-size: 18px; transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
-}
-.stButton button:hover, .cta-btn:hover {
-    background: #0095CC; box-shadow: 0 8px 20px #00AEEF55; transform: scale(1.04);
-}
-.card, .stChatMessage.assistant { background: #FFFFFF; border-radius: 16px;
-    box-shadow: 0 2px 16px #CAF0F822; border: 1px solid #E0F2FE; margin-bottom: 18px;
-}
-.stChatMessage.user { background: #E0F2FE; border-radius: 16px; border: 1px solid #BAE6FD; }
-</style>
+# --- CONFIGURATION & THEME ---
+st.set_page_config(
+    page_title="Distoversity | Eduveer",
+    page_icon="🎓",
+    layout="centered",
+    initial_sidebar_state="collapsed"
+)
+
+# Brand Colors
+PRIMARY_BLUE = "#00AEEF"
+LIGHT_BLUE_BG = "#E0F2FE"
+WHITE = "#FFFFFF"
+
+# Custom CSS for Distoversity Branding
+st.markdown(f"""
+    <style>
+    .stApp {{
+        background-color: #FAFAFA;
+    }}
+    .stChatMessage {{
+        padding: 1rem;
+        border-radius: 15px;
+        margin-bottom: 10px;
+    }}
+    .stChatMessage.user {{
+        background-color: {LIGHT_BLUE_BG};
+        border: 1px solid {PRIMARY_BLUE};
+    }}
+    div[data-testid="stChatMessageContent"] {{
+        color: #333;
+        font-family: 'Sans-Serif';
+    }}
+    .main-header {{
+        color: {PRIMARY_BLUE};
+        text-align: center;
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 0;
+    }}
+    .sub-header {{
+        color: #555;
+        text-align: center;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }}
+    .stButton>button {{
+        background-color: {PRIMARY_BLUE};
+        color: white;
+        border-radius: 30px;
+        border: none;
+        padding: 10px 25px;
+        font-weight: 600;
+        width: 100%;
+        transition: all 0.3s ease;
+    }}
+    .stButton>button:hover {{
+        background-color: #008CC2;
+        transform: scale(1.02);
+    }}
+    .university-card {{
+        background-color: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 15px;
+        border-left: 5px solid {PRIMARY_BLUE};
+    }}
+    .energy-badge {{
+        background-color: {LIGHT_BLUE_BG};
+        color: {PRIMARY_BLUE};
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        font-weight: bold;
+    }}
+    </style>
 """, unsafe_allow_html=True)
 
-# --- DATA / EXAMPLES ---
-universities = [
-    {"name":"AMITY Online", "programs":["MBA","BCA","BBA","MCA"], "energy":["Creator","Influencer","Analyst"], "fees":"₹65,000–2,50,000", "accreditation":"UGC-Entitled, NAAC A+", "story":"A Creator who joined Amity's MBA built his startup during his studies and got VC funding by graduation."},
-    {"name":"Manipal Online", "programs":["MBA","BCA","BSc Data Science"], "energy":["Creator","Influencer","Analyst"], "fees":"₹80,000–2,75,000", "accreditation":"UGC-Entitled, NAAC A+", "story":"An Analyst at Manipal's Data Science program started with basic skills and landed a remote job at a top tech firm."},
-    {"name":"LPU Online", "programs":["MBA","BCA","BCom"], "energy":["Creator","Influencer","Analyst","Catalyst"], "fees":"₹70,000–2,10,000", "accreditation":"UGC-Entitled", "story":"A Catalyst in LPU BCom organized community finance programs and was recruited as a financial coordinator."},
-    {"name":"DY Patil Online", "programs":["MBA","BBA","BCA"], "energy":["Creator","Influencer","Catalyst"], "fees":"₹60,000–1,60,000", "accreditation":"UGC-Entitled", "story":"DY Patil's MBA student interned with an international logistics team and now manages projects across continents."},
-    {"name":"NMIMS Online", "programs":["MBA","BCom","MCA"], "energy":["Influencer","Analyst"], "fees":"₹50,000–2,25,000", "accreditation":"UGC-Entitled, NAAC A+", "story":"An Influencer at NMIMS led college events and now works in multinational corporate HR."},
-    {"name":"Chandigarh University Online", "programs":["MBA","BBA","BCA"], "energy":["Creator","Catalyst","Analyst"], "fees":"₹52,000–1,50,000", "accreditation":"UGC-Entitled", "story":"A Creator at CU’s MBA launched a tech forum that turned into a full-time job."},
-    # Add more as needed...
+# --- DATA: UNIVERSITIES & ENERGIES ---
+UNIVERSITIES = [
+    {
+        "name": "Amity University Online",
+        "programs": ["MBA", "BBA", "MCA", "BCA"],
+        "fees": "₹1.5L - ₹3.5L",
+        "accreditation": "UGC-DEB, NAAC A+",
+        "success_story": "Rohan (Analyst) shifted from Sales to Data Analytics with a 40% hike.",
+        "best_for": ["Analyst", "Influencer"]
+    },
+    {
+        "name": "Manipal University Jaipur (Online)",
+        "programs": ["MBA", "B.Com", "M.Com", "BCA"],
+        "fees": "₹1.2L - ₹3.0L",
+        "accreditation": "NAAC A+, AICTE",
+        "success_story": "Priya (Creator) launched her digital agency post their Digital Marketing elective.",
+        "best_for": ["Creator", "Influencer"]
+    },
+    {
+        "name": "LPU Online",
+        "programs": ["M.Sc CS", "MBA", "BA", "MA"],
+        "fees": "₹80k - ₹1.8L",
+        "accreditation": "UGC Entitled, WES",
+        "success_story": "Amit (Catalyst) manages operations for a logistics giant now.",
+        "best_for": ["Catalyst", "Analyst"]
+    },
+    {
+        "name": "NMIMS Global",
+        "programs": ["MBA (Executive)", "Diploma in Business Mgmt"],
+        "fees": "₹1.0L - ₹4.0L",
+        "accreditation": "NAAC A+, UGC-DEB",
+        "success_story": "Sonia (Influencer) fast-tracked to VP HR within 18 months.",
+        "best_for": ["Influencer", "Catalyst"]
+    },
+    {
+        "name": "Chandigarh University Online",
+        "programs": ["MCA", "MBA", "MA Journalism"],
+        "fees": "₹50k - ₹1.5L",
+        "accreditation": "NAAC A+, QS Ranked",
+        "success_story": "Rahul (Creator) now leads content strategy for a top OTT platform.",
+        "best_for": ["Creator", "Influencer"]
+    },
+     {
+        "name": "DY Patil Online",
+        "programs": ["BBA", "MBA in Hospital Mgmt"],
+        "fees": "₹1.1L - ₹2.2L",
+        "accreditation": "NAAC A++, UGC",
+        "success_story": "Anjali (Catalyst) streamlined hospital ops during peak demand efficiently.",
+        "best_for": ["Catalyst", "Analyst"]
+    }
 ]
 
-energy_types = {
-    "Creator": "People who love innovating, starting new things, dreaming big.",
-    "Influencer": "Those with a knack for leading, networking, and inspiring others.",
-    "Catalyst": "Helpers who shine when organizing and delivering practical value.",
-    "Analyst": "Detail-oriented minds who thrive in logic, tech, and analysis."
-}
+# Questions Mapping: (Option A -> Energy 1, Option B -> Energy 2...)
+QUESTIONS = [
+    {
+        "q": "When solving a problem, what's your first instinct?",
+        "options": [
+            ("Brainstorm a new, unique solution.", "Creator"),
+            ("Call a team meeting to discuss.", "Influencer"),
+            ("Look at the data and facts first.", "Analyst"),
+            ("Just start fixing it immediately.", "Catalyst")
+        ]
+    },
+    {
+        "q": "Which workspace sounds perfect to you?",
+        "options": [
+            ("A design studio with music and art.", "Creator"),
+            ("A busy room full of people talking.", "Influencer"),
+            ("A quiet room with multiple monitors.", "Analyst"),
+            ("On-site, moving around, getting things done.", "Catalyst")
+        ]
+    },
+    {
+        "q": "Friends usually describe you as...",
+        "options": [
+            ("The Creative Visionary.", "Creator"),
+            ("The Social Butterfly / Leader.", "Influencer"),
+            ("The Logical Thinker.", "Analyst"),
+            ("The Reliable Doer.", "Catalyst")
+        ]
+    },
+    {
+        "q": "What motivates you most?",
+        "options": [
+            ("Creating something that didn't exist before.", "Creator"),
+            ("Leading and inspiring others.", "Influencer"),
+            ("Understanding how things work (Logic).", "Analyst"),
+            ("Checking items off my to-do list.", "Catalyst")
+        ]
+    },
+    {
+        "q": "Pick a role in a movie production:",
+        "options": [
+            ("Director/Scriptwriter.", "Creator"),
+            ("Lead Actor/PR Manager.", "Influencer"),
+            ("Editor/CGI Specialist.", "Analyst"),
+            ("Producer/Stunt Coordinator.", "Catalyst")
+        ]
+    }
+]
 
-# --- HEADER ---
-st.set_page_config(page_title="Distoversity - Eduveer AI", page_icon="🎓", layout="centered")
-st.title("🎓 Distoversity: Eduveer – Your Mentor & Friend")
-st.markdown("""Hey 👋 I'm Eduveer.  
-No boring forms here... just honest, friendly advice.  
-Want to chat about your dreams, university plans, or online degrees?  
-I'm here to help you find the *best fit* for your strengths – and budget.  
-""")
+# --- SESSION STATE MANAGEMENT ---
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+if "step" not in st.session_state:
+    st.session_state.step = 0  # 0: Intro, 1: Questions, 2: Lead Gen, 3: Results
+if "q_index" not in st.session_state:
+    st.session_state.q_index = 0
+if "scores" not in st.session_state:
+    st.session_state.scores = {"Creator": 0, "Influencer": 0, "Analyst": 0, "Catalyst": 0}
+if "user_info" not in st.session_state:
+    st.session_state.user_info = {}
 
-# --- WARM WELCOME, GENTLE PROFILE SETUP ---
-if "energy" not in st.session_state:
-    st.markdown("#### Let's start simple!  
-    I know every learner is different.  
-    If you like, pick which description feels closest (but you can skip and just chat too!)")
-    energy_choice = st.selectbox("Which sounds most like you?", list(energy_types.keys()), index=0)
-    st.session_state.energy = energy_choice
-    st.markdown(f"That’s awesome! {energy_types[energy_choice]}")
-    status_choice = st.selectbox("Are you currently a:", ["Student", "Working Learner"], index=0)
-    st.session_state.status = status_choice
+# --- HELPER FUNCTIONS ---
+def type_text(text):
+    """Simulates typing effect for the bot"""
+    message_placeholder = st.empty()
+    full_response = ""
+    for chunk in text.split():
+        full_response += chunk + " "
+        time.sleep(0.05) # Adjust speed here
+        # In a real app, you'd yield this to the stream, but for st.chat_message we just print
+    return text
+
+def add_bot_message(text):
+    st.session_state.messages.append({"role": "assistant", "content": text})
+
+def add_user_message(text):
+    st.session_state.messages.append({"role": "user", "content": text})
+
+def get_primary_energy():
+    return max(st.session_state.scores, key=st.session_state.scores.get)
+
+# --- UI LAYOUT ---
+
+# Header
+st.markdown("<h1 class='main-header'>Distoversity</h1>", unsafe_allow_html=True)
+st.markdown("<p class='sub-header'>Unlock Your Potential with <b>Eduveer</b> | AI Career Architect</p>", unsafe_allow_html=True)
+
+# Chat Container
+chat_container = st.container()
+
+# Display Chat History
+with chat_container:
+    for msg in st.session_state.messages:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+# --- LOGIC FLOW ---
+
+# STEP 0: INTRO
+if st.session_state.step == 0:
+    if not st.session_state.messages:
+        intro_msg = (
+            "**Namaste! I am Eduveer.** 👋\n\n"
+            "I'm here to help you construct your perfect career blueprint. "
+            "At **Distoversity**, we don't just look at grades; we look at your **Energy**.\n\n"
+            "Are you a **Creator**, **Influencer**, **Catalyst**, or **Analyst**?\n\n"
+            "Let's find out in 60 seconds. Ready to unlock your profile?"
+        )
+        add_bot_message(intro_msg)
+        st.rerun()
+    
+    if st.button("🚀 Start My Discovery"):
+        add_user_message("I'm ready! Let's start.")
+        st.session_state.step = 1
+        st.rerun()
+
+# STEP 1: ASSESSMENT (5 Questions)
+elif st.session_state.step == 1:
+    q_data = QUESTIONS[st.session_state.q_index]
+    
+    # Ask the question if it hasn't been asked in the last message
+    last_msg = st.session_state.messages[-1]["content"]
+    if q_data["q"] not in last_msg:
+        add_bot_message(f"**Q{st.session_state.q_index + 1}:** {q_data['q']}")
+        st.rerun()
+
+    # Display Options
+    cols = st.columns(2)
+    for idx, (option_text, energy_type) in enumerate(q_data["options"]):
+        col = cols[idx % 2]
+        if col.button(option_text, key=f"q{st.session_state.q_index}_opt{idx}"):
+            # Logic when clicked
+            st.session_state.scores[energy_type] += 1
+            add_user_message(option_text)
+            
+            # Move to next question or finish
+            if st.session_state.q_index < len(QUESTIONS) - 1:
+                st.session_state.q_index += 1
+                st.rerun()
+            else:
+                st.session_state.step = 2
+                st.rerun()
+
+# STEP 2: THE GATE (Lead Gen)
+elif st.session_state.step == 2:
+    if "gate_msg" not in [m.get("id", "") for m in st.session_state.messages]: # Prevent duplicate msg
+        msg = "⚡ **Brilliant! Analysis Complete.**\n\nI have calculated your unique Energy Profile and selected 3 top universities that match your DNA.\n\n**Please enter your details to generate your detailed Career Report.**"
+        add_bot_message(msg)
+        st.session_state.messages[-1]["id"] = "gate_msg" # Flag to ensure single execution
+        st.rerun()
+
+    with st.form("lead_gen_form"):
+        name = st.text_input("Full Name", placeholder="e.g. Veer Sharma")
+        phone = st.text_input("Mobile Number", placeholder="e.g. 9876543210")
+        email = st.text_input("Email Address", placeholder="e.g. veer@gmail.com")
+        is_student = st.radio("Are you currently:", ["Student", "Working Professional"])
+        
+        submitted = st.form_submit_button("🔓 Unlock My Report")
+        
+        if submitted:
+            if name and phone and email:
+                st.session_state.user_info = {
+                    "name": name, 
+                    "phone": phone, 
+                    "email": email, 
+                    "type": is_student
+                }
+                add_user_message(f"Details shared. Name: {name}, Type: {is_student}")
+                st.session_state.step = 3
+                st.rerun()
+            else:
+                st.error("Please fill in all fields to proceed.")
+
+# STEP 3: THE REVELATION (Results)
+elif st.session_state.step == 3:
+    # Calculate Result
+    primary_energy = get_primary_energy()
+    user_name = st.session_state.user_info['name']
+    
+    # Display Results only once
+    if "result_shown" not in st.session_state:
+        st.session_state.result_shown = True
+        
+        # Personalized Insight
+        insight = ""
+        if primary_energy == "Creator":
+            insight = "You are built for **Innovation**. You see things others miss. Your ideal career involves design, strategy, or entrepreneurship."
+        elif primary_energy == "Influencer":
+            insight = "You are a natural **Leader**. Your power lies in communication. Sales, HR, and Management are your playgrounds."
+        elif primary_energy == "Analyst":
+            insight = "You are driven by **Logic**. Data is your weapon. Tech, Finance, and Research are where you will thrive."
+        elif primary_energy == "Catalyst":
+            insight = "You are the **Engine**. You get things done. Operations, Logistics, and Project Management need you."
+
+        final_msg = (
+            f"### 🎯 Analysis for {user_name}\n\n"
+            f"**Dominant Energy:** 🌟 **{primary_energy}**\n\n"
+            f"{insight}\n\n"
+            "Based on your profile, here are the **Top University Programs** that align with your natural strengths:"
+        )
+        add_bot_message(final_msg)
+        st.rerun()
+
+    # --- DISPLAY RECOMMENDATIONS (Outside Chat Bubble for better UI) ---
     st.markdown("---")
+    st.subheader(f"🎓 Curated for {primary_energy}s")
+    
+    # Filter Logic (Simple Recommendation Engine)
+    recommended = [u for u in UNIVERSITIES if primary_energy in u["best_for"]]
+    
+    # Fallback if not enough specific matches, show top rated
+    if len(recommended) < 2:
+        recommended = UNIVERSITIES[:3]
 
-if "chat_log" not in st.session_state:
-    st.session_state.chat_log = [
-        {"role":"assistant", "content":
-         f"Hi! I'm Eduveer, your mentor and friend.  
-         I’ve seen Creators, Influencers, Catalysts, and Analysts make amazing journeys.  
-         Whatever your style, I’ll help you map universities and degrees that really fit.  
-         Just type any question below, or tell me about your goals – let’s chat!"}
-    ]
+    for uni in recommended:
+        with st.container():
+            st.markdown(f"""
+            <div class="university-card">
+                <h3>{uni['name']} <span style="font-size:0.8rem; color:#777;">({uni['accreditation']})</span></h3>
+                <p><b>Recommended Degrees:</b> {", ".join(uni['programs'])}</p>
+                <p><b>Investment:</b> {uni['fees']}</p>
+                <p style="background-color: #E0F2FE; padding: 8px; border-radius: 8px; font-style: italic; color: #005f85;">
+                    💡 <b>Real Success:</b> {uni['success_story']}
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
 
-for msg in st.session_state.chat_log:
-    avatar = "🧑‍🎓" if msg["role"]=="user" else "🎓"
-    with st.chat_message(msg["role"], avatar=avatar):
-        st.markdown(msg["content"])
+    # --- FINAL CTA ---
+    st.markdown("---")
+    st.info("Want to map out your exact roadmap with a human expert?")
+    
+    col1, col2 = st.columns([1, 4])
+    with col2:
+        st.button("📅 Book Free 1:1 Career Strategy Session", type="primary")
 
-if prompt := st.chat_input("Type anything: dreams, doubts, goals, or ask about degrees..."):
-    st.session_state.chat_log.append({"role": "user", "content": prompt})
-    user_energy = st.session_state.energy
-    reply = ""
-    # Friend/Mentor tone: gentle suggestion & story
-    matches = [uni for uni in universities if user_energy in uni["energy"]]
-    if matches:
-        reply = f"Hey friend, since you have a bit of **{user_energy}** vibe, I’ve helped people like you succeed:\n\n"
-        for uni in matches:
-            reply += f"- At **{uni['name']}**, students with your style study {', '.join(uni['programs'])}. {uni['story']}\n"
-        reply += "\nThe trick is matching your goals to the right program.  
-                 Want to see a step-by-step map for your journey? I’d love to help you book a free career session below!"
-    else:
-        reply = "Let's explore together – just tell me what excites you, and I’ll share some options!"
-
-    st.session_state.chat_log.append({"role":"assistant","content":reply})
-
-if len([m for m in st.session_state.chat_log if m["role"]=="user"]) >= 2:
-    st.info("Curious about next steps, personalized matches, or a career map? [Book a free expert session!](https://forms.gle/YourFormLinkHere)")
-
-st.caption("© 2025 Distoversity Pvt Ltd | Friendly Mentor, Real Career Results")
+# --- FOOTER ---
+st.markdown("""
+    <div style="text-align: center; margin-top: 50px; color: #aaa; font-size: 0.8rem;">
+        © 2025 Distoversity Pvt Ltd | AI Career Counseling<br>
+        <i>Empowering India's Future</i>
+    </div>
+""", unsafe_allow_html=True)
