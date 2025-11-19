@@ -10,12 +10,8 @@ st.set_page_config(
 
 # --- 2. Sidebar Info ---
 with st.sidebar:
-    # Logo URL (Agar nahi chahiye to hata dein)
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=100)
-    
-    # Brand Name
     st.title("My Brand Name") 
-    
     st.markdown("""
     **Eduveer** is your AI Career Counselor.
     
@@ -76,7 +72,14 @@ for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-# --- 8. Handle User Input ---
+# --- 8. Function to clean the AI Output ---
+def generate_chat_responses(chat_completion):
+    """Filters the computer code and returns only text."""
+    for chunk in chat_completion:
+        if chunk.choices[0].delta.content:
+            yield chunk.choices[0].delta.content
+
+# --- 9. Handle User Input ---
 if prompt := st.chat_input("e.g., I love talking to people..."):
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
@@ -84,11 +87,12 @@ if prompt := st.chat_input("e.g., I love talking to people..."):
     with st.chat_message("assistant"):
         try:
             stream = client.chat.completions.create(
-                model="llama-3.3-70b-versatile",  # <--- YAHAN NAYA MODEL DAAL DIYA HAI
+                model="llama-3.3-70b-versatile",
                 messages=st.session_state.messages,
                 stream=True,
             )
-            response = st.write_stream(stream)
+            # Use the cleaning function here
+            response = st.write_stream(generate_chat_responses(stream))
             st.session_state.messages.append({"role": "assistant", "content": response})
         except Exception as e:
             st.error(f"An error occurred: {e}")
