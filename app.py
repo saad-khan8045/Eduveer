@@ -5,7 +5,7 @@ import random
 import streamlit.components.v1 as components
 import os
 
-# Try importing Groq (for future LLM scaling)
+# Try importing Groq
 try:
     from groq import Groq
     GROQ_AVAILABLE = True
@@ -20,16 +20,16 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# --- API KEY (Secrets) ---
+# --- API KEY ---
 API_KEY = st.secrets.get("GROQ_API_KEY", "")
 
-# --- BRAND COLORS ---
-BRAND_PRIMARY = "#0EA5E9"   
-BRAND_DARK = "#0F172A"      
-BRAND_LIGHT = "#F8FAFC"     
-ACCENT_ORANGE = "#F97316"   
-SUCCESS_GREEN = "#10B981"   
-GOLD_PREMIUM = "#D97706"    
+# --- BRAND IDENTITY ---
+BRAND_PRIMARY = "#0EA5E9"   # Sky Blue
+BRAND_DARK = "#0F172A"      # Slate 900
+BRAND_LIGHT = "#F8FAFC"     # Slate 50
+ACCENT_ORANGE = "#F97316"   # Orange
+SUCCESS_GREEN = "#10B981"   # Green
+GOLD_PREMIUM = "#D97706"    # Gold
 WHITE = "#FFFFFF"
 ALISON_GREEN = "#83C341"
 
@@ -37,67 +37,101 @@ ALISON_GREEN = "#83C341"
 BOT_AVATAR = "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=EduveerSmart"
 USER_AVATAR = "https://api.dicebear.com/9.x/micah/svg?seed=Felix"
 
-# --- CSS (PREMIUM & CENTERED) ---
+# --- CSS SYSTEM (MOBILE OPTIMIZED) ---
 st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap');
 
+    /* 1. GLOBAL LAYOUT */
     .stApp {{ background-color: {BRAND_LIGHT}; font-family: 'Inter', sans-serif; color: {BRAND_DARK}; }}
     #MainMenu, footer, header {{visibility: hidden;}}
-    .block-container {{ max_width: 750px; padding-top: 2rem; padding-bottom: 10rem; margin: 0 auto; }}
+    
+    /* RESPONSIVE CONTAINER */
+    .block-container {{
+        max_width: 800px;
+        padding-top: 1rem;
+        padding-bottom: 8rem;
+        margin: 0 auto;
+    }}
+    @media (max-width: 600px) {{
+        .block-container {{
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }}
+    }}
 
-    /* NAVBAR */
-    .nav-bar {{ position: fixed; top: 0; left: 0; width: 100%; height: 60px; background: rgba(255,255,255,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; z-index: 9999; }}
-    .nav-content {{ width: 100%; max_width: 750px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }}
-    .nav-logo {{ font-family: 'Poppins', sans-serif; font-size: 1.2rem; font-weight: 700; color: {BRAND_PRIMARY}; }}
-    .nav-badge {{ background: #F0F9FF; color: {BRAND_PRIMARY}; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; border: 1px solid #BAE6FD; text-transform: uppercase; }}
-    .nav-spacer {{ height: 80px; }}
+    /* 2. NAVBAR */
+    .nav-bar {{
+        position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+        background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+        border-bottom: 1px solid #E2E8F0; display: flex; align-items: center; justify-content: center; z-index: 9999;
+    }}
+    .nav-content {{ width: 100%; max_width: 800px; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }}
+    .nav-logo {{ font-family: 'Poppins', sans-serif; font-size: 1.4rem; font-weight: 700; color: {BRAND_PRIMARY}; letter-spacing: -0.5px; }}
+    .nav-badge {{ background: #F0F9FF; color: {BRAND_PRIMARY}; padding: 4px 10px; border-radius: 20px; font-size: 0.65rem; font-weight: 700; border: 1px solid #BAE6FD; text-transform: uppercase; }}
+    .nav-spacer {{ height: 70px; }}
 
-    /* HERO */
-    .hero-container {{ text-align: center; padding: 40px 20px; margin-bottom: 30px; animation: fadeIn 0.8s ease-out; }}
-    .hero-title {{ font-family: 'Poppins', sans-serif; font-size: 2.2rem; font-weight: 800; color: {BRAND_DARK}; margin-bottom: 10px; line-height: 1.2; }}
-    .hero-sub {{ font-size: 1rem; color: #64748B; line-height: 1.6; }}
+    /* 3. HERO SECTION */
+    .hero-container {{ text-align: center; padding: 30px 10px; margin-bottom: 20px; animation: fadeIn 0.8s ease-out; }}
+    .hero-title {{ font-family: 'Poppins', sans-serif; font-size: 2rem; font-weight: 800; color: {BRAND_DARK}; margin-bottom: 8px; line-height: 1.2; }}
+    .hero-sub {{ font-size: 0.9rem; color: #64748B; line-height: 1.5; }}
 
-    /* CHAT BUBBLES */
-    .stChatMessage {{ background: transparent; border: none; margin-bottom: 15px; }}
-    .stChatMessage.assistant {{ padding-right: 15%; }}
-    .stChatMessage.assistant .stMarkdown {{ background: white; border: 1px solid #E2E8F0; border-radius: 4px 16px 16px 16px; padding: 16px 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }}
-    .stChatMessage.user {{ padding-left: 15%; flex-direction: row-reverse; }}
-    .stChatMessage.user .stMarkdown {{ background: #E0F2FE; border: 1px solid #BAE6FD; color: {BRAND_DARK}; border-radius: 16px 4px 16px 16px; padding: 16px 20px; text-align: left; box-shadow: 0 2px 8px rgba(14, 165, 233, 0.1); }}
+    /* 4. CHAT INTERFACE */
+    .stChatMessage {{ background: transparent; border: none; margin-bottom: 10px; }}
+    .stChatMessage.assistant {{ padding-right: 10%; }}
+    .stChatMessage.assistant .stMarkdown {{ background: white; border: 1px solid #E2E8F0; border-radius: 4px 16px 16px 16px; padding: 14px 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }}
+    .stChatMessage.user {{ padding-left: 10%; flex-direction: row-reverse; }}
+    .stChatMessage.user .stMarkdown {{ background: #E0F2FE; border: 1px solid #BAE6FD; color: {BRAND_DARK}; border-radius: 16px 4px 16px 16px; padding: 14px 18px; text-align: left; }}
     .stChatMessage.user p {{ color: {BRAND_DARK} !important; }}
 
-    /* CARDS */
-    .uni-card {{ background: white; border: 1px solid #E2E8F0; border-radius: 16px; padding: 20px; margin-bottom: 15px; transition: all 0.3s; position: relative; overflow: hidden; }}
-    .uni-card:hover {{ transform: translateY(-4px); box-shadow: 0 12px 24px -6px rgba(0,0,0,0.08); border-color: {BRAND_PRIMARY}; }}
-    .uni-header {{ display: flex; gap: 12px; align-items: center; margin-bottom: 15px; }}
-    .uni-logo-box {{ font-size: 1.6rem; background: #F8FAFC; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }}
-    .uni-title h3 {{ margin: 0; font-size: 1rem; font-weight: 700; font-family: 'Poppins'; }}
-    .uni-metrics {{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #F8FAFC; padding: 12px; border-radius: 10px; margin-bottom: 15px; }}
-    .metric-label {{ font-size: 0.65rem; text-transform: uppercase; color: #94A3B8; font-weight: 700; }}
-    .metric-val {{ font-size: 0.85rem; font-weight: 700; color: {BRAND_DARK}; }}
-    .card-btn {{ display: block; width: 100%; padding: 10px; text-align: center; background: {BRAND_PRIMARY}; color: white; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.85rem; margin-top: 5px; }}
-    .pill {{ font-size: 0.65rem; padding: 4px 8px; border-radius: 12px; background: #F1F5F9; color: #475569; font-weight: 600; margin-right: 4px; display: inline-block; }}
-    .pill.verified {{ background: #ECFDF5; color: {SUCCESS_GREEN}; border: 1px solid #A7F3D0; }}
-
-    /* FEATURES */
-    .alison-card {{ background: white; border-left: 4px solid {ALISON_GREEN}; padding: 16px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); margin-top: 15px; }}
-    .premium-card {{ background: linear-gradient(135deg, #FFFBEB 0%, #FFF7ED 100%); border: 1px solid #FEF3C7; padding: 20px; border-radius: 16px; margin-top: 20px; text-align: center; box-shadow: 0 4px 12px rgba(217, 119, 6, 0.1); }}
-    .why-box {{ background: linear-gradient(145deg, #0F172A, #1E293B); color: white; padding: 25px; border-radius: 16px; margin-top: 25px; }}
-    .why-grid {{ display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; text-align: left; }}
-    .why-item h4 {{ color: {ACCENT_ORANGE}; font-size: 0.9rem; margin-bottom: 5px; font-family: 'Poppins'; }}
-    .why-item p {{ font-size: 0.85rem; opacity: 0.85; line-height: 1.6; margin: 0; }}
-
-    /* INPUT & BUTTONS */
-    .stButton button {{ width: 100%; border-radius: 12px; height: auto; padding: 12px; font-weight: 600; border: 1px solid #E2E8F0; color: {BRAND_DARK}; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: all 0.2s; }}
-    .stButton button:hover {{ border-color: {BRAND_PRIMARY}; color: {BRAND_PRIMARY}; background: #F0F9FF; transform: translateY(-2px); }}
-    .stTextInput input {{ border-radius: 25px; border: 1px solid #CBD5E1; padding: 12px 20px; }}
+    /* 5. PREMIUM CARDS (College Vidya Style) */
+    .uni-card {{
+        background: white; border: 1px solid #E2E8F0; border-radius: 12px; padding: 16px; margin-bottom: 12px;
+        transition: all 0.2s; position: relative; overflow: hidden;
+    }}
+    .uni-card:hover {{ transform: translateY(-2px); border-color: {BRAND_PRIMARY}; box-shadow: 0 8px 16px -4px rgba(0,0,0,0.08); }}
     
-    table {{ width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; font-size: 0.85rem; margin-top: 15px; }}
-    th {{ background: {BRAND_PRIMARY}; color: white; padding: 12px; text-align: left; }}
-    td {{ padding: 12px; border-bottom: 1px solid #F1F5F9; color: {BRAND_DARK}; }}
+    .uni-header {{ display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }}
+    .uni-logo-box {{ 
+        font-size: 1.8rem; background: #F8FAFC; width: 50px; height: 50px; 
+        display: flex; align-items: center; justify-content: center; border-radius: 8px; border: 1px solid #F1F5F9;
+    }}
+    .uni-title h3 {{ margin: 0; font-size: 1rem; font-weight: 700; font-family: 'Poppins'; color: {BRAND_DARK}; }}
+    .uni-meta {{ font-size: 0.75rem; color: #64748B; font-weight: 500; }}
     
-    @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(10px); }} to {{ opacity: 1; transform: translateY(0); }} }}
+    /* Data Grid inside Card */
+    .uni-grid {{ display: flex; justify-content: space-between; background: #F8FAFC; padding: 10px; border-radius: 8px; margin-bottom: 12px; }}
+    .grid-item {{ text-align: center; flex: 1; }}
+    .grid-label {{ font-size: 0.6rem; text-transform: uppercase; color: #94A3B8; font-weight: 700; display: block; }}
+    .grid-val {{ font-size: 0.85rem; font-weight: 700; color: {BRAND_DARK}; }}
+    
+    .pill {{ font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; background: #F1F5F9; color: #475569; font-weight: 600; margin-right: 4px; display: inline-block; border: 1px solid #E2E8F0; }}
+    .pill.verified {{ background: #ECFDF5; color: {SUCCESS_GREEN}; border-color: #A7F3D0; }}
+    
+    /* 6. COMPARISON TABLE (Custom HTML) */
+    .comp-table {{ width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }}
+    .comp-table th {{ text-align: left; background: {BRAND_PRIMARY}; color: white; padding: 8px; font-weight: 600; }}
+    .comp-table td {{ padding: 8px; border-bottom: 1px solid #E2E8F0; color: {BRAND_DARK}; }}
+    .comp-table tr:last-child td {{ border-bottom: none; }}
+    .comp-row-header {{ font-weight: 600; background: #F8FAFC; color: {BRAND_DARK}; }}
+
+    /* 7. INTERACTIVE ELEMENTS */
+    .stButton button {{ 
+        width: 100%; border-radius: 8px; height: auto; padding: 12px; font-weight: 600; 
+        border: 1px solid #E2E8F0; color: {BRAND_DARK}; background: white; 
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s;
+    }}
+    .stButton button:hover {{ border-color: {BRAND_PRIMARY}; color: {BRAND_PRIMARY}; background: #F0F9FF; }}
+    .stTextInput input {{ border-radius: 24px; border: 1px solid #CBD5E1; padding: 12px 20px; }}
+    
+    @keyframes fadeIn {{ from {{ opacity: 0; transform: translateY(5px); }} to {{ opacity: 1; transform: translateY(0); }} }}
     .stChatMessage {{ animation: fadeIn 0.3s ease-out; }}
+    
+    /* MOBILE TWEAKS */
+    @media (max-width: 600px) {{
+        .hero-title {{ font-size: 1.8rem; }}
+        .uni-grid {{ flex-direction: row; }} 
+    }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -123,11 +157,11 @@ def hero():
     st.markdown(f"""
         <div class="hero-container">
             <h1 class="hero-title">Meet <span style="color:{BRAND_PRIMARY}">Eduveer</span><br>Your AI Career Architect</h1>
-            <p class="hero-sub">I analyze your profile to find the perfect university match. No guessing, just data-backed career planning.</p>
+            <p class="hero-sub">Data-driven career guidance. No guessing, just strategy.</p>
         </div>
     """, unsafe_allow_html=True)
 
-# --- DATA (SINGLE SOURCE OF TRUTH) ---
+# --- DATA ---
 UNIVERSITIES = [
     {"name": "Amity Online", "programs": ["MBA", "MCA", "BBA"], "max_fee": 350000, "fee": "₹1.75L", "emi": "₹4,999/mo", "badges": ["UGC", "NAAC A+"], "logo": "🅰️", "best_for": ["Analyst"], "avg_pkg": "₹6-8 LPA", "high_pkg": "₹18 LPA", "recruiters": "Amazon, Deloitte"},
     {"name": "Manipal Jaipur", "programs": ["MBA", "BCA", "B.Com"], "max_fee": 300000, "fee": "₹1.50L", "emi": "₹3,500/mo", "badges": ["AICTE", "NAAC A+"], "logo": "Ⓜ️", "best_for": ["Creator"], "avg_pkg": "₹5-7 LPA", "high_pkg": "₹14 LPA", "recruiters": "Google, Microsoft"},
@@ -166,53 +200,15 @@ def generate_hooks():
     hook2 = random.choice(HOOK_CATEGORIES[cat2])
     return [hook1, hook2]
 
-# --- SMART BRAIN LOGIC (THE DATA ANALYST) ---
-def get_smart_response(query, user_budget):
-    q = query.lower()
-    
-    # --- 1. BUDGET & FEE LOGIC ---
-    if "fee" in q or "cost" in q or "budget" in q or "cheap" in q:
-        # Find practical examples based on data
-        low_cost = next((u for u in UNIVERSITIES if u['max_fee'] < 150000), None)
-        high_roi = next((u for u in UNIVERSITIES if u['max_fee'] > 200000), None)
-        
-        if low_cost and high_roi:
-            return (
-                f"Let's talk numbers 💰. Based on our data:\n\n"
-                f"1. **For Tight Budgets:** **{low_cost['name']}** is unbeatable at **{low_cost['fee']}** total. "
-                f"It gets the job done with full UGC validity.\n\n"
-                f"2. **For Higher ROI:** If you can stretch your budget to **{high_roi['fee']}** (using EMI), "
-                f"**{high_roi['name']}** opens doors to premium recruiters like {high_roi['recruiters']}.\n\n"
-                f"**Analyst Tip:** Sometimes paying 50k more results in a 2L higher starting package. Want to see the **Placement Stats** to confirm?"
-            )
-            
-    # --- 2. PLACEMENT & ROI LOGIC ---
-    if "placement" in q or "job" in q or "salary" in q or "roi" in q:
-        top_pkg = max(UNIVERSITIES, key=lambda x: int(x['high_pkg'].split()[0].replace('₹','')))
-        
-        return (
-            f"Great question on ROI 📈. Here is the reality:\n\n"
-            f"Online degrees are now accepted by top MNCs. For instance, **{top_pkg['name']}** students have bagged packages as high as **{top_pkg['high_pkg']}**.\n\n"
-            f"**The Formula:** If you invest ₹1.5L in a degree and get a {top_pkg['avg_pkg']} job, you recover your cost in just **3-4 months**. \n\n"
-            f"Would you like to verify the **UGC Approvals** to ensure this degree is valid for Govt jobs too?"
-        )
-
-    # --- 3. APPROVALS & VALIDITY ---
-    if "valid" in q or "fake" in q or "ugc" in q or "govt" in q:
-        return (
-            "I verify this daily ✅. **100% of the universities I listed are UGC-DEB approved.**\n\n"
-            "This isn't just a certificate; it is a legal degree. You are eligible for:\n"
-            "- **UPSC & Govt Exams** 🏛️\n"
-            "- **Higher Studies (PhD/Abroad)** 🌍\n"
-            "- **Corporate Promotions** 💼\n\n"
-            "Don't worry about validity. Let's focus on which curriculum fits you. Want to see the **Syllabus**?"
-        )
-
-    # --- DEFAULT FALLBACK ---
-    return (
-        "That's a valid point. My goal is to ensure you don't just get a degree, but a career upgrade. 🚀\n\n"
-        "I have data on **Fees**, **Placements**, and **Curriculum**. Which aspect is worrying you the most right now?"
-    )
+# --- KNOWLEDGE BASE ---
+KB = {
+    "placement": "That is the most important question! 💼 **Amity and NMIMS** are fantastic for networking, often seeing packages around **8-10 LPA**. But honestly, placements also depend on *your* skills. That's why our community helps you upskill while you study.",
+    "valid": "I'm glad you asked. ✅ **100% of these universities are UGC-DEB verified.** I would never recommend a blacklisted uni. Your degree here is legally equivalent to a regular campus degree for Govt jobs (UPSC, Bank PO) and higher studies.",
+    "fee": "I know fees can be a stress point. 💰 To be financially smart, look at the EMI options. Most of these universities allow you to start for just **₹2,500/month**. It's like the cost of a weekend outing, but it builds your future.",
+    "exam": "Good news! You don't need to take leave from work. 💻 **Exams are 100% Online & AI-Proctored.** You can take them from your bedroom on weekends. It's designed for working professionals like us.",
+    "approval": "Approvals are my #1 filter. I only list universities with valid **UGC-DEB** and **NAAC** accreditations. No fake degrees here, my friend.",
+    "salary": "Let's talk numbers. 📈 Generally, an MBA/MCA from these universities yields a **30-50% salary hike** when you switch jobs. It's a strong signal to employers that you are ambitious and skilled."
+}
 
 # --- STATE ---
 if "messages" not in st.session_state: st.session_state.messages = []
@@ -226,8 +222,7 @@ if "last_topic" not in st.session_state: st.session_state.last_topic = "default"
 
 # --- FUNCTIONS ---
 def update_hooks(topic):
-    """Updates the buttons based on the conversation context"""
-    if topic in HOOK_CATEGORIES: # Simple rotation for now
+    if topic in HOOK_CATEGORIES: 
         st.session_state.current_hooks = generate_hooks()
     else:
         st.session_state.current_hooks = generate_hooks()
@@ -235,6 +230,36 @@ def update_hooks(topic):
 def add_bot_msg(text): st.session_state.messages.append({"role": "assistant", "content": text})
 def add_user_msg(text): st.session_state.messages.append({"role": "user", "content": text})
 def get_energy(): return max(st.session_state.scores, key=st.session_state.scores.get)
+
+def get_bot_response(user_query, user_budget):
+    q = user_query.lower()
+    
+    # --- SMART BUDGET LOGIC ---
+    if "fee" in q or "cost" in q or "budget" in q or "cheap" in q:
+        low_cost = next((u for u in UNIVERSITIES if u['max_fee'] < 150000), None)
+        high_roi = next((u for u in UNIVERSITIES if u['max_fee'] > 200000), None)
+        
+        if low_cost and high_roi:
+            return (
+                f"Let's look at the numbers 💰.\n\n"
+                f"1. **Budget-Friendly:** **{low_cost['name']}** at **{low_cost['fee']}** is the best value pick.\n"
+                f"2. **High ROI:** **{high_roi['name']}** costs **{high_roi['fee']}**, but opens doors to {high_roi['recruiters']}.\n\n"
+                f"💡 *Analyst Note:* A higher fee often means better networking. Want to see the **Placement Stats**?"
+            )
+            
+    if "placement" in q or "job" in q or "roi" in q:
+        top_pkg = max(UNIVERSITIES, key=lambda x: int(x['high_pkg'].split()[0].replace('₹','')))
+        return (
+            f"Here is the ROI reality 📈.\n\n"
+            f"**{top_pkg['name']}** recorded a highest package of **{top_pkg['high_pkg']}**.\n"
+            f"Ideally, you recover your fee within **3-5 months** of getting placed.\n\n"
+            f"Shall we verify their **UGC Approvals** next?"
+        )
+
+    if "valid" in q or "fake" in q or "govt" in q:
+        return "✅ **100% Valid.** All listed universities are UGC-DEB approved. Eligible for Govt Jobs, UPSC, and Study Abroad. I don't list unverified colleges."
+
+    return "That's a valid point. I focus on **ROI and Validity**. Would you like to compare **Fees** or **Placements**?"
 
 def render_matches(matches):
     for i, u in enumerate(matches):
@@ -248,33 +273,50 @@ def render_matches(matches):
                     <span class="uni-meta">Top Choice for {u['best_for'][0]}</span>
                 </div>
             </div>
-            <div class="uni-metrics">
-                <div class="metric-item">
-                    <span class="metric-label">Avg Package</span>
-                    <span class="metric-val">{u['avg_pkg']}</span>
+            
+            <div class="uni-grid">
+                <div class="grid-item">
+                    <span class="grid-label">Total Fee</span>
+                    <span class="grid-val">{u['fee']}</span>
                 </div>
-                <div class="metric-item">
-                    <span class="metric-label">Total Fee</span>
-                    <span class="metric-val">{u['fee']}</span>
+                <div class="grid-item">
+                    <span class="grid-label">Avg Package</span>
+                    <span class="grid-val">{u['avg_pkg']}</span>
                 </div>
             </div>
-            <div class="badge-container">{badges}</div>
+            
+            <div style="margin-bottom:10px;">{badges}</div>
+            
             <a href="#" class="card-btn">View Official Brochure</a>
         </div>
         """, unsafe_allow_html=True)
 
 def render_comparison(matches):
-    data = []
+    # CUSTOM HTML TABLE FOR PROFESSIONAL LOOK
+    html = """
+    <table class="comp-table">
+        <thead>
+            <tr>
+                <th>University</th>
+                <th>Total Fee</th>
+                <th>Highest Pkg</th>
+                <th>Approvals</th>
+            </tr>
+        </thead>
+        <tbody>
+    """
     for u in matches:
-        data.append({
-            "University": u["name"],
-            "Highest Pkg": u["high_pkg"],
-            "Avg Pkg": u["avg_pkg"],
-            "Total Fee": u["fee"],
-            "Recruiters": u["recruiters"]
-        })
-    st.markdown("### 📊 Detailed Data Matrix")
-    st.table(pd.DataFrame(data))
+        html += f"""
+            <tr>
+                <td style="font-weight:600;">{u['name']}</td>
+                <td>{u['fee']}</td>
+                <td style="color:#10B981; font-weight:600;">{u['high_pkg']}</td>
+                <td>{', '.join(u['badges'])}</td>
+            </tr>
+        """
+    html += "</tbody></table>"
+    st.markdown("### 📊 Comparative Analysis Report")
+    st.markdown(html, unsafe_allow_html=True)
 
 def render_alison_promo(profile):
     course = ALISON_COURSES.get(profile, ALISON_COURSES["Analyst"])
@@ -282,7 +324,7 @@ def render_alison_promo(profile):
         <div class="alison-card">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <div>
-                    <div style="color:{BRAND_DARK}; font-weight:700; font-size:0.9rem;">💡 Skill Upgrade: {course['title']}</div>
+                    <div style="color:{BRAND_DARK}; font-weight:700; font-size:0.9rem;">💡 Free Certification: {course['title']}</div>
                     <div style="color:#64748B; font-size:0.8rem;">{course['desc']} | Powered by <b>ALISON</b></div>
                 </div>
                 <a href="{course['link']}" target="_blank" style="background:#83C341; color:white; padding:6px 12px; border-radius:20px; text-decoration:none; font-weight:600; font-size:0.75rem;">Start Free</a>
@@ -297,15 +339,15 @@ def render_why_distoversity():
             <div class="why-grid">
                 <div class="why-item">
                     <h4>🎯 Precision Planning</h4>
-                    <p>Stop guessing. We use verified data to map your career trajectory.</p>
+                    <p>We use verified data to map your career trajectory.</p>
                 </div>
                 <div class="why-item">
                     <h4>📊 Raw Transparency</h4>
-                    <p>We expose everything—hidden fees, real placement stats, and approval validity.</p>
+                    <p>We expose everything—fees, placements, and approvals.</p>
                 </div>
                 <div class="why-item">
                     <h4>🤝 Lifetime Tribe</h4>
-                    <p>Join our exclusive network of professionals to grow forever.</p>
+                    <p>Join our exclusive network of professionals.</p>
                 </div>
             </div>
         </div>
@@ -317,26 +359,15 @@ def render_premium_upsell():
             <div class="premium-badge">💎 PREMIUM GUIDANCE</div>
             <h4 style="color:{BRAND_DARK}; margin-bottom:5px; font-family:'Poppins';">Need 100% Certainty?</h4>
             <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">
-                AI is great, but sometimes you need a human strategist. 
-                Get a <b>1:1 Deep-Dive Session</b> with a Veteran Counsellor to audit your choice.
+                Get a <b>1:1 Deep-Dive Session</b> with a Veteran Counsellor.
             </p>
-            <button style="
-                background-color: {GOLD_PREMIUM}; 
-                color: white; 
-                border: none; 
-                padding: 10px 25px; 
-                border-radius: 8px; 
-                font-weight: 700; 
-                cursor: pointer;
-                width: 100%;
-            ">Book Session @ ₹499/- Only</button>
+            <button style="background-color:{GOLD_PREMIUM}; color:white; border:none; padding:10px 25px; border-radius:8px; font-weight:700; cursor:pointer; width:100%;">Book Session @ ₹499/-</button>
         </div>
     """, unsafe_allow_html=True)
 
 # --- MAIN UI ---
 navbar()
 
-# 1. HERO (Only at start)
 if st.session_state.step == 0 and not st.session_state.messages:
     hero()
     c1, c2, c3 = st.columns([1, 1, 1])
@@ -453,8 +484,7 @@ elif st.session_state.step == 4:
                 response = get_smart_response(hook, filt['budget'])
                 add_bot_msg(response)
             
-            # UPDATE HOOKS BASED ON NEW CONTEXT
-            st.session_state.current_hooks = generate_hooks()
+            update_hooks(st.session_state.last_topic)
             st.rerun()
 
 # CHAT INPUT
@@ -462,14 +492,8 @@ if st.session_state.step > 0:
     user_query = st.chat_input("Ask Eduveer (e.g. 'Is LPU valid?')")
     if user_query:
         add_user_msg(user_query)
-        
-        # Retrieve User Budget for Context
         user_budget = st.session_state.filter.get("budget", 1000000)
-        
-        # SMART RESPONSE
         response = get_smart_response(user_query, user_budget)
         add_bot_msg(response)
-        
-        # UPDATE HOOKS
-        st.session_state.current_hooks = generate_hooks()
+        update_hooks(st.session_state.last_topic)
         st.rerun()
