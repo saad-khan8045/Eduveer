@@ -27,85 +27,89 @@ components.html(flashing_script, height=0)
 # --- 3. WEBSITE-MATCHED UI Styling ---
 st.markdown("""
     <style>
-    /* Import 'Inter' font */
+    /* Import 'Inter' font to match your website typography */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
-        background-color: #FFFFFF;
-        color: #1F2937;
+        background-color: #FFFFFF; /* Clean White Background */
+        color: #1F2937; /* Dark Grey Text for readability */
     }
     
     /* Main App Background */
     .stApp {
-        background-color: #F3F8FC;
+        background-color: #F9FAFB; /* Very light grey/blue tint from your dashboard background */
     }
     
-    /* Headers */
+    /* Headers - Matching the dark blue/black form headers */
     h1, h2, h3 {
-        color: #0D1B2A;
+        color: #0D1B2A; /* Deep Navy/Black from screenshots */
         font-weight: 700;
         text-align: center;
     }
     
-    /* --- BUTTONS --- */
+    /* --- BUTTONS (Matching the "Start Assessment" / "Request Demo" buttons) --- */
     .stButton button {
-        background-color: #00AEEF;
+        background-color: #00AEEF; /* The vibrant Cyan-Blue from your buttons */
         color: white !important;
         border: none;
         padding: 12px 32px;
         font-size: 16px;
         font-weight: 600;
-        border-radius: 4px;
+        border-radius: 4px; /* Slightly sharper corners as seen in 'Start Assessment' */
         transition: all 0.3s ease;
         box-shadow: 0 2px 4px rgba(0, 174, 239, 0.2);
-        width: 100%;
+        width: 100%; /* Full width on mobile, responsive */
     }
     .stButton button:hover {
-        background-color: #0095CC;
+        background-color: #0095CC; /* Slightly darker on hover */
         transform: translateY(-1px);
         box-shadow: 0 4px 6px rgba(0, 174, 239, 0.3);
     }
     
-    /* --- FORM & CARDS --- */
+    /* --- FORM & CARDS (Matching "Genius Profile" cards) --- */
     [data-testid="stForm"], [data-testid="stChatInput"], .report-card {
         background-color: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-radius: 12px;
+        border: 1px solid #E2E8F0; /* Subtle border */
+        border-radius: 8px; /* Rounded corners like the profile cards */
         padding: 32px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); /* Soft shadow */
         margin-bottom: 20px;
     }
 
     /* --- CHAT BUBBLES --- */
+    
+    /* Eduveer (AI) - Clean White Card Style */
     div[data-testid="stChatMessage"] {
         background-color: #FFFFFF;
-        border: 1px solid #F1F5F9;
+        border: 1px solid #E5E7EB;
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         margin-bottom: 16px;
     }
+    
+    /* User (Student) - Light Blue Accent matching site theme */
     div[data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: #E0F2FE;
+        background-color: #F0F9FF; /* Very light blue background #F0F9FF */
         border: 1px solid #BAE6FD;
     }
     
     /* Sidebar Styling */
     [data-testid="stSidebar"] {
         background-color: #FFFFFF;
-        border-right: 1px solid #F1F5F9;
+        border-right: 1px solid #E5E7EB;
     }
     
     /* Sidebar Booking Button */
     a[href*="forms"] {
         display: inline-block;
         width: 100%;
-        background-color: #00AEEF;
+        background-color: #00AEEF; /* Matching Primary Brand Color */
         color: white !important;
         text-align: center;
         padding: 12px;
-        border-radius: 6px;
+        border-radius: 4px;
         text-decoration: none;
         font-weight: 600;
         margin-top: 10px;
@@ -115,11 +119,12 @@ st.markdown("""
         background-color: #0095CC;
     }
 
-    /* Progress Bar Color */
-    .stProgress > div > div > div > div {
-        background-color: #00AEEF;
+    /* Radio Button Selection Color */
+    div[role="radiogroup"] label > div:first-child {
+        background-color: #00AEEF !important;
     }
-
+    
+    /* Hide Streamlit branding for cleaner look */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
@@ -169,7 +174,7 @@ st.title("Discover Your Genius Profile")
 
 # --- STEP 1: INITIAL PROFILE FORM ---
 if st.session_state.step == 1:
-    st.markdown("<p style='text-align: center; color: #64748B; font-size: 1.1rem;'>A guided assessment to find the university that fits your unique potential.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #64748B; font-size: 1.1rem;'>Unlock personalized university recommendations based on your unique strengths.</p>", unsafe_allow_html=True)
     st.write("")
     
     with st.form("profile_form"):
