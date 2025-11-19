@@ -23,7 +23,7 @@ st.set_page_config(
 # --- API KEY ---
 API_KEY = st.secrets.get("GROQ_API_KEY", "")
 
-# --- BRAND IDENTITY ---
+# --- BRAND COLORS ---
 BRAND_PRIMARY = "#0EA5E9"   # Sky Blue
 BRAND_DARK = "#0F172A"      # Slate 900
 BRAND_LIGHT = "#F8FAFC"     # Slate 50
@@ -46,7 +46,7 @@ st.markdown(f"""
     .stApp {{ background-color: {BRAND_LIGHT}; font-family: 'Inter', sans-serif; color: {BRAND_DARK}; }}
     #MainMenu, footer, header {{visibility: hidden;}}
     
-    /* RESPONSIVE CONTAINER */
+    /* RESPONSIVE CONTAINER - THE "APP" FEEL */
     .block-container {{
         max_width: 800px;
         padding-top: 1rem;
@@ -57,6 +57,7 @@ st.markdown(f"""
         .block-container {{
             padding-left: 1rem;
             padding-right: 1rem;
+            max_width: 100%;
         }}
     }}
 
@@ -78,9 +79,9 @@ st.markdown(f"""
 
     /* 4. CHAT INTERFACE */
     .stChatMessage {{ background: transparent; border: none; margin-bottom: 10px; }}
-    .stChatMessage.assistant {{ padding-right: 10%; }}
+    .stChatMessage.assistant {{ padding-right: 5%; }}
     .stChatMessage.assistant .stMarkdown {{ background: white; border: 1px solid #E2E8F0; border-radius: 4px 16px 16px 16px; padding: 14px 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }}
-    .stChatMessage.user {{ padding-left: 10%; flex-direction: row-reverse; }}
+    .stChatMessage.user {{ padding-left: 5%; flex-direction: row-reverse; }}
     .stChatMessage.user .stMarkdown {{ background: #E0F2FE; border: 1px solid #BAE6FD; color: {BRAND_DARK}; border-radius: 16px 4px 16px 16px; padding: 14px 18px; text-align: left; }}
     .stChatMessage.user p {{ color: {BRAND_DARK} !important; }}
 
@@ -109,9 +110,10 @@ st.markdown(f"""
     .pill.verified {{ background: #ECFDF5; color: {SUCCESS_GREEN}; border-color: #A7F3D0; }}
     
     /* 6. COMPARISON TABLE (Custom HTML) */
-    .comp-table {{ width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }}
-    .comp-table th {{ text-align: left; background: {BRAND_PRIMARY}; color: white; padding: 8px; font-weight: 600; }}
-    .comp-table td {{ padding: 8px; border-bottom: 1px solid #E2E8F0; color: {BRAND_DARK}; }}
+    .comp-table-wrapper { overflow-x: auto; }
+    .comp-table {{ width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; min-width: 400px; }}
+    .comp-table th {{ text-align: left; background: {BRAND_PRIMARY}; color: white; padding: 10px; font-weight: 600; font-size: 0.8rem; }}
+    .comp-table td {{ padding: 10px; border-bottom: 1px solid #E2E8F0; color: {BRAND_DARK}; vertical-align: middle; }}
     .comp-table tr:last-child td {{ border-bottom: none; }}
     .comp-row-header {{ font-weight: 600; background: #F8FAFC; color: {BRAND_DARK}; }}
 
@@ -294,6 +296,7 @@ def render_matches(matches):
 def render_comparison(matches):
     # CUSTOM HTML TABLE FOR PROFESSIONAL LOOK
     html = """
+    <div class="comp-table-wrapper">
     <table class="comp-table">
         <thead>
             <tr>
@@ -314,7 +317,7 @@ def render_comparison(matches):
                 <td>{', '.join(u['badges'])}</td>
             </tr>
         """
-    html += "</tbody></table>"
+    html += "</tbody></table></div>"
     st.markdown("### 📊 Comparative Analysis Report")
     st.markdown(html, unsafe_allow_html=True)
 
