@@ -21,8 +21,7 @@ SUCCESS_GREEN = "#10B981"   # Verification Green
 WHITE = "#FFFFFF"
 ALISON_GREEN = "#83C341"
 
-# --- AVATAR URLS (Dynamic & Premium) ---
-# Using DiceBear API for consistent, high-quality avatars
+# --- AVATAR URLS ---
 BOT_AVATAR = "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=Eduveer1"
 USER_AVATAR = "https://api.dicebear.com/9.x/micah/svg?seed=Felix"
 
@@ -31,7 +30,7 @@ st.markdown(f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap');
 
-    /* 1. GLOBAL LAYOUT */
+    /* GLOBAL LAYOUT */
     .stApp {{
         background-color: {BRAND_LIGHT};
         font-family: 'Inter', sans-serif;
@@ -40,7 +39,7 @@ st.markdown(f"""
     
     #MainMenu, footer, header {{visibility: hidden;}}
     
-    /* CENTER CONTENT (Mobile App Feel) */
+    /* CENTER CONTENT */
     .block-container {{
         max_width: 800px;
         padding-top: 2rem;
@@ -48,7 +47,7 @@ st.markdown(f"""
         margin: 0 auto;
     }}
 
-    /* 2. STICKY NAVBAR */
+    /* NAV BAR */
     .nav-bar {{
         position: fixed;
         top: 0;
@@ -83,7 +82,7 @@ st.markdown(f"""
     }}
     .nav-spacer {{ height: 70px; }}
 
-    /* 3. HERO SECTION */
+    /* HERO SECTION */
     .hero-container {{
         text-align: center;
         padding: 30px 10px;
@@ -103,7 +102,7 @@ st.markdown(f"""
         line-height: 1.5;
     }}
 
-    /* 4. CHAT INTERFACE IMPROVEMENTS */
+    /* CHAT INTERFACE */
     .stChatMessage {{
         background: transparent;
         border: none;
@@ -133,7 +132,7 @@ st.markdown(f"""
     /* STUDENT BUBBLE */
     .stChatMessage.user {{
         padding-left: 10%;
-        flex-direction: row-reverse; /* Move avatar to right */
+        flex-direction: row-reverse;
     }}
     .stChatMessage.user .stMarkdown {{
         background: #E0F2FE;
@@ -144,7 +143,7 @@ st.markdown(f"""
         text-align: left;
     }}
 
-    /* 5. CARDS & WIDGETS */
+    /* CARDS & WIDGETS */
     .uni-card {{
         background: white;
         border: 1px solid #E2E8F0;
@@ -152,6 +151,12 @@ st.markdown(f"""
         padding: 15px;
         margin-bottom: 15px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        transition: transform 0.2s;
+    }}
+    .uni-card:hover {{
+        transform: translateY(-3px);
+        border-color: {BRAND_PRIMARY};
+        box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
     }}
     .uni-header {{ display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }}
     .uni-logo-box {{ font-size: 1.5rem; background: #F8FAFC; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 8px; }}
@@ -168,13 +173,14 @@ st.markdown(f"""
     
     .alison-card {{ background: white; border-left: 4px solid {ALISON_GREEN}; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); margin-top: 10px; }}
 
+    /* WHY US BOX */
     .why-box {{ background: linear-gradient(145deg, #0F172A, #1E293B); color: white; padding: 20px; border-radius: 16px; margin-top: 20px; }}
     .why-grid {{ display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; text-align: left; }}
     @media (min-width: 600px) {{ .why-grid {{ grid-template-columns: 1fr 1fr 1fr; }} }}
     .why-item h4 {{ color: {ACCENT_ORANGE}; font-size: 0.9rem; margin-bottom: 5px; font-family: 'Poppins'; }}
     .why-item p {{ font-size: 0.8rem; opacity: 0.85; line-height: 1.5; margin: 0; }}
 
-    /* 6. INTERACTIVE */
+    /* INTERACTIVE */
     .stButton button {{ width: 100%; border-radius: 8px; height: auto; padding: 10px; font-weight: 600; border: 1px solid #E2E8F0; color: {BRAND_DARK}; background: white; }}
     .stButton button:hover {{ border-color: {BRAND_PRIMARY}; color: {BRAND_PRIMARY}; background: #F0F9FF; }}
     .stTextInput input {{ border-radius: 25px; border: 1px solid #CBD5E1; padding: 10px 20px; }}
@@ -230,7 +236,7 @@ def render_why_distoversity():
         </div>
     """, unsafe_allow_html=True)
 
-# --- DATA & LOGIC ---
+# --- DATA ---
 UNIVERSITIES = [
     {"name": "Amity Online", "programs": ["MBA", "MCA", "BBA"], "max_fee": 350000, "fee": "₹1.75L", "emi": "₹4,999/mo", "badges": ["UGC", "NAAC A+"], "logo": "🅰️", "best_for": ["Analyst"], "avg_pkg": "₹6-8 LPA", "high_pkg": "₹18 LPA", "recruiters": "Amazon, Deloitte"},
     {"name": "Manipal Jaipur", "programs": ["MBA", "BCA", "B.Com"], "max_fee": 300000, "fee": "₹1.50L", "emi": "₹3,500/mo", "badges": ["AICTE", "NAAC A+"], "logo": "Ⓜ️", "best_for": ["Creator"], "avg_pkg": "₹5-7 LPA", "high_pkg": "₹14 LPA", "recruiters": "Google, Microsoft"},
@@ -367,7 +373,6 @@ for msg in st.session_state.messages:
     elif role == "alison_promo": render_alison_promo(content)
     elif role == "why_us": render_why_distoversity()
     else:
-        # USE DYNAMIC AVATARS
         avatar_img = BOT_AVATAR if role == "assistant" else USER_AVATAR
         with st.chat_message(role, avatar=avatar_img):
             st.markdown(content)
@@ -427,9 +432,18 @@ elif st.session_state.step == 4:
     if not matches: matches = [u for u in UNIVERSITIES if primary in u["best_for"]][:2]
 
     if "res_msg" not in [m.get("id", "") for m in st.session_state.messages]:
-        st.session_state.messages.append({"role": "assistant", "content": f"🎉 **Strategy Ready!**\n\nMy friend, I've curated these universities for you. They align with your {primary} strengths and budget. This isn't just a degree; it's your career launchpad.", "id": "res_msg"})
+        # --- VETERAN COUNSELLOR / CONSULTATIVE APPROACH ---
+        strategy_msg = (
+            f"🎯 **Strategic Analysis for {st.session_state.user_info['name']}**\n\n"
+            f"Listen, I've analyzed the market for your profile as a **{primary}**. "
+            f"Considering your budget of **{filt['budget']/100000} Lakhs** and the need for high ROI, "
+            "I have isolated these specific options.\n\n"
+            "These aren't just colleges; they are **investments with proven returns**. "
+            "Here is the data:"
+        )
+        st.session_state.messages.append({"role": "assistant", "content": strategy_msg, "id": "res_msg"})
         st.session_state.messages.append({"role": "results_cards", "content": matches})
-        st.session_state.messages.append({"role": "assistant", "content": "To help you start immediately, I also found this **Free Certification**:"})
+        st.session_state.messages.append({"role": "assistant", "content": "**My Advice:** Review the placement stats below. If you are ready, we can secure your seat."})
         st.session_state.messages.append({"role": "alison_promo", "content": primary})
         st.session_state.messages.append({"role": "why_us", "content": ""})
         st.rerun()
@@ -442,7 +456,7 @@ elif st.session_state.step == 4:
             if hook == "📊 Compare Top 5" or hook == "📊 Compare All":
                  compare_list = matches[:5] if len(matches) > 0 else UNIVERSITIES[:5]
                  st.session_state.messages.append({"role": "comparison_chart", "content": compare_list})
-                 st.session_state.messages.append({"role": "assistant", "content": "Here is the transparency matrix. We believe in full disclosure."})
+                 st.session_state.messages.append({"role": "assistant", "content": "Here is the detailed breakdown. Notice the 'Recruiters' column—that is where your value lies."})
             else:
                 response = get_bot_response(hook)
                 add_bot_msg(response)
