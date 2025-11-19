@@ -1,7 +1,7 @@
 import streamlit as st
 from groq import Groq
 import time
-import streamlit.components.v1 as components
+import json
 
 # --- 1. Web Page Configuration ---
 st.set_page_config(
@@ -10,76 +10,60 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- 2. FLASHING TAB TITLE SCRIPT ---
-# This JavaScript will make the tab title toggle every 2 seconds
-flashing_script = """
-<script>
-    var titles = ["Distoversity Guide", "Your Career Mentor", "Distoversity AI"];
-    var i = 0;
-    setInterval(function() {
-        document.title = titles[i % titles.length];
-        i++;
-    }, 2000); # Change every 2000 milliseconds (2 seconds)
-</script>
-"""
-components.html(flashing_script, height=0)
-
-# --- 3. WEBSITE-MATCHED UI Styling ---
+# --- 2. WEBSITE-MATCHED UI Styling (Same as before) ---
 st.markdown("""
     <style>
-    /* Import 'Inter' font to match your website typography */
+    /* Import 'Inter' font */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     
     html, body, [class*="css"] {
         font-family: 'Inter', sans-serif;
-        background-color: #FFFFFF; /* Clean White Background */
-        color: #1F2937; /* Dark Grey Text for readability */
+        background-color: #FFFFFF;
+        color: #1F2937;
     }
     
     /* Main App Background */
     .stApp {
-        background-color: #F3F8FC; /* Very light blue/grey tint from your dashboard background */
+        background-color: #F3F8FC;
     }
     
-    /* Headers - Matching the dark blue/black form headers */
+    /* Headers */
     h1, h2, h3 {
-        color: #0D1B2A; /* Deep Navy/Black from screenshots */
+        color: #0D1B2A;
         font-weight: 700;
         text-align: center;
     }
     
-    /* --- BUTTONS (Matching the "Start Assessment" / "Request Demo" buttons) --- */
+    /* --- BUTTONS --- */
     .stButton button {
-        background-color: #00AEEF; /* The vibrant Cyan-Blue from your buttons */
+        background-color: #00AEEF;
         color: white !important;
         border: none;
         padding: 12px 32px;
         font-size: 16px;
         font-weight: 600;
-        border-radius: 4px; /* Slightly sharper corners as seen in 'Start Assessment' */
+        border-radius: 4px;
         transition: all 0.3s ease;
         box-shadow: 0 2px 4px rgba(0, 174, 239, 0.2);
-        width: 100%; /* Full width on mobile, responsive */
+        width: 100%;
     }
     .stButton button:hover {
-        background-color: #0095CC; /* Slightly darker on hover */
+        background-color: #0095CC;
         transform: translateY(-1px);
         box-shadow: 0 4px 6px rgba(0, 174, 239, 0.3);
     }
     
-    /* --- FORM & CARDS (Matching "Genius Profile" cards) --- */
-    [data-testid="stForm"], [data-testid="stChatInput"] {
+    /* --- FORM & CARDS --- */
+    [data-testid="stForm"], [data-testid="stChatInput"], .report-card {
         background-color: #FFFFFF;
-        border: 1px solid #E2E8F0; /* Subtle border */
-        border-radius: 12px; /* Rounded corners like the profile cards */
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
         padding: 32px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); /* Soft shadow */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
         margin-bottom: 20px;
     }
 
     /* --- CHAT BUBBLES --- */
-    
-    /* Eduveer (AI) - Clean White Card Style */
     div[data-testid="stChatMessage"] {
         background-color: #FFFFFF;
         border: 1px solid #F1F5F9;
@@ -88,10 +72,8 @@ st.markdown("""
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         margin-bottom: 16px;
     }
-    
-    /* User (Student) - Light Blue Accent matching site theme */
     div[data-testid="stChatMessage"]:nth-child(odd) {
-        background-color: #E0F2FE; /* Very light blue background */
+        background-color: #E0F2FE;
         border: 1px solid #BAE6FD;
     }
     
@@ -105,7 +87,7 @@ st.markdown("""
     a[href*="forms"] {
         display: inline-block;
         width: 100%;
-        background-color: #00AEEF; /* Matching Primary Brand Color */
+        background-color: #00AEEF;
         color: white !important;
         text-align: center;
         padding: 12px;
@@ -119,18 +101,17 @@ st.markdown("""
         background-color: #0095CC;
     }
 
-    /* Radio Button Selection Color */
-    div[role="radiogroup"] label > div:first-child {
-        background-color: #00AEEF !important;
+    /* Progress Bar Color */
+    .stProgress > div > div > div > div {
+        background-color: #00AEEF;
     }
-    
-    /* Hide Streamlit branding for cleaner look */
+
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     </style>
     """, unsafe_allow_html=True)
 
-# --- 4. Initialize Brain ---
+# --- 3. Initialize Brain ---
 try:
     api_key = st.secrets["GROQ_API_KEY"]
     client = Groq(api_key=api_key)
@@ -138,159 +119,218 @@ except Exception:
     st.error("⚠️ API Key Missing.")
     st.stop()
 
-# --- 5. Session State ---
+# --- 4. Session State Initialization ---
+if "step" not in st.session_state:
+    st.session_state.step = 1  # 1: Profile Form, 2: Quiz, 3: Contact Info, 4: Report
 if "user_profile" not in st.session_state:
-    st.session_state.user_profile = None
-if "msg_count" not in st.session_state:
-    st.session_state.msg_count = 0
+    st.session_state.user_profile = {}
+if "quiz_answers" not in st.session_state:
+    st.session_state.quiz_answers = []
+if "contact_info" not in st.session_state:
+    st.session_state.contact_info = {}
+if "final_report" not in st.session_state:
+    st.session_state.final_report = ""
 
-# --- 6. Sidebar (Data & Tools) ---
+# --- 5. Sidebar ---
 with st.sidebar:
-    # Using your logo placeholder (Update link if you have hosted logo)
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=80)
-    
     st.markdown("### **Distoversity**") 
     st.caption("Empowering India's Future Leaders 🇮🇳")
     
-    st.info("📊 **Admissions Open**\nConnect with top universities matched to your profile.")
+    if st.session_state.step > 1:
+        progress = (len(st.session_state.quiz_answers) / 5) if st.session_state.step == 2 else 1.0
+        st.progress(progress)
+        st.caption(f"Assessment Progress")
 
-    # --- DATA CAPTURE LINK ---
-    google_form_link = "https://forms.gle/YourFormLinkHere" 
-    
-    st.markdown(f"""
-        <a href="{google_form_link}" target="_blank">
-        📝 Start Application
-        </a>
-        """, unsafe_allow_html=True)
-    
     st.divider()
-    
-    # --- DOWNLOAD CHAT BUTTON ---
-    if "messages" in st.session_state and len(st.session_state.messages) > 2:
-        chat_text = "\n".join([f"{m['role'].upper()}: {m['content']}" for m in st.session_state.messages])
-        st.download_button("📥 Save Recommendations", chat_text, file_name="my_career_roadmap.txt")
-
-    if st.button("↻ Start New Session"):
-        st.session_state.messages = []
-        st.session_state.user_profile = None
-        st.session_state.msg_count = 0
+    if st.button("↻ Restart Assessment"):
+        for key in list(st.session_state.keys()):
+            del st.session_state[key]
         st.rerun()
-
     st.caption("© 2025 Distoversity Pvt Ltd") 
 
-# --- 7. Main Interface ---
-# Header matching your site style
-st.title("Discover Your Genius Profile") 
-st.markdown("<p style='text-align: center; color: #64748B; font-size: 1.1rem;'>Unlock personalized university recommendations based on your unique strengths.</p>", unsafe_allow_html=True)
+# --- 6. Main Logic ---
 
-# --- SCENARIO A: PROFILE FORM (Aligned & Responsive) ---
-if st.session_state.user_profile is None:
+st.title("Discover Your Genius Profile") 
+
+# --- STEP 1: INITIAL PROFILE FORM ---
+if st.session_state.step == 1:
+    st.markdown("<p style='text-align: center; color: #64748B; font-size: 1.1rem;'>Unlock personalized university recommendations based on your unique strengths.</p>", unsafe_allow_html=True)
     st.write("")
     
-    # Container for alignment
     with st.form("profile_form"):
         st.markdown("### Let's get started")
         st.write("")
-        
-        # Responsive Columns
         col1, col2 = st.columns(2)
-        
         with col1:
             st.markdown("**Current Status**")
-            st.caption("Select what describes you best")
-            status = st.radio("Status", 
-                            ["Student (12th/Grad)", "Working Professional"], 
-                            label_visibility="collapsed")
-        
+            status = st.radio("Status", ["Student (12th/Grad)", "Working Professional"], label_visibility="collapsed")
         with col2:
             st.markdown("**Your Goal**")
-            st.caption("What are you looking for?")
-            goal = st.radio("Goal", 
-                          ["Regular College Degree", "Online/Distance Degree", "Upskilling/Certificate"], 
-                          label_visibility="collapsed")
+            goal = st.radio("Goal", ["Regular College Degree", "Online/Distance Degree", "Upskilling/Certificate"], label_visibility="collapsed")
         
         st.write("")
-        st.write("")
-        
-        # Centered Button
-        c1, c2, c3 = st.columns([1, 2, 1])
-        with c2:
-            submitted = st.form_submit_button("Start Free Assessment ➔")
+        submitted = st.form_submit_button("Start 5-Question Assessment ➔")
         
         if submitted:
             st.session_state.user_profile = {"status": status, "goal": goal}
+            st.session_state.step = 2
             st.rerun()
 
-# --- SCENARIO B: CHAT INTERFACE ---
-else:
-    user_data = st.session_state.user_profile
+# --- STEP 2: THE 5-QUESTION QUIZ (Chat Interface) ---
+elif st.session_state.step == 2:
     
-    # --- VETERAN ADVISOR INSTRUCTIONS (Distoversity Framework) ---
-    system_instruction = f"""
-    You are **Eduveer**, a Senior Career Counselor at **Distoversity** with 20 years of experience.
-    USER PROFILE: Status: {user_data['status']}, Goal: {user_data['goal']}
+    # Define the 5 Questions directly here for control
+    questions = [
+        "1. When starting a new project, what do you enjoy most? (Ideating, Leading people, Organizing details, or Researching data?)",
+        "2. In a group, what role do you naturally take? (The Creative Spark, The Leader/Speaker, The Reliable Helper, or The Analyzer?)",
+        "3. What kind of tasks drain your energy? (Repetitive details, Being alone too long, Conflict/Pressure, or Vague ideas without data?)",
+        "4. If you could have a superpower at work/study, what would it be? (Endless Creativity, Super Persuasion, Perfect Timing/Harmony, or Instant Calculation?)",
+        "5. How do you make decisions? (Gut feeling/Innovation, Discussing with others, Sensing the right time, or Logic and spreadsheet?)"
+    ]
     
-    YOUR CORE TASK:
-    Profile the student based on the **4 Energies of Distoversity**:
-    1. **Creator (Innovation):** Likes starting new things, ideas, art, big picture thinking.
-    2. **Influencer (People):** Likes leading, speaking, connecting, managing people.
-    3. **Catalyst (Service/Timing):** Likes helping, patient, grounded, excellent timing & coordination.
-    4. **Analyst (Data/Systems):** Likes numbers, logic, details, perfection, working alone.
-
-    TONE & LANGUAGE:
-    - **Veteran & Wise:** Speak with authority but kindness. Use phrases like "In my experience," "The smart choice is," "Think about the long term."
-    - **Simple English:** Explain concepts simply (12th-grade level). No complex jargon.
-    - **Empathetic:** Acknowledge that career choices are confusing.
+    current_q_index = len(st.session_state.quiz_answers)
     
-    COMMUNICATION RULES:
-    1. **Short Answers:** Keep replies to 2-3 sentences max.
-    2. **One Question Rule:** Ask ONLY ONE question per message.
-    3. **Diagnosis First:** Ask questions to figure out which of the 4 Energies they are.
-    4. **Recommendation:** Once you identify their energy (e.g., Creator), suggest courses aligned with it (e.g., Design, Architecture).
+    if current_q_index < 5:
+        st.markdown(f"### Question {current_q_index + 1} of 5")
+        st.info(questions[current_q_index])
+        
+        # Chat input for the answer
+        if answer := st.chat_input("Type your answer here..."):
+            st.session_state.quiz_answers.append(answer)
+            st.rerun()
+            
+        # Display previous Q&A for context
+        for i, ans in enumerate(st.session_state.quiz_answers):
+            with st.chat_message("assistant", avatar="🎓"):
+                st.write(questions[i])
+            with st.chat_message("user", avatar="🧑‍🎓"):
+                st.write(ans)
+                
+    else:
+        st.session_state.step = 3
+        st.rerun()
+
+# --- STEP 3: CONTACT INFO FORM ---
+elif st.session_state.step == 3:
+    st.markdown("### Assessment Complete! 🎉")
+    st.markdown("To generate your detailed **Genius Profile Report** and university shortlist, please provide your details.")
     
-    STRATEGY:
-    - If Working Pro: Recommend Online Degrees for flexibility.
-    - If Student: Focus on building a strong foundation.
-    """
+    with st.form("contact_form"):
+        name = st.text_input("Full Name")
+        email = st.text_input("Email Address")
+        phone = st.text_input("Mobile Number")
+        
+        submit_contact = st.form_submit_button("Generate My Report ➔")
+        
+        if submit_contact and name and email and phone:
+            st.session_state.contact_info = {"name": name, "email": email, "phone": phone}
+            st.session_state.step = 4
+            st.rerun()
+        elif submit_contact:
+            st.error("Please fill in all fields to get your report.")
 
-    if "messages" not in st.session_state or not st.session_state.messages:
-        welcome_msg = f"Hello. It is good to meet you.\n\nI see you are looking for **{user_data['goal']}**. That is a very important decision for your future.\n\nTo guide you correctly, I need to understand your natural energy.\n\n**Which of these sounds more like you?**\n\nA) I love coming up with new ideas and creating things.\nB) I love talking to people and leading teams."
-        st.session_state.messages = [
-            {"role": "system", "content": system_instruction},
-            {"role": "assistant", "content": welcome_msg}
-        ]
+# --- STEP 4: REPORT GENERATION & ANALYSIS ---
+elif st.session_state.step == 4:
+    if not st.session_state.final_report:
+        with st.spinner("Analyzing your 4 Energies... Calculating percentages..."):
+            
+            # Prepare data for AI Analysis
+            user_data_str = f"""
+            User Status: {st.session_state.user_profile['status']}
+            User Goal: {st.session_state.user_profile['goal']}
+            
+            Quiz Answers:
+            1. {st.session_state.quiz_answers[0]}
+            2. {st.session_state.quiz_answers[1]}
+            3. {st.session_state.quiz_answers[2]}
+            4. {st.session_state.quiz_answers[3]}
+            5. {st.session_state.quiz_answers[4]}
+            """
+            
+            prompt = f"""
+            Act as a Veteran Career Assessment Expert at Distoversity.
+            Analyze the following user answers based on the 4 Energies Framework:
+            - Creator (Innovation, Ideas)
+            - Influencer (People, Leadership)
+            - Catalyst (Service, Timing, Grounded)
+            - Analyst (Data, Systems, Logic)
 
-    # Display Chat
-    for message in st.session_state.messages:
-        if message["role"] != "system":
-            # Using simpler avatars to match the clean UI
-            avatar_icon = "🧑‍🎓" if message["role"] == "user" else "🎓"
-            with st.chat_message(message["role"], avatar=avatar_icon):
-                st.markdown(message["content"])
+            USER DATA:
+            {user_data_str}
 
-    # --- CONVERSION HOOK ---
-    if st.session_state.msg_count > 3 and st.session_state.msg_count < 5:
-        st.info("💡 **Need a verified university list?**")
-        st.markdown(f'<a href="{google_form_link}" target="_blank" style="text-decoration:none; color: #00AEEF; font-weight:bold;">Click here to Book a Free Session &rarr;</a>', unsafe_allow_html=True)
+            TASK:
+            1. Calculate an estimated percentage for each of the 4 energies based on the answers. (e.g., Creator: 60%, Influencer: 20%, etc.). Ensure no single profile is blindly 100% unless answers strongly suggest it.
+            2. Identify the DOMINANT profile.
+            3. Write a "Veteran's Insight" explaining their strengths simply (12th-grade level English).
+            4. Suggest 3 specific career paths or courses suitable for this mix.
 
-    def generate_chat_responses(chat_completion):
-        for chunk in chat_completion:
-            if chunk.choices[0].delta.content:
-                yield chunk.choices[0].delta.content
-
-    if prompt := st.chat_input("Type your answer here..."):
-        st.chat_message("user", avatar="🧑‍🎓").markdown(prompt)
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        st.session_state.msg_count += 1
-
-        with st.chat_message("assistant", avatar="🎓"):
+            OUTPUT FORMAT (Strictly follow this):
+            # 🎓 Genius Profile Report for [User Name placeholder]
+            
+            ## ⚡ Energy Distribution
+            - **Creator:** [X]%
+            - **Influencer:** [X]%
+            - **Catalyst:** [X]%
+            - **Analyst:** [X]%
+            
+            ## 🏆 Your Dominant Profile: [Profile Name]
+            
+            ### 🧠 Veteran's Insight
+            [Write a 3-4 sentence warm, wise analysis of why they fit this profile and how it's a superpower.]
+            
+            ### 🚀 Recommended Paths
+            1. **[Path 1]**: [Why?]
+            2. **[Path 2]**: [Why?]
+            3. **[Path 3]**: [Why?]
+            
+            ---
+            *Report generated by Distoversity AI*
+            """
+            
             try:
-                stream = client.chat.completions.create(
+                completion = client.chat.completions.create(
                     model="llama-3.3-70b-versatile",
-                    messages=st.session_state.messages,
-                    stream=True,
+                    messages=[{"role": "user", "content": prompt}],
+                    temperature=0.7
                 )
-                response = st.write_stream(generate_chat_responses(stream))
-                st.session_state.messages.append({"role": "assistant", "content": response})
+                st.session_state.final_report = completion.choices[0].message.content
             except Exception as e:
-                st.error("⚠️ Connection Error. Please refresh.")
+                st.error(f"Error generating report: {e}")
+
+    # Display Report
+    if st.session_state.final_report:
+        st.success("Analysis Complete!")
+        
+        # Custom CSS for Report Card
+        st.markdown("""
+        <div class="report-card">
+            """ + st.session_state.final_report.replace("\n", "<br>") + """
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Data Capture String (For email/admin)
+        capture_data = f"""
+        NEW LEAD:
+        Name: {st.session_state.contact_info['name']}
+        Phone: {st.session_state.contact_info['phone']}
+        Email: {st.session_state.contact_info['email']}
+        Profile: {st.session_state.user_profile['status']} - {st.session_state.user_profile['goal']}
+        
+        REPORT SUMMARY:
+        {st.session_state.final_report}
+        """
+        
+        st.download_button(
+            label="📥 Download Your Report",
+            data=capture_data,
+            file_name=f"Distoversity_Report_{st.session_state.contact_info['name']}.txt",
+            mime="text/plain"
+        )
+        
+        st.markdown("### 📞 Next Steps")
+        st.info("Our expert counselors have received your profile. We will contact you shortly to discuss university admissions based on this report.")
+        
+        # Google Form Link for manual submission if they want
+        google_form_link = "https://forms.gle/YourFormLinkHere"
+        st.markdown(f'<a href="{google_form_link}" target="_blank">Submit to Counselor Directly ➔</a>', unsafe_allow_html=True)
