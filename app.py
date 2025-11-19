@@ -4,7 +4,7 @@ import random
 
 # --- 1. Web Page Configuration ---
 st.set_page_config(
-    page_title="Diztoversity AI",
+    page_title="Distoversity AI",
     page_icon="🎓",
     layout="centered"
 )
@@ -69,7 +69,7 @@ except Exception:
 
 # --- 4. System Instructions (THE HOOK LOGIC) ---
 system_instruction = """
-You are **Eduveer**, a Career Mentor from **Diztoversity**.
+You are **Eduveer**, a Career Mentor from **Distoversity**.
 Your goal is to guide students and professionals.
 
 YOUR PHILOSOPHY:
@@ -99,7 +99,8 @@ TONE:
 # --- 5. Sidebar (Reset & Booking) ---
 with st.sidebar:
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=90)
-    st.title("Diztoversity") 
+    # UPDATED NAME HERE
+    st.title("Distoversity") 
     st.markdown("### **Empowering India** 🇮🇳")
     
     st.success("🎓 **Modes We Guide:**\n\n✅ Regular College\n✅ Online Degrees (Job-ready)\n✅ Distance Education")
@@ -109,7 +110,7 @@ with st.sidebar:
     # --- NEW: BOOKING BUTTON ---
     st.markdown("### 📞 Need Expert Help?")
     st.info("Confused? Talk to a human counselor.")
-    # Yahan apna Asli Link dalein (Google Form ya Calendly)
+    # Replace with your actual link
     st.markdown('[📅 Book 1:1 Session](https://forms.gle/YourFormLinkHere)', unsafe_allow_html=True)
     
     st.divider()
@@ -118,11 +119,11 @@ with st.sidebar:
     if st.button("🗑️ Start New Chat", type="primary"):
         st.session_state.messages = [
             {"role": "system", "content": system_instruction},
-            {"role": "assistant", "content": "Namaste! 🙏 Welcome to **Diztoversity**.\n\nMain hoon Eduveer. Main aapko **Regular** aur **Online Degrees** dono mein guide kar sakta hoon.\n\nSabse pehle batayein: **Aap abhi Student hain ya Job karte hain?**"}
+            {"role": "assistant", "content": "Namaste! 🙏 Welcome to **Distoversity**.\n\nMain hoon Eduveer. Main aapko **Regular** aur **Online Degrees** dono mein guide kar sakta hoon.\n\nSabse pehle batayein: **Aap abhi Student hain ya Job karte hain?**"}
         ]
         st.rerun()
 
-    st.caption("© 2025 Diztoversity Pvt Ltd") 
+    st.caption("© 2025 Distoversity Pvt Ltd") 
 
 # --- 6. Hero Section ---
 st.title("🎓 Eduveer AI") 
@@ -133,7 +134,7 @@ st.write("")
 if "messages" not in st.session_state:
     st.session_state.messages = [
         {"role": "system", "content": system_instruction},
-        {"role": "assistant", "content": "Namaste! 🙏 Welcome to **Diztoversity**.\n\nMain hoon Eduveer. Main aapko **Regular** aur **Online Degrees** dono mein guide kar sakta hoon.\n\nSabse pehle batayein: **Aap abhi Student hain ya Job karte hain?**"}
+        {"role": "assistant", "content": "Namaste! 🙏 Welcome to **Distoversity**.\n\nMain hoon Eduveer. Main aapko **Regular** aur **Online Degrees** dono mein guide kar sakta hoon.\n\nSabse pehle batayein: **Aap abhi Student hain ya Job karte hain?**"}
     ]
 
 # --- 8. Display Chat ---
