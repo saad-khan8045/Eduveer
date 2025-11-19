@@ -3,31 +3,35 @@ from groq import Groq
 
 # --- 1. Web Page Configuration ---
 st.set_page_config(
-    page_title="Eduveer - Diztoversity",
+    page_title="My Career AI",
     page_icon="🎓",
     layout="centered"
 )
 
-# --- 2. Sidebar Info (Updated with Diztoversity Segments) ---
+# --- 2. Sidebar Info ---
 with st.sidebar:
+    # Logo URL (Agar nahi chahiye to hata dein)
     st.image("https://cdn-icons-png.flaticon.com/512/4712/4712009.png", width=100)
-    st.title("Diztoversity")
+    
+    # Brand Name
+    st.title("My Brand Name") 
+    
     st.markdown("""
     **Eduveer** is your AI Career Counselor.
     
-    **The Diztoversity Framework:**
+    **Our Framework:**
     First, we identify your natural character, then we map you to the right University Segment.
     
-    - 🎨 **Diztoversity Creator:** Innovation & Ideas
-    - 📢 **Diztoversity Influencer:** People & Leadership
-    - 🤝 **Diztoversity Catalyst:** Service & Timing
-    - 📊 **Diztoversity Analyst:** Systems & Data
+    - 🎨 **Creator:** Innovation & Ideas
+    - 📢 **Influencer:** People & Leadership
+    - 🤝 **Catalyst:** Service & Timing
+    - 📊 **Analyst:** Systems & Data
     """)
     st.divider()
-    st.caption("© 2025 Diztoversity")
+    st.caption("© 2025 My Brand Name Pvt Ltd") 
 
 # --- 3. Main Interface ---
-st.title("🎓 Eduveer")
+st.title("🎓 Eduveer AI") 
 st.subheader("Education meets Wealth Creation.")
 st.write("Most people choose universities based on specifications. We choose based on **WHO YOU ARE**.")
 
@@ -39,37 +43,24 @@ except Exception:
     st.error("⚠️ **Setup Required:** Please add your `GROQ_API_KEY` in the Streamlit Secrets settings.")
     st.stop()
 
-# --- 5. Eduveer's Personality (Updated System Prompt) ---
+# --- 5. AI Personality ---
 system_instruction = """
-You are Eduveer, the expert AI Career Counselor for 'Diztoversity'.
+You are Eduveer, the expert AI Career Counselor.
 
 YOUR CORE PHILOSOPHY:
 "Education is essential, but Wealth is most important. Both are interconnected. We do not select universities based on specifications alone; we first identify the student's Natural Character (Profile)."
 
-YOUR METHODOLOGY (The 4 Diztoversity Segments):
-1. **Diztoversity Creator**:
-   - Character: Loves innovation, creating from scratch, artistic, dislikes details. High energy for new ideas.
-   - University Segment: Suggest universities famous for Design, Arts, Startups, and R&D.
-   
-2. **Diztoversity Influencer**:
-   - Character: Loves talking, connecting with people, leadership, stage presence. The star of the show.
-   - University Segment: Suggest universities famous for Media, Management, Law, Mass Comm, and Politics.
-
-3. **Diztoversity Catalyst**:
-   - Character: Grounded, sensory, excellent sense of timing, loves serving/helping others, patient. Connects people and resources.
-   - University Segment: Suggest universities famous for Hospitality, Nursing, Customer Relations, Supply Chain.
-
-4. **Diztoversity Analyst**:
-   - Character: Loves data, calculation, systems, working alone, detailed-oriented. Focuses on efficiency.
-   - University Segment: Suggest universities famous for Engineering, Finance, Accounting, Data Science.
+YOUR METHODOLOGY (The 4 Segments):
+1. **Creator**: Loves innovation, creating from scratch, artistic, dislikes details. Suggest: Design, Arts, Startups.
+2. **Influencer**: Loves talking, connecting with people, leadership. Suggest: Media, Management, Law.
+3. **Catalyst**: Grounded, sensory, timing, serving others. Suggest: Hospitality, Nursing, Supply Chain.
+4. **Analyst**: Loves data, calculation, systems, working alone. Suggest: Engineering, Finance, Accounting.
 
 YOUR RULES:
-- **Step 1:** Always start by asking questions to identify which of the 4 profiles the student belongs to.
-- **Step 2:** Once the profile is clear, explicitly tell them: "You seem to be a [Diztoversity Profile Name]."
-- **Step 3:** Only THEN suggest the specific "University Segment" that fits their nature.
-- Be empathetic, wise, and focus on the connection between their nature and their future wealth/career.
-- Keep responses concise and conversational.
-- **POLICY:** Do NOT mention any external frameworks or third-party names. Use ONLY the Diztoversity terms above.
+- Start by asking questions to identify the profile.
+- Be empathetic and wise.
+- Keep responses concise.
+- Do NOT mention external frameworks.
 """
 
 # --- 6. Chat History Setup ---
@@ -86,16 +77,14 @@ for message in st.session_state.messages:
             st.markdown(message["content"])
 
 # --- 8. Handle User Input ---
-if prompt := st.chat_input("e.g., I love talking to people, or I prefer solving math problems alone..."):
-    # Display user message
+if prompt := st.chat_input("e.g., I love talking to people..."):
     st.chat_message("user").markdown(prompt)
     st.session_state.messages.append({"role": "user", "content": prompt})
 
-    # Generate response
     with st.chat_message("assistant"):
         try:
             stream = client.chat.completions.create(
-                model="llama3-8b-8192",
+                model="llama-3.3-70b-versatile",  # <--- YAHAN NAYA MODEL DAAL DIYA HAI
                 messages=st.session_state.messages,
                 stream=True,
             )
