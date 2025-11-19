@@ -8,61 +8,99 @@ st.set_page_config(
     layout="centered"
 )
 
-# --- 2. UI Styling (Professional & Clean) ---
+# --- 2. ATTRACTIVE UI Styling (Modern CSS) ---
 st.markdown("""
     <style>
-    /* Background */
-    .stApp { background: linear-gradient(to bottom, #F0F8FF, #FFFFFF); }
-    
-    /* Chat Input Styling */
-    [data-testid="stChatInput"] {
-        border-radius: 25px;
-        border: 2px solid #004aad;
-        box-shadow: 0px -4px 12px rgba(0, 74, 173, 0.15);
-    }
-    
-    /* Header */
-    h1 { color: #004aad; font-family: 'Helvetica', sans-serif; font-weight: 800; }
-    
-    /* Chat Bubbles */
-    .stChatMessage {
-        background-color: #FFFFFF;
-        border-radius: 18px;
-        padding: 15px;
-        border: 1px solid #Eef;
-        box-shadow: 2px 2px 8px rgba(0,0,0,0.04);
-    }
-    /* User Bubble Color */
-    div[data-testid="stChatMessage"]:nth-child(odd) { background-color: #E3F2FD; border: none; }
-    
-    /* Button Styling */
-    .stButton button {
-        width: 100%;
-        border-radius: 10px;
-        font-weight: bold;
+    /* Import Modern Font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap');
+
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
     }
 
-    /* Form Container Styling */
-    [data-testid="stForm"] {
-        background-color: #FFFFFF;
-        padding: 20px;
-        border-radius: 20px;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
-        border: 1px solid #E0E0E0;
+    /* Gradient Background - Clean & Fresh */
+    .stApp {
+        background: linear-gradient(135deg, #F5F7FA 0%, #C3CFE2 100%);
+    }
+
+    /* Header Styling */
+    h1 {
+        color: #004aad;
+        font-weight: 800;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
     }
     
-    /* Sidebar Booking Button Style */
+    /* FORM CONTAINER - Glassmorphism Card Style */
+    [data-testid="stForm"] {
+        background: rgba(255, 255, 255, 0.95);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    /* CHAT INPUT - Floating Style */
+    [data-testid="stChatInput"] {
+        border-radius: 30px;
+        border: 2px solid #004aad;
+        box-shadow: 0 5px 15px rgba(0, 74, 173, 0.15);
+    }
+
+    /* CHAT BUBBLES */
+    
+    /* Assistant (Eduveer) Bubble */
+    div[data-testid="stChatMessage"] {
+        background-color: #FFFFFF;
+        border-radius: 0px 20px 20px 20px;
+        padding: 15px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        border-left: 5px solid #004aad; /* Professional Blue Accent */
+        margin-bottom: 15px;
+    }
+    
+    /* User (Student) Bubble */
+    div[data-testid="stChatMessage"]:nth-child(odd) {
+        background-color: #E3F2FD; /* Soft Blue */
+        border-radius: 20px 0px 20px 20px;
+        border-left: none;
+        border-right: 5px solid #0078ff;
+    }
+
+    /* BUTTONS - Gradient & Hover Effect */
+    .stButton button {
+        background: linear-gradient(90deg, #004aad 0%, #0078ff 100%);
+        color: white !important;
+        border: none;
+        padding: 12px 24px;
+        font-size: 16px;
+        font-weight: 600;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 74, 173, 0.3);
+    }
+    .stButton button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 74, 173, 0.4);
+    }
+    
+    /* Sidebar Booking Button - Orange Gradient */
     a[href*="forms"] {
         display: inline-block;
         width: 100%;
-        background-color: #FF4B4B;
-        color: white;
+        background: linear-gradient(45deg, #FF4B4B, #FF9068);
+        color: white !important;
         text-align: center;
-        padding: 10px;
-        border-radius: 10px;
+        padding: 12px;
+        border-radius: 12px;
         text-decoration: none;
         font-weight: bold;
         margin-top: 10px;
+        box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3);
+        transition: transform 0.2s;
+    }
+    a[href*="forms"]:hover {
+        transform: scale(1.02);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -85,19 +123,19 @@ with st.sidebar:
     st.title("Distoversity") 
     st.markdown("### **Empowering India** 🇮🇳")
     
-    st.success("🎓 **Guidance For:**\n\n✅ Regular College\n✅ Online Degrees\n✅ Upskilling")
+    st.info("✨ **We Guide You For:**\n\n🏫 Regular College\n💻 Online Degrees\n📈 Upskilling")
     
     st.divider()
     
     # --- BOOKING BUTTON ---
     st.markdown("### 📞 Talk to an Expert")
-    st.info("Need personalized advice?")
+    st.write("Need a personal roadmap?")
     st.markdown('[📅 Book 1:1 Session](https://forms.gle/YourFormLinkHere)', unsafe_allow_html=True)
     
     st.divider()
     
     # Reset Button
-    if st.button("🗑️ Start New Session", type="primary"):
+    if st.button("↻ Start New Session"):
         st.session_state.messages = []
         st.session_state.user_profile = None
         st.rerun()
@@ -109,17 +147,27 @@ st.title("🎓 Eduveer AI")
 
 # --- SCENARIO A: PROFILE FORM (Shows first) ---
 if st.session_state.user_profile is None:
-    st.markdown("<h3 style='text-align: center; color: #555;'>Let's get to know you first</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center; color: #555;'>Let's build your future together.</h3>", unsafe_allow_html=True)
     st.write("")
     
+    # Using a Container for the card look
     with st.form("profile_form"):
+        st.subheader("👤 Tell us about yourself")
+        
         st.markdown("**1. Current Status:**")
         status = st.radio("Select one:", ["Student (12th Pass / Undergraduate)", "Working Professional"], label_visibility="collapsed")
         
-        st.markdown("**2. What are you looking for?**")
+        st.write("") # Spacer
+        
+        st.markdown("**2. What is your Goal?**")
         goal = st.radio("Select goal:", ["Regular College Degree", "Online / Distance Degree (Flexible)", "Career Guidance / Upskilling"], label_visibility="collapsed")
         
-        submitted = st.form_submit_button("Start Counseling 🚀")
+        st.write("") # Spacer
+        
+        # Centered Submit Button
+        col1, col2, col3 = st.columns([1,2,1])
+        with col2:
+            submitted = st.form_submit_button("Start Counseling 🚀")
         
         if submitted:
             st.session_state.user_profile = {"status": status, "goal": goal}
@@ -129,7 +177,7 @@ if st.session_state.user_profile is None:
 else:
     user_data = st.session_state.user_profile
     
-    # System Instructions with PROFESSIONAL TONE & PACING
+    # System Instructions
     system_instruction = f"""
     You are **Eduveer**, a Professional Career Counselor from **Distoversity**.
     
@@ -140,29 +188,21 @@ else:
     YOUR PHILOSOPHY:
     "Degree is a path, Skill is the destination. Choose what fits your budget and time."
     
-    TONE GUIDELINES:
-    - **Professional & Polished:** Use standard English. You can use very light Hinglish (e.g., "Bilkul", "Sahi") only to build rapport, but keep it 90% Professional English.
-    - **Supportive:** Be empathetic but authoritative like an expert consultant.
-    - **Concise:** Keep answers short (2-3 sentences).
+    TONE:
+    - Professional & Polished English.
+    - Supportive & Wise.
+    - Concise (2-3 sentences).
     
-    PACING RULE (CRITICAL):
-    - **Ask ONLY ONE question at a time.** Wait for the user to answer before asking the next.
-    - Do NOT ask multiple questions in one message.
-    
-    YOUR METHODOLOGY (The 4 Profiles):
-    - Creator -> Design/Startup/Arts
-    - Influencer -> Management/Law/Media
-    - Catalyst -> Hospitality/HR/Service
-    - Analyst -> Tech/Finance/Data
+    RULE:
+    - Ask ONLY ONE question at a time.
     
     START:
-    Since you already know their status ({user_data['status']}) and goal ({user_data['goal']}), start immediately by asking about their **Interests** to determine their Profile.
+    Ask about their Interests to determine their Profile (Creator, Influencer, Catalyst, Analyst).
     """
 
-    # Initialize Chat History if empty
+    # Initialize Chat History
     if "messages" not in st.session_state or not st.session_state.messages:
-        # Custom Welcome based on Form Data
-        welcome_msg = f"Hello! 👋 Thank you for sharing your details.\n\nSince you are looking for a **{user_data['goal']}**, I can definitely guide you.\n\nTo suggest the best program, I need to understand your nature.\n\n**Tell me, what kind of activities make you feel most energetic and productive?**"
+        welcome_msg = f"Hello! 👋 Thank you for your details.\n\nAs you are interested in a **{user_data['goal']}**, I can guide you to the best options.\n\nTo begin, I need to understand your strengths.\n\n**Tell me, what kind of work or activities make you feel most energetic?**"
         
         st.session_state.messages = [
             {"role": "system", "content": system_instruction},
