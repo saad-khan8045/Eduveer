@@ -1,6 +1,5 @@
 import streamlit as st
 import time
-import random
 
 # --- CONFIGURATION & THEME ---
 st.set_page_config(
@@ -10,473 +9,403 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Brand Colors
-PRIMARY_BLUE = "#00AEEF"
-DARK_BLUE = "#0077A3"
-LIGHT_BLUE_BG = "#E0F2FE"
-WHITE = "#FFFFFF"
-TEXT_DARK = "#1E293B"
-TEXT_GRAY = "#64748B"
+# --- BRAND PALETTE ---
+PRIMARY_BLUE = "#00AEEF"       # Distoversity Blue
+DEEP_BLUE = "#003366"          # Trust/Corporate Blue
+ACCENT_ORANGE = "#FF6B6B"      # "Apply Now" Action Color
+BG_COLOR = "#F4F7F6"           # Clean, modern background
+CARD_BG = "#FFFFFF"
+TEXT_MAIN = "#2D3748"
+SUCCESS_GREEN = "#38A169"
 
-# --- PREMIUM STYLING (CSS) ---
+# --- CSS STYLING (TRUST & CLARITY) ---
 st.markdown(f"""
     <style>
-    /* IMPORT GOOGLE FONTS */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
 
-    /* GLOBAL SETTINGS */
     .stApp {{
-        background-color: #F8FAFC;
+        background-color: {BG_COLOR};
         font-family: 'Inter', sans-serif;
     }}
     
     h1, h2, h3 {{
         font-family: 'Poppins', sans-serif;
-        color: {TEXT_DARK};
-    }}
-    
-    p, div {{
-        color: {TEXT_DARK};
-        line-height: 1.6;
+        color: {DEEP_BLUE};
     }}
 
-    /* HEADER STYLES */
-    .main-header {{
-        color: {PRIMARY_BLUE};
-        text-align: center;
-        font-weight: 700;
-        font-size: 3rem;
-        letter-spacing: -1px;
-        margin-bottom: 0.2rem;
-        text-shadow: 0px 2px 4px rgba(0,0,0,0.05);
+    /* TRUST BAR */
+    .trust-bar {{
+        display: flex;
+        justify-content: space-around;
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        font-size: 0.8rem;
+        color: #555;
+        font-weight: 600;
     }}
-    
-    .sub-header {{
-        color: {TEXT_GRAY};
-        text-align: center;
-        font-size: 1.2rem;
-        font-weight: 500;
-        margin-bottom: 3rem;
+    .trust-item span {{
+        color: {SUCCESS_GREEN};
+        font-size: 1.1rem;
+        margin-right: 5px;
     }}
 
-    /* CHAT INTERFACE IMPROVEMENTS */
-    .stChatMessage {{
-        background-color: transparent;
-        border: none;
+    /* HERO SECTION */
+    .hero-box {{
+        text-align: center;
+        padding: 30px 20px;
+        background: linear-gradient(135deg, {DEEP_BLUE} 0%, {PRIMARY_BLUE} 100%);
+        color: white;
+        border-radius: 0 0 20px 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 10px 20px rgba(0, 51, 102, 0.15);
     }}
     
-    /* User Bubble */
-    .stChatMessage.user {{
-        background: linear-gradient(135deg, {LIGHT_BLUE_BG} 0%, #FFFFFF 100%);
-        border: 1px solid #BAE6FD;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
-    }}
-    
-    /* Bot Bubble */
+    /* CHAT UI */
     .stChatMessage.assistant {{
-        background: #FFFFFF;
+        background: white;
+        border-left: 4px solid {PRIMARY_BLUE};
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        border-radius: 0 12px 12px 12px;
+    }}
+    .stChatMessage.user {{
+        background: #EBF8FF;
+        border-right: 4px solid {DEEP_BLUE};
+        border-radius: 12px 0 12px 12px;
+        text-align: right;
+    }}
+
+    /* COLLEGE VIDYA STYLE CARDS */
+    .cv-card {{
+        background: white;
+        border-radius: 12px;
+        padding: 0;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         border: 1px solid #E2E8F0;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        overflow: hidden;
+        transition: transform 0.2s;
+    }}
+    .cv-card:hover {{
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }}
+    .cv-header {{
+        padding: 15px 20px;
+        border-bottom: 1px solid #EDF2F7;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }}
+    .cv-body {{
+        padding: 15px 20px;
+    }}
+    .cv-footer {{
+        background: #F7FAFC;
+        padding: 12px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid #EDF2F7;
+    }}
+    
+    /* DATA POINTS IN CARD */
+    .data-grid {{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 15px 0;
+        font-size: 0.85rem;
+        color: #4A5568;
+    }}
+    .data-point strong {{
+        display: block;
+        color: {DEEP_BLUE};
+        font-weight: 700;
     }}
 
     /* BUTTONS */
-    .stButton>button {{
-        font-family: 'Poppins', sans-serif;
-        background-color: #FFFFFF;
-        color: {PRIMARY_BLUE};
-        border-radius: 50px;
-        border: 2px solid {PRIMARY_BLUE};
-        padding: 12px 28px;
+    .primary-btn {{
+        background-color: {ACCENT_ORANGE};
+        color: white;
         font-weight: 600;
-        font-size: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 174, 239, 0.1);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }}
-    
-    .stButton>button:hover {{
-        background-color: {PRIMARY_BLUE};
-        color: #FFFFFF;
-        box-shadow: 0 10px 15px rgba(0, 174, 239, 0.3);
-        transform: translateY(-2px);
-        border-color: {PRIMARY_BLUE};
-    }}
-    
-    /* INPUT FIELDS */
-    .stTextInput>div>div>input {{
-        border-radius: 10px;
-        border: 1px solid #E2E8F0;
-        padding: 10px 15px;
-    }}
-    .stTextInput>div>div>input:focus {{
-        border-color: {PRIMARY_BLUE};
-        box-shadow: 0 0 0 2px rgba(0, 174, 239, 0.2);
-    }}
-
-    /* UNIVERSITY CARDS - PREMIUM DESIGN */
-    .university-card {{
-        background: #FFFFFF;
-        padding: 24px;
-        border-radius: 20px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-        margin-bottom: 24px;
-        border: 1px solid #F1F5F9;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }}
-    
-    .university-card:hover {{
-        transform: translateY(-5px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }}
-    
-    .university-card::before {{
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 6px;
-        height: 100%;
-        background: {PRIMARY_BLUE};
-    }}
-
-    .card-title {{
-        font-family: 'Poppins', sans-serif;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: {TEXT_DARK};
-        margin-bottom: 0.5rem;
-    }}
-
-    .card-badge {{
-        display: inline-block;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        background-color: #F0F9FF;
-        color: {DARK_BLUE};
-        margin-bottom: 1rem;
-    }}
-
-    .success-story {{
-        background-color: #F8FAFC;
-        padding: 12px 16px;
-        border-radius: 12px;
-        border-left: 3px solid #CBD5E1;
-        font-style: italic;
-        color: {TEXT_GRAY};
+        border: none;
+        padding: 8px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        text-decoration: none;
         font-size: 0.9rem;
-        margin-top: 1rem;
+    }}
+    .stButton>button {{
+        background-color: {ACCENT_ORANGE} !important;
+        color: white !important;
+        border-radius: 8px;
+        font-weight: 600;
+        border: none;
+        box-shadow: 0 4px 6px rgba(255, 107, 107, 0.2);
+        width: 100%;
     }}
 
-    /* FOOTER */
-    .footer {{
-        text-align: center;
-        margin-top: 60px;
-        padding-top: 20px;
-        border-top: 1px solid #E2E8F0;
-        color: #94A3B8;
-        font-size: 0.85rem;
+    /* BADGES */
+    .verified-badge {{
+        background: #F0FFF4;
+        color: {SUCCESS_GREEN};
+        border: 1px solid #C6F6D5;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
     }}
     </style>
 """, unsafe_allow_html=True)
 
-# --- DATA: KNOWLEDGE BASE ---
-KNOWLEDGE_BASE = {
-    "ugc": "UGC stands for University Grants Commission. For any university in India (Online or Offline), UGC recognition is mandatory. It ensures the degree is valid for government jobs.",
-    "deb": "DEB (Distance Education Bureau) is a specific wing of UGC. For an **Online Degree** to be valid, the university MUST have UGC-DEB approval specifically for that year.",
-    "naac": "NAAC grades universities on quality (A++, A+, A, B). An 'A+' or 'A++' grade usually means top-tier faculty, infrastructure, and global recognition.",
-    "aicte": "AICTE approval is technical validation. For MBA and MCA courses, AICTE approval is a gold standard, though UGC-DEB is the primary legal requirement for online degrees.",
-    "fake": "A degree is valid ONLY if the university is listed on the official UGC-DEB website. Never pay fees into a personal bank account; always pay to the university directly.",
-    "placement": "Online degrees now have strong acceptance. Top universities like Amity, Manipal, and NMIMS offer dedicated placement cells similar to their on-campus programs.",
-    "exam": "Exams for online degrees are usually conducted online with proctoring (AI monitoring). You can take them from home on your laptop.",
-    "job": "Yes, UGC-DEB entitled online degrees are treated as equivalent to regular degrees for government jobs and higher education (like PhD) in India."
-}
-
-# --- DATA: UNIVERSITIES ---
+# --- DATA: UNIVERSITIES (Enriched with EMI & Duration) ---
 UNIVERSITIES = [
     {
         "name": "Amity University Online",
-        "programs": ["MBA", "BBA", "MCA", "BCA"],
-        "fees": "₹1.5L - ₹3.5L",
-        "accreditation": "UGC-DEB | NAAC A+",
-        "success_story": "Rohan (Analyst) shifted from Sales to Data Analytics with a 40% hike.",
-        "best_for": ["Analyst", "Influencer"]
+        "programs": ["MBA", "MCA", "BBA"],
+        "max_fee": 350000,
+        "fees_display": "₹1.75 Lakhs",
+        "emi": "Starts ₹4,999/mo",
+        "duration": "24 Months",
+        "badges": ["UGC-DEB", "NAAC A+", "WES"],
+        "success_story": "Top choice for Corporate jobs.",
+        "best_for": ["Analyst", "Influencer"],
+        "logo": "🅰️"
     },
     {
         "name": "Manipal University Jaipur",
-        "programs": ["MBA", "B.Com", "M.Com", "BCA"],
-        "fees": "₹1.2L - ₹3.0L",
-        "accreditation": "NAAC A+ | AICTE",
-        "success_story": "Priya (Creator) launched her digital agency post their Digital Marketing elective.",
-        "best_for": ["Creator", "Influencer"]
+        "programs": ["MBA", "BCA", "B.Com"],
+        "max_fee": 300000,
+        "fees_display": "₹1.50 Lakhs",
+        "emi": "Starts ₹3,500/mo",
+        "duration": "24/36 Months",
+        "badges": ["NAAC A+", "AICTE", "NIRF"],
+        "success_story": "Best for Digital Careers.",
+        "best_for": ["Creator", "Influencer"],
+        "logo": "Ⓜ️"
     },
     {
         "name": "LPU Online",
-        "programs": ["M.Sc CS", "MBA", "BA", "MA"],
-        "fees": "₹80k - ₹1.8L",
-        "accreditation": "UGC Entitled | WES",
-        "success_story": "Amit (Catalyst) manages operations for a logistics giant now.",
-        "best_for": ["Catalyst", "Analyst"]
+        "programs": ["M.Sc CS", "MBA", "BA"],
+        "max_fee": 180000,
+        "fees_display": "₹98,000 Total",
+        "emi": "Starts ₹2,500/mo",
+        "duration": "24 Months",
+        "badges": ["UGC Entitled", "AICTE"],
+        "success_story": "Most Affordable & Valid.",
+        "best_for": ["Catalyst", "Analyst"],
+        "logo": "🏫"
     },
     {
         "name": "NMIMS Global",
-        "programs": ["MBA (Executive)", "Diploma in Business"],
-        "fees": "₹1.0L - ₹4.0L",
-        "accreditation": "NAAC A+ | UGC-DEB",
-        "success_story": "Sonia (Influencer) fast-tracked to VP HR within 18 months.",
-        "best_for": ["Influencer", "Catalyst"]
+        "programs": ["MBA (Ex)", "Diploma"],
+        "max_fee": 400000,
+        "fees_display": "₹4.0 Lakhs",
+        "emi": "No Cost EMI",
+        "duration": "24 Months",
+        "badges": ["NAAC A+", "Top B-School"],
+        "success_story": "For Management Leadership.",
+        "best_for": ["Influencer", "Catalyst"],
+        "logo": "📈"
     },
     {
         "name": "Chandigarh University",
-        "programs": ["MCA", "MBA", "MA Journalism"],
-        "fees": "₹50k - ₹1.5L",
-        "accreditation": "NAAC A+ | QS Ranked",
-        "success_story": "Rahul (Creator) now leads content strategy for a top OTT platform.",
-        "best_for": ["Creator", "Influencer"]
+        "programs": ["MCA", "MBA"],
+        "max_fee": 150000,
+        "fees_display": "₹1.10 Lakhs",
+        "emi": "Starts ₹3,000/mo",
+        "duration": "24 Months",
+        "badges": ["NAAC A+", "QS Ranked"],
+        "success_story": "Great for IT Placements.",
+        "best_for": ["Creator", "Influencer"],
+        "logo": "🏛️"
     },
-     {
+    {
         "name": "DY Patil Online",
-        "programs": ["BBA", "MBA in Hospital Mgmt"],
-        "fees": "₹1.1L - ₹2.2L",
-        "accreditation": "NAAC A++ | UGC",
-        "success_story": "Anjali (Catalyst) streamlined hospital ops during peak demand efficiently.",
-        "best_for": ["Catalyst", "Analyst"]
+        "programs": ["BBA", "MBA"],
+        "max_fee": 220000,
+        "fees_display": "₹1.30 Lakhs",
+        "emi": "Starts ₹4,000/mo",
+        "duration": "36 Months",
+        "badges": ["NAAC A++", "UGC"],
+        "success_story": "Best for Healthcare/Ops.",
+        "best_for": ["Catalyst", "Analyst"],
+        "logo": "🏥"
     }
 ]
 
-# --- DATA: 5 QUESTIONS ---
 QUESTIONS = [
-    {
-        "q": "To start, when you face a tough problem, what's your first instinct?",
-        "options": [
-            ("💡 Brainstorm a unique idea", "Creator"),
-            ("🗣️ Discuss with a team", "Influencer"),
-            ("📊 Analyze data & facts", "Analyst"),
-            ("⚡ Just start fixing it", "Catalyst")
-        ]
-    },
-    {
-        "q": "Which workspace vibe do you prefer?",
-        "options": [
-            ("🎨 Creative Studio", "Creator"),
-            ("📢 Busy Conference Room", "Influencer"),
-            ("💻 Quiet Tech Setup", "Analyst"),
-            ("🏗️ On-site / Field Work", "Catalyst")
-        ]
-    },
-    {
-        "q": "How do your friends describe you?",
-        "options": [
-            ("✨ The Visionary", "Creator"),
-            ("🎤 The Leader", "Influencer"),
-            ("🧠 The Logical One", "Analyst"),
-            ("🛡️ The Reliable One", "Catalyst")
-        ]
-    },
-    {
-        "q": "What drives you the most?",
-        "options": [
-            ("🚀 Innovation", "Creator"),
-            ("🤝 Leadership", "Influencer"),
-            ("🔍 Logic & Truth", "Analyst"),
-            ("✅ Getting Results", "Catalyst")
-        ]
-    },
-    {
-        "q": "Pick a movie role:",
-        "options": [
-            ("🎬 Director", "Creator"),
-            ("🌟 Lead Actor", "Influencer"),
-            ("🎞️ Editor/VFX", "Analyst"),
-            ("📋 Producer", "Catalyst")
-        ]
-    }
+    {"q": "When you face a problem, you:", "options": [("Create a new solution", "Creator"), ("Ask the team", "Influencer"), ("Analyze the data", "Analyst"), ("Just fix it", "Catalyst")]},
+    {"q": "Your dream workspace is:", "options": [("Artistic Studio", "Creator"), ("Busy Meeting Room", "Influencer"), ("Quiet Lab", "Analyst"), ("On the Field", "Catalyst")]},
+    {"q": "Friends call you:", "options": [("The Visionary", "Creator"), ("The Leader", "Influencer"), ("The Brains", "Analyst"), ("The Rock", "Catalyst")]},
+    {"q": "You are driven by:", "options": [("Innovation", "Creator"), ("People", "Influencer"), ("Logic", "Analyst"), ("Results", "Catalyst")]},
+    {"q": "In a movie, you are:", "options": [("Director", "Creator"), ("Hero", "Influencer"), ("Editor", "Analyst"), ("Producer", "Catalyst")]}
 ]
 
-# --- SESSION STATE ---
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "step" not in st.session_state:
-    st.session_state.step = 0  # 0: Intro, 1: Assessment Loop, 2: Gate, 3: Results
-if "q_index" not in st.session_state:
-    st.session_state.q_index = 0
-if "scores" not in st.session_state:
-    st.session_state.scores = {"Creator": 0, "Influencer": 0, "Analyst": 0, "Catalyst": 0}
-if "user_info" not in st.session_state:
-    st.session_state.user_info = {}
+# --- STATE ---
+if "messages" not in st.session_state: st.session_state.messages = []
+if "step" not in st.session_state: st.session_state.step = 0
+if "q_index" not in st.session_state: st.session_state.q_index = 0
+if "scores" not in st.session_state: st.session_state.scores = {"Creator": 0, "Influencer": 0, "Analyst": 0, "Catalyst": 0}
+if "filter" not in st.session_state: st.session_state.filter = {"budget": 1000000, "course": "All"}
 
 # --- FUNCTIONS ---
-def add_bot_message(text):
-    st.session_state.messages.append({"role": "assistant", "content": text})
+def add_bot_msg(text): st.session_state.messages.append({"role": "assistant", "content": text})
+def add_user_msg(text): st.session_state.messages.append({"role": "user", "content": text})
+def get_energy(): return max(st.session_state.scores, key=st.session_state.scores.get)
 
-def add_user_message(text):
-    st.session_state.messages.append({"role": "user", "content": text})
+# --- UI HEADER ---
+st.markdown(f"""
+    <div class="hero-box">
+        <h1 style="color:white; margin:0; font-size:2rem;">Distoversity</h1>
+        <p style="opacity:0.9;">The Only <b>Unbiased</b> AI Career Architect</p>
+    </div>
+    <div class="trust-bar">
+        <div class="trust-item"><span>✔</span>UGC-DEB Verified</div>
+        <div class="trust-item"><span>✔</span>100% Unbiased</div>
+        <div class="trust-item"><span>✔</span>Free Counseling</div>
+    </div>
+""", unsafe_allow_html=True)
 
-def check_knowledge_base(user_text):
-    """Checks if user asked about a specific term and returns answer."""
-    text_lower = user_text.lower()
-    for key, answer in KNOWLEDGE_BASE.items():
-        if key in text_lower:
-            return answer
-    return None
-
-def get_primary_energy():
-    return max(st.session_state.scores, key=st.session_state.scores.get)
-
-# --- MAIN UI ---
-
-# Header
-st.markdown("<h1 class='main-header'>Distoversity</h1>", unsafe_allow_html=True)
-st.markdown("<p class='sub-header'><b>Eduveer</b> | The AI Career Architect</p>", unsafe_allow_html=True)
-
-# 1. DISPLAY CHAT HISTORY
+# --- CHAT DISPLAY ---
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# 2. LOGIC CONTROLLER
+# --- LOGIC ---
 
-# --- STEP 0: WELCOME ---
+# STEP 0: START
 if st.session_state.step == 0:
     if not st.session_state.messages:
-        intro = (
-            "**Namaste! I am Eduveer.** 👋\n\n"
-            "I'm here to help you construct your perfect career path. "
-            "We don't just look at grades; we look at your **Natural Energy**.\n\n"
-            "Are you a **Creator**, **Influencer**, **Catalyst**, or **Analyst**?\n\n"
-            "Let's find out in 60 seconds. Ready to unlock your profile?"
-        )
-        add_bot_message(intro)
+        add_bot_msg("👋 **Namaste! I am Eduveer.**\n\nI don't just give you a list of colleges. I understand **YOU** first.\n\nLet's analyze your **Career Energy** to find a university that respects your goals. Ready?")
         st.rerun()
-
-    # Button to start
-    if st.button("🚀 Start My Discovery", key="start_btn"):
-        add_user_message("I'm ready! Let's start.")
+    
+    if st.button("🚀 Find My Perfect Match"):
         st.session_state.step = 1
         st.rerun()
 
-# --- STEP 1: ASSESSMENT LOOP (Hybrid Chat) ---
+# STEP 1: ASSESSMENT (Recognize Learner)
 elif st.session_state.step == 1:
-    current_q = QUESTIONS[st.session_state.q_index]
+    curr = QUESTIONS[st.session_state.q_index]
+    last_bot = next((m["content"] for m in reversed(st.session_state.messages) if m["role"] == "assistant"), "")
     
-    # Ensure the question is displayed as the last bot message
-    last_bot_msg = next((m["content"] for m in reversed(st.session_state.messages) if m["role"] == "assistant"), "")
-    if current_q["q"] not in last_bot_msg:
-        add_bot_message(f"**Q{st.session_state.q_index + 1}/5:** {current_q['q']}")
+    if curr["q"] not in last_bot:
+        add_bot_msg(f"**Q{st.session_state.q_index + 1}:** {curr['q']}")
         st.rerun()
 
-    # LAYOUT: Options on top, Chat input on bottom
-    st.write("") # Spacer
-    
-    # Display Options as Buttons
     cols = st.columns(2)
-    for idx, (opt_text, energy) in enumerate(current_q["options"]):
-        if cols[idx % 2].button(opt_text, key=f"q{st.session_state.q_index}_opt{idx}"):
-            st.session_state.scores[energy] += 1
-            add_user_message(opt_text) # Record answer
-            
-            # Progress logic
-            if st.session_state.q_index < len(QUESTIONS) - 1:
+    for i, (txt, en) in enumerate(curr["options"]):
+        if cols[i%2].button(txt, key=f"q{st.session_state.q_index}_{i}"):
+            st.session_state.scores[en] += 1
+            add_user_msg(txt)
+            if st.session_state.q_index < 4:
                 st.session_state.q_index += 1
             else:
-                st.session_state.step = 2 # Go to Gate
+                st.session_state.step = 2
             st.rerun()
 
-# --- STEP 2: LEAD GEN GATE ---
+# STEP 2: MOTIVATION + TRUST + GATE
 elif st.session_state.step == 2:
-    if "gate_shown" not in [m.get("id", "") for m in st.session_state.messages]:
-        msg = "🎉 **Fantastic! Analysis Complete.**\n\nI have calculated your unique Energy Profile. To unlock your detailed Career Report and University matches, please verify your identity."
-        st.session_state.messages.append({"role": "assistant", "content": msg, "id": "gate_shown"})
+    primary = get_energy()
+    if "gate_msg" not in [m.get("id", "") for m in st.session_state.messages]:
+        # HYPE UP / MOTIVATE before asking details
+        hype_msg = (
+            f"🌟 **Wow! You are a true {primary}.**\n\n"
+            f"Students with this energy usually excel in high-growth roles. "
+            f"I have found **3 UGC-Approved Universities** that are perfect for {primary}s like you.\n\n"
+            "**I want to send your detailed Career Roadmap & University List to your WhatsApp.**"
+        )
+        st.session_state.messages.append({"role": "assistant", "content": hype_msg, "id": "gate_msg"})
         st.rerun()
 
-    with st.form("lead_gate"):
-        st.markdown("### 🔐 Verification")
+    with st.form("lead_gen"):
+        st.markdown("### 🔒 Secure Access to Your Report")
+        st.caption("We respect your privacy. No spam, only career growth.")
         name = st.text_input("Full Name")
-        phone = st.text_input("Mobile / WhatsApp")
-        email = st.text_input("Email Address")
-        utype = st.radio("I am currently:", ["Student", "Working Professional"], horizontal=True)
+        phone = st.text_input("WhatsApp Number (for Report)")
         
-        submitted = st.form_submit_button("🔓 Unlock My Report")
-        if submitted:
-            if name and phone and email:
-                st.session_state.user_info = {"name": name, "phone": phone, "email": email, "type": utype}
-                add_user_message(f"Shared my details: {name}")
+        if st.form_submit_button("✅ Send My Roadmap"):
+            if name and len(phone) >= 10:
+                st.session_state.user_info = {"name": name}
+                add_user_msg(f"Details: {name}, {phone}")
                 st.session_state.step = 3
                 st.rerun()
             else:
-                st.error("Please fill in all fields to proceed.")
+                st.error("Please enter a valid Name and Phone Number.")
 
-# --- STEP 3: RESULTS & RECOMMENDATIONS ---
+# STEP 3: THE CALM PROBE (Understand Constraints)
 elif st.session_state.step == 3:
-    primary = get_primary_energy()
-    if "result_shown" not in st.session_state:
-        st.session_state.result_shown = True
-        
-        insight = ""
-        if primary == "Creator": insight = "You are a **Visionary**. You thrive on innovation and design."
-        elif primary == "Influencer": insight = "You are a **Leader**. People and communication are your strengths."
-        elif primary == "Analyst": insight = "You are a **Thinker**. Data, logic, and systems drive you."
-        elif primary == "Catalyst": insight = "You are a **Doer**. Efficiency and operations are your forte."
-
-        msg = f"### 🎯 Profile Match: {primary}\n\n{insight}\n\nBased on this, I have curated the **Top 3 Online Universities** that align with your strengths:"
-        add_bot_message(msg)
+    if "probe_msg" not in [m.get("id", "") for m in st.session_state.messages]:
+        st.session_state.messages.append({"role": "assistant", "content": "One last thing to ensure I don't suggest something out of budget. **What are you looking for?**", "id": "probe_msg"})
         st.rerun()
 
-    # Show Recommendations (PREMIUM CARDS)
-    matched_unis = [u for u in UNIVERSITIES if primary in u["best_for"]]
-    if not matched_unis: matched_unis = UNIVERSITIES[:3]
+    st.markdown("""<div style="background:white; padding:20px; border-radius:10px; border-left:5px solid #00AEEF;">
+        <h4 style="margin:0;">🎯 Refine Your Search</h4>
+    </div>""", unsafe_allow_html=True)
+    
+    col1, col2 = st.columns(2)
+    with col1: course = st.selectbox("Course Preference", ["MBA", "MCA", "BBA", "BCA", "M.Com", "MA", "Other"])
+    with col2: budget = st.select_slider("Max Budget", ["1 Lakh", "2 Lakhs", "3 Lakhs", "4 Lakhs", "No Limit"])
+    
+    if st.button("🔍 Show Matched Universities"):
+        b_map = {"1 Lakh": 100000, "2 Lakhs": 200000, "3 Lakhs": 300000, "4 Lakhs": 400000, "No Limit": 1000000}
+        st.session_state.filter = {"budget": b_map[budget], "course": course}
+        add_user_msg(f"Looking for {course} under {budget}.")
+        st.session_state.step = 4
+        st.rerun()
+
+# STEP 4: RECOMMENDATIONS (College Vidya Style)
+elif st.session_state.step == 4:
+    primary = get_energy()
+    filt = st.session_state.filter
+    
+    if "res_msg" not in [m.get("id", "") for m in st.session_state.messages]:
+        st.session_state.messages.append({"role": "assistant", "content": f"🎉 **Here are the Top Matches for {st.session_state.user_info['name']}!**\n\nThese universities are **UGC-DEB Approved**, match your **{primary} Energy**, and fit your **{filt['course']}** goal.", "id": "res_msg"})
+        st.rerun()
+
+    # Filter
+    matches = [u for u in UNIVERSITIES if (u["max_fee"] <= filt["budget"]) and (filt["course"] in u["programs"] or filt["course"] == "Other" or "Other" in u["programs"])]
+    if not matches: matches = [u for u in UNIVERSITIES if primary in u["best_for"]][:2] # Fallback
 
     st.markdown("---")
-    st.subheader(f"🎓 Curated for {primary}s")
     
-    for uni in matched_unis:
+    # RENDER CARDS
+    for u in matches:
+        badges = "".join([f"<span class='verified-badge'>{b}</span> " for b in u['badges']])
         st.markdown(f"""
-        <div class="university-card">
-            <div class="card-title">{uni['name']}</div>
-            <span class="card-badge">✅ {uni['accreditation']}</span>
-            <p style="margin-bottom: 5px;"><b>🎓 Top Programs:</b> {", ".join(uni['programs'])}</p>
-            <p style="margin-bottom: 5px;"><b>💰 Investment:</b> {uni['fees']}</p>
-            <div class="success-story">
-                💡 "{uni['success_story']}"
+        <div class="cv-card">
+            <div class="cv-header">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.8rem;">{u['logo']}</span>
+                    <div>
+                        <div style="font-weight:700; font-size:1.1rem; color:#003366;">{u['name']}</div>
+                        <div style="font-size:0.8rem; color:#718096;">{badges}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="cv-body">
+                <div class="data-grid">
+                    <div class="data-point"><strong>Total Fee</strong>{u['fees_display']}</div>
+                    <div class="data-point"><strong>EMI Options</strong>{u['emi']}</div>
+                    <div class="data-point"><strong>Duration</strong>{u['duration']}</div>
+                    <div class="data-point"><strong>Programs</strong>{", ".join(u['programs'][:3])}</div>
+                </div>
+                <div style="background:#F0FFF4; padding:8px; border-radius:5px; font-size:0.8rem; color:#2F855A;">
+                    ✔ Placement Support Available
+                </div>
+            </div>
+            <div class="cv-footer">
+                <div style="font-size:0.8rem; color:#A0AEC0;">Matched for {primary}</div>
+                <button class="primary-btn">View Brochure →</button>
             </div>
         </div>
         """, unsafe_allow_html=True)
-    
-    st.info("Tip: You can ask me questions about these universities below!")
 
-# --- GLOBAL CHAT INPUT (Available in Step 1 & 3) ---
-if st.session_state.step in [1, 3]:
-    user_input = st.chat_input("Ask about UGC, Approvals, or type your answer...")
-    
-    if user_input:
-        add_user_message(user_input)
-        
-        # 1. Check Knowledge Base
-        kb_answer = check_knowledge_base(user_input)
-        if kb_answer:
-            response = f"🤖 **Eduveer Insight:** {kb_answer}"
-            if st.session_state.step == 1:
-                response += "\n\nNow, let's get back to the question above! 👆"
-            add_bot_message(response)
-            st.rerun()
-        
-        # 2. Step 1 Fallback
-        elif st.session_state.step == 1:
-            fallback = "That's interesting! I'm noting that down. To give you the best recommendation, please select one of the options above so we can complete your profile. 👇"
-            add_bot_message(fallback)
-            st.rerun()
-            
-        # 3. Step 3 Fallback
-        elif st.session_state.step == 3:
-            add_bot_message("I'm currently focusing on university data. Feel free to book a 1:1 session for deeper career counseling!")
-            st.rerun()
+    st.info("💡 Tip: These are government-approved universities. You can apply directly or ask me for a comparison.")
 
 # --- FOOTER ---
-st.markdown("""
-    <div class="footer">
-        © 2025 Distoversity Pvt Ltd | AI Career Counseling<br>
-        <i>Empowering India's Future</i>
-    </div>
-""", unsafe_allow_html=True)
+st.markdown("<div style='text-align:center; color:#CBD5E0; margin-top:30px; font-size:0.8rem;'>© 2025 Distoversity | Unbiased Career Intelligence</div>", unsafe_allow_html=True)
